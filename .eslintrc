@@ -1,0 +1,324 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "./tsconfig.json",
+        "sourceType": "module"
+    },
+    "plugins": ["@typescript-eslint", "jsx-a11y", "prettier", "sort-keys-fix", "@microsoft/sdl"],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
+    },
+    "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended",
+        "plugin:import/recommended",
+        "plugin:import/typescript",
+        "plugin:react/jsx-runtime",
+        "airbnb-typescript",
+        "plugin:@microsoft/sdl/typescript",
+        "plugin:@microsoft/sdl/common",
+        "plugin:no-unsanitized/DOM",
+        "plugin:regexp/recommended",
+        "plugin:security/recommended",
+        "plugin:sonarjs/recommended",
+        "prettier"
+    ],
+    "rules": {
+        "import/no-unresolved": 0,
+        "import/no-extraneous-dependencies": ["error", {"devDependencies": false, "optionalDependencies": false, "peerDependencies": false}],
+        "jsx-a11y/no-static-element-interactions": 0,
+        "jsx-a11y/click-events-have-key-events": 0,
+        "class-methods-use-this": 0,
+        "jsx-a11y/no-autofocus": 0,
+        "no-underscore-dangle": 0,
+        "import/imports-first": ["error", "absolute-first"],
+        "import/newline-after-import": "error",
+        "object-curly-spacing": [2, "always"],
+        "template-curly-spacing": "off",
+        "indent": "off",
+        "linebreak-style": "off",
+        "spaced-comment": 0,
+        "valid-jsdoc": 0,
+        "comma-dangle": 0,
+        "arrow-body-style": 0,
+        "no-var": 0,
+        "no-nested-ternary": 0,
+        "one-var": 0,
+        "padded-blocks": 0,
+        "require-jsdoc": 0,
+        "no-mixed-operators": 0,
+        "no-with": 2,
+        "no-trailing-spaces": 0,
+        "curly": [2, "all"],
+        "keyword-spacing": [0, {}],
+        "space-infix-ops": 2,
+        "no-dupe-args": 2,
+        "no-dupe-else-if": 2,
+        "no-dupe-keys": 2,
+        "no-duplicate-imports": 2,
+        "no-self-assign": 2,
+        "no-self-compare": 2,
+        "no-sparse-arrays": 2,
+        "no-constant-condition": 2,
+        "space-unary-ops": [
+            2,
+            {
+                "nonwords": true,
+                "overrides": {
+                    "++": false,
+                    "--": false,
+                    "+": false,
+                    "-": false,
+                    "~": false,
+                    "!": false
+                }
+            }
+        ],
+        "no-implicit-coercion": [
+            2,
+            {
+                "boolean": true,
+                "string": true,
+                "number": true
+            }
+        ],
+        "no-multiple-empty-lines": 2,
+        "no-multi-spaces": 2,
+        "key-spacing": [
+            2,
+            {
+                "beforeColon": false,
+                "afterColon": true
+            }
+        ],
+        "space-in-parens": [2, "never"],
+        "array-bracket-spacing": [2, "never", {}],
+        "no-mixed-spaces-and-tabs": 2,
+        "no-empty": [
+            2,
+            {
+                "allowEmptyCatch": true
+            }
+        ],
+        "quote-props": [
+            0,
+            "as-needed",
+            {
+                "keywords": true
+            }
+        ],
+        "quotes": [2, "single"],
+        "brace-style": [
+            2,
+            "1tbs",
+            {
+                "allowSingleLine": true
+            }
+        ],
+        "consistent-this": [0, "vm"],
+        "max-len": [
+            "warn",
+            {
+                "code": 1000,
+                "ignoreRegExpLiterals": true,
+                "ignoreStrings": true,
+                "ignoreTemplateLiterals": true,
+                "ignoreComments": true
+            }
+        ],
+        "eol-last": 2,
+        "block-scoped-var": 2,
+        "camelcase": 0,
+        "comma-style": [2, "last"],
+        "dot-notation": [
+            2,
+            {
+                "allowKeywords": true
+            }
+        ],
+        "eqeqeq": [2, "allow-null"],
+        "guard-for-in": 2,
+        "new-cap": 2,
+        "no-bitwise": 2,
+        "no-caller": 2,
+        "no-cond-assign": [2, "always"],
+        "import/prefer-default-export": "off",
+        "padding-line-between-statements": [
+            "error",
+            {
+                "blankLine": "always",
+                "prev": ["const", "let", "var"],
+                "next": "*"
+            },
+            {
+                "blankLine": "any",
+                "prev": ["const", "let", "var"],
+                "next": ["const", "let", "var"]
+            }
+        ],
+        "no-param-reassign": 0,
+        "no-shadow": "off",
+        "no-unused-vars": "warn",
+        "strict": [0, "global"],
+        "jsx-quotes": ["error", "prefer-single"],
+        "consistent-return": "off",
+        "valid-typeof": 2,
+        "no-invalid-this": 0,
+        "import/no-dynamic-require": "off",
+        "no-console": "off",
+        "prefer-rest-params": 0,
+        "no-useless-escape": 0,
+        "newline-before-return": "warn",
+        "no-alert": "warn",
+        "no-use-before-define": 0,
+        "import/extensions": "off",
+        "import/no-cycle": "off",
+        "no-plusplus": 0,
+        "func-names": 0,
+        "jsx-a11y/anchor-is-valid": "off",
+        "jsx-a11y/control-has-associated-label": "off", //remove later
+        "no-unsanitized/property": "warn", //remove later
+        "prefer-regex-literals": "warn", //remove later
+        //sonarjs
+        "sonarjs/cognitive-complexity": "off", //remove later
+        "sonarjs/no-identical-expressions": "warn", //remove later
+        "sonarjs/no-collapsible-if": "warn", //remove later
+        "sonarjs/no-extra-arguments": "warn", //remove later
+        "sonarjs/no-small-switch": "off",
+        "sonarjs/no-nested-template-literals": "warn", //remove later
+        "sonarjs/no-duplicated-branches": "warn", //remove later
+        "sonarjs/prefer-object-literal": "warn", //remove later
+        "sonarjs/no-duplicate-string": "warn", //["error", 5]
+        "sonarjs/prefer-immediate-return": "warn",
+        "sonarjs/no-ignored-return": "warn", //remove later
+        "sonarjs/no-all-duplicated-branches": "warn", //remove later
+        //regexp
+        "regexp/prefer-d": "warn", //remove later
+        "regexp/prefer-w": "warn", //remove later
+        "regexp/strict": "warn", //remove later
+        "regexp/no-useless-escape": "warn", //remove later
+        "regexp/no-dupe-characters-character-class": "warn", //remove later
+        "regexp/negation": "warn", //remove later
+        "regexp/no-unused-capturing-group": "warn", //remove later
+        "no-unsanitized/method": "warn", //remove later
+        //@microsoft/sdl
+        "@microsoft/sdl/no-inner-html": "warn", //remove later
+        "@microsoft/sdl/no-cookies": "warn", //remove later
+        "@microsoft/sdl/react-iframe-missing-sandbox": "warn", //remove later
+        "@microsoft/sdl/no-insecure-url": "warn", //remove later
+        "@microsoft/sdl/no-unsafe-alloc": "error",
+        "@microsoft/sdl/no-postmessage-star-origin": "error",
+        "@microsoft/sdl/no-msapp-exec-unsafe": "error",
+        "@microsoft/sdl/no-html-method": "error",
+        "@microsoft/sdl/no-electron-node-integration": "error",
+        "@microsoft/sdl/no-document-write": "error",
+        "@microsoft/sdl/no-document-domain": "error",
+        // React declaration
+        "react/jsx-no-undef": 0,
+        "react/jsx-no-target-blank": "warn", //remove later
+        "react-hooks/exhaustive-deps": 0,
+        "react/no-this-in-sfc": "off",
+        "react/no-deprecated": 0, // !!! remove later
+        "react/static-property-placement": 0, //remove later
+        "react/state-in-constructor": 0, //remove later
+        "react/display-name": 0, //remove later
+        "react/jsx-props-no-spreading": 0, //remove later
+        "react/require-default-props": 0, //remove later
+        "react/no-danger": "warn", //remove later,
+        "react/jsx-no-duplicate-props": 2,
+        "react/jsx-key": "off",
+        "react/button-has-type": "off",
+        "react/destructuring-assignment": 0, //remove later
+        "react/prop-types": 0,
+        "react/sort-comp": 0, //remove later
+        "react/jsx-no-bind": 0, //remove later
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-uses-vars": "error",
+        "react/no-unused-prop-types": "error",
+        "react/default-props-match-prop-types": "off",
+        "react/jsx-filename-extension": [
+            1,
+            {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        ],
+        "react/jsx-sort-props": 0,
+        // Typescript declaration
+        "@typescript-eslint/no-unused-expressions": 0,
+        "@typescript-eslint/naming-convention": [
+            "error",
+            {
+                "selector": "interface",
+                "format": ["PascalCase"],
+                "custom": {
+                    "regex": "^I[A-Z]",
+                    "match": true
+                }
+            }
+        ],
+        "@typescript-eslint/no-magic-numbers": [
+            "off", //later change to error
+            {
+                "ignoreEnums": true,
+                "ignore": [0, 1, 2]
+            }
+        ],
+        "@typescript-eslint/no-shadow": "off",
+        "@typescript-eslint/no-explicit-any": [
+            "error", //later change to error
+            {
+                "ignoreRestArgs": true
+            }
+        ],
+        "@typescript-eslint/no-unused-vars": [
+            "off", //later change to error
+            {
+                "vars": "all",
+                "args": "none",
+                "ignoreRestSiblings": false
+            }
+        ],
+        "@typescript-eslint/ban-ts-comment": 0,
+        "@typescript-eslint/no-implied-eval": 0,
+        "@typescript-eslint/no-use-before-define": 0, //remove later
+        "@typescript-eslint/explicit-member-accessibility": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/indent": "off",
+        "@typescript-eslint/no-extra-semi": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/camelcase": "off",
+        "@typescript-eslint/array-type": "off",
+        "@typescript-eslint/no-object-literal-type-assertion": "off",
+        "@typescript-eslint/no-empty-interface": "off", //remove later
+        "@typescript-eslint/no-var-requires": "off", //remove later
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/ban-types": "off", // temporary
+        "security/detect-object-injection": "off"
+    },
+    "globals": {
+        "it": true,
+        "window": true,
+        "document": true,
+        "localStorage": true,
+        "FormData": true,
+        "FileReader": true,
+        "Blob": true,
+        "navigator": true,
+        "storage": true,
+        "Sentry": true
+    },
+    "env": {
+        "es6": true,
+        "browser": true,
+        "node": true,
+        "jest": true
+    },
+    "ignorePatterns": ["**/__tests__/**", "*.test.tsx", "*.test.ts"]
+}

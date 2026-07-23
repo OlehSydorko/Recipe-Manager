@@ -1,34 +1,39 @@
 {
-  "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
-  ],
-  "exclude": ["node_modules"]
+    "compilerOptions": {
+        "target": "es5",
+        "baseUrl": ".",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "paths": {
+            "react-document-meta": ["src/shims/react-document-meta"],
+            "react-bootstrap/Tooltip": ["src/shims/react-bootstrap-overlay"],
+            "react-bootstrap/OverlayTrigger": ["src/shims/react-bootstrap-overlay-trigger"],
+"react-bootstrap/Dropdown": ["src/shims/react-bootstrap-dropdown"],
+            "react-bootstrap/Popover": ["src/shims/react-bootstrap-popover"],
+            "react-bootstrap/Tab": ["src/shims/react-bootstrap-tab"],
+            "react-bootstrap/Tabs": ["src/shims/react-bootstrap-tabs"],
+            "react-bootstrap/Form": ["src/shims/react-bootstrap-form"],
+            "react-bootstrap/InputGroup": ["src/shims/react-bootstrap-input-group"],
+            "react-bootstrap/Col": ["src/shims/react-bootstrap-col"],
+            "react-bootstrap/Row": ["src/shims/react-bootstrap-row"],
+            "react-bootstrap/DropdownButton": ["src/shims/react-bootstrap-dropdown-button"]
+        },
+        "allowJs": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "allowSyntheticDefaultImports": true,
+        "module": "esnext",
+        "strict": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+//        "outDir": "dist",
+        "noLib": false,
+        "sourceMap": false
+    },
+    "include": ["src", "setup-jest.js", "project-stats.js", "src/types/global.d.ts"]
 }
