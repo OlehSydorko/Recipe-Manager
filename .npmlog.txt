@@ -1,0 +1,7 @@
+npm error code ENOTEMPTY
+npm error syscall rename
+npm error path /sessions/determined-eloquent-ptolemy/mnt/Recipe-Manager/node_modules/ajv
+npm error dest /sessions/determined-eloquent-ptolemy/mnt/Recipe-Manager/node_modules/.ajv-fOxQQG6p
+npm error errno -39
+npm error ENOTEMPTY: directory not empty, rename '/sessions/determined-eloquent-ptolemy/mnt/Recipe-Manager/node_modules/ajv' -> '/sessions/determined-eloquent-ptolemy/mnt/Recipe-Manager/node_modules/.ajv-fOxQQG6p'
+npm error A complete log of this run can be found in: /sessions/determined-eloquent-ptolemy/.npm/_logs/2026-07-22T14_45_28_771Z-debug-0.log
