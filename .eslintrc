@@ -11,6 +11,9 @@
             "node": {
                 "extensions": [".js", ".jsx", ".ts", ".tsx"]
             }
+        },
+        "react": {
+            "version": "detect"
         }
     },
     "extends": [
@@ -54,6 +57,7 @@
         "require-jsdoc": 0,
         "no-mixed-operators": 0,
         "no-with": 2,
+        "new-cap": ["error", {"newIsCap": true, "capIsNew": false}],
         "no-trailing-spaces": 0,
         "curly": [2, "all"],
         "keyword-spacing": [0, {}],
@@ -144,7 +148,6 @@
         ],
         "eqeqeq": [2, "allow-null"],
         "guard-for-in": 2,
-        "new-cap": 2,
         "no-bitwise": 2,
         "no-caller": 2,
         "no-cond-assign": [2, "always"],
