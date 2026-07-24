@@ -1,12 +1,4 @@
-/src/styles/fontawesome/js/*.js
 node_modules
-build/*
-public/*
-tsconfig.json
-purgecss.config.js
-/src/common/react-lines-ellipsis/lib/*.js
-/src/common/react-truncate/lib/*.js
-config-overrides.js
-jest.config.js
-*.js
-.claude/**
+.next/
+out/
+next-env.d.ts
