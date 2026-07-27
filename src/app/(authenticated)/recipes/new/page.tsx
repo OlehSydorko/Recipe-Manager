@@ -3,12 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { useCategories } from '@/hooks/useCategories';
+import { CategorySelect } from '@/components/CategorySelect';
 import { useCreateRecipe } from '@/hooks/useRecipes';
 
 export default function NewRecipePage() {
     const router = useRouter();
-    const { data: categories, isPending: categoriesPending } = useCategories();
     const createRecipe = useCreateRecipe();
 
     const [title, setTitle] = useState('');
@@ -32,10 +31,6 @@ export default function NewRecipePage() {
         );
     };
 
-    if (categoriesPending) {
-        return <p className='text-sm text-gray-600'>Loading…</p>;
-    }
-
     return (
         <div>
             <h1 className='text-2xl font-semibold'>New recipe</h1>
@@ -55,25 +50,7 @@ export default function NewRecipePage() {
                     />
                 </div>
 
-                <div>
-                    <label htmlFor='category' className='block text-sm font-medium'>
-                        Category
-                    </label>
-                    <select
-                        id='category'
-                        value={categoryId}
-                        onChange={(event) => setCategoryId(event.target.value)}
-                        required
-                        className='mt-1 w-full rounded border bg-white px-3 py-2 text-gray-900'
-                    >
-                        <option value=''>Select a category</option>
-                        {categories?.map((category) => (
-                            <option key={category.id} value={category.id}>
-                                {category.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                <CategorySelect value={categoryId} onChange={setCategoryId} />
 
                 <div>
                     <label htmlFor='description' className='block text-sm font-medium'>

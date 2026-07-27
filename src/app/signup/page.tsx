@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-import { signUp } from '@/api/auth';
+import { signUp } from '@/API/auth';
 
 export default function SignupPage() {
     const router = useRouter();

@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { useCategories } from '@/hooks/useCategories';
+import { CategorySelect } from '@/components/CategorySelect';
 import { useRecipe, useUpdateRecipe } from '@/hooks/useRecipes';
 
 type EditRecipePageProps = {
@@ -14,7 +14,6 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     const { id } = use(params);
     const router = useRouter();
     const { data: recipe, isPending: recipePending } = useRecipe(id);
-    const { data: categories, isPending: categoriesPending } = useCategories();
     const updateRecipe = useUpdateRecipe();
 
     const [title, setTitle] = useState('');
@@ -44,7 +43,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
         );
     };
 
-    if (recipePending || categoriesPending) {
+    if (recipePending) {
         return <p className='text-sm text-gray-600'>Loading…</p>;
     }
 
@@ -67,24 +66,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                     />
                 </div>
 
-                <div>
-                    <label htmlFor='category' className='block text-sm font-medium'>
-                        Category
-                    </label>
-                    <select
-                        id='category'
-                        value={categoryId}
-                        onChange={(event) => setCategoryId(event.target.value)}
-                        required
-                        className='mt-1 w-full rounded border px-3 py-2'
-                    >
-                        {categories?.map((category) => (
-                            <option key={category.id} value={category.id}>
-                                {category.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                <CategorySelect value={categoryId} onChange={setCategoryId} />
 
                 <div>
                     <label htmlFor='description' className='block text-sm font-medium'>
