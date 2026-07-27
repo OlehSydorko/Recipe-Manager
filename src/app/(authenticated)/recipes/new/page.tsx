@@ -1,34 +1,35 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-
 import { CategorySelect } from '@/components/CategorySelect';
+import { IngredientRows, createEmptyIngredientDraft } from '@/components/IngredientRows';
+import { useReplaceIngredients } from '@/hooks/useIngredients';
 import { useCreateRecipe } from '@/hooks/useRecipes';
+import type { IngredientDraft } from '@/types/ingredient';
+import { useRouter } from 'next/navigation';
 
 export default function NewRecipePage() {
     const router = useRouter();
     const createRecipe = useCreateRecipe();
+    const replaceIngredients = useReplaceIngredients();
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [categoryId, setCategoryId] = useState('');
+    const [ingredients, setIngredients] = useState<IngredientDraft[]>([createEmptyIngredientDraft()]);
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
         if (!title.trim() || !categoryId) {
             return;
         }
 
-        createRecipe.mutate(
-            { title: title.trim(), description, categoryId },
-            {
-                onSuccess: (recipe) => {
-                    router.push(`/recipes/${recipe.id}`);
-                }
-            }
-        );
+        const recipe = await createRecipe.mutateAsync({ title: title.trim(), description, categoryId });
+
+        await replaceIngredients.mutateAsync({ ingredients, recipeId: recipe.id });
+
+        router.push(`/recipes/${recipe.id}`);
     };
 
     return (
@@ -52,9 +53,11 @@ export default function NewRecipePage() {
 
                 <CategorySelect value={categoryId} onChange={setCategoryId} />
 
+                <IngredientRows ingredients={ingredients} onChange={setIngredients} />
+
                 <div>
                     <label htmlFor='description' className='block text-sm font-medium'>
-                        Description
+                        Instructions
                     </label>
                     <textarea
                         id='description'
@@ -67,10 +70,10 @@ export default function NewRecipePage() {
 
                 <button
                     type='submit'
-                    disabled={createRecipe.isPending}
+                    disabled={createRecipe.isPending || replaceIngredients.isPending}
                     className='rounded bg-black px-4 py-2 text-white disabled:opacity-50'
                 >
-                    {createRecipe.isPending ? 'Creating…' : 'Create recipe'}
+                    {createRecipe.isPending || replaceIngredients.isPending ? 'Creating…' : 'Create recipe'}
                 </button>
             </form>
         </div>

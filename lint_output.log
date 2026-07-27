@@ -1,0 +1,4 @@
+
+> recipe-manager@0.1.0 lint
+> eslint . --ext .js,.jsx,.ts,.tsx
+
