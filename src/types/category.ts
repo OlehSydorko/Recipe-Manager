@@ -3,4 +3,5 @@ export type Category = {
     user_id: string;
     name: string;
     created_at: string;
+    is_default: boolean;
 };

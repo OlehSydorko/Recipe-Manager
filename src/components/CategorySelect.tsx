@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 
-import { useCategories, useCreateCategory } from '@/hooks/useCategories';
-
-const NEW_CATEGORY_VALUE = '__new__';
+import { CategoryDropdown } from '@/components/CategoryDropdown';
+import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks/useCategories';
+import type { Category } from '@/types/category';
 
 type CategorySelectProps = {
     value: string;
@@ -14,20 +14,9 @@ type CategorySelectProps = {
 export function CategorySelect({ value, onChange }: CategorySelectProps) {
     const { data: categories, isPending } = useCategories();
     const createCategory = useCreateCategory();
+    const deleteCategory = useDeleteCategory();
     const [isCreating, setIsCreating] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
-
-    const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const selected = event.target.value;
-
-        if (selected === NEW_CATEGORY_VALUE) {
-            setIsCreating(true);
-            
-return;
-        }
-
-        onChange(selected);
-    };
 
     const handleCreateCategory = () => {
         if (!newCategoryName.trim()) {
@@ -39,6 +28,19 @@ return;
                 onChange(category.id);
                 setIsCreating(false);
                 setNewCategoryName('');
+            }
+        });
+    };
+
+    const handleDeleteCategory = (category: Category) => {
+        deleteCategory.mutate(category.id, {
+            onSuccess: () => {
+                if (value === category.id) {
+                    onChange('');
+                }
+            },
+            onError: (error) => {
+                window.alert(error instanceof Error ? error.message : 'Could not delete category.');
             }
         });
     };
@@ -77,21 +79,27 @@ return;
                     </button>
                 </div>
             ) : (
-                <select
-                    id='category'
-                    value={value}
-                    onChange={handleSelectChange}
-                    required
-                    className='mt-1 w-full rounded border px-3 py-2'
-                >
-                    <option value=''>Select a category</option>
-                    {categories?.map((category) => (
-                        <option key={category.id} value={category.id}>
-                            {category.name}
-                        </option>
-                    ))}
-                    <option value={NEW_CATEGORY_VALUE}>+ Add new category</option>
-                </select>
+                <div className='mt-1'>
+                    <CategoryDropdown
+                        id='category'
+                        categories={categories}
+                        value={value}
+                        placeholderLabel='Select a category'
+                        onChange={onChange}
+                        onDeleteCategory={handleDeleteCategory}
+                        footer={
+                            <li>
+                                <button
+                                    type='button'
+                                    onClick={() => setIsCreating(true)}
+                                    className='w-full px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50'
+                                >
+                                    + Add new category
+                                </button>
+                            </li>
+                        }
+                    />
+                </div>
             )}
         </div>
     );

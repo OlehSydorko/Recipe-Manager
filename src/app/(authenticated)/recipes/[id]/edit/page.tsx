@@ -7,7 +7,7 @@ import { LeaveButton } from '@/components/LeaveButton';
 import { useIngredients, useReplaceIngredients } from '@/hooks/useIngredients';
 import { useRecipe, useUpdateRecipe } from '@/hooks/useRecipes';
 import { isFormDirty } from '@/lib/formDirty';
-import type { IngredientDraft } from '@/types/ingredient';
+import { DEFAULT_UNIT, isAllowedUnit, type IngredientDraft } from '@/types/ingredient';
 import { useRouter } from 'next/navigation';
 
 type EditRecipePageProps = {
@@ -61,7 +61,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                 key: ingredient.id,
                 name: ingredient.name,
                 quantity: ingredient.quantity ?? '',
-                unit: ingredient.unit ?? ''
+                unit: ingredient.unit && isAllowedUnit(ingredient.unit) ? ingredient.unit : DEFAULT_UNIT
             }));
 
             setIngredients(loadedIngredients);

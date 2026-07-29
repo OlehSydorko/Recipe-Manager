@@ -1,0 +1,5 @@
+
+> recipe-manager@0.1.0 lint
+> eslint . --ext .js,.jsx,.ts,.tsx
+
+The "DOM" configuration of the "no-unsanitized" plugin is deprecated. Use "recommended-legacy" instead.

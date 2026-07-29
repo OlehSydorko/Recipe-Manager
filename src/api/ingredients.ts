@@ -1,5 +1,9 @@
 import { createClient } from '@/lib/supabaseClient';
-import type { Ingredient } from '@/types/ingredient';
+import { DEFAULT_UNIT, isAllowedUnit, type Ingredient } from '@/types/ingredient';
+
+// Matches what the Qty input allows client-side: digits with at most one
+// decimal point and at most one fraction slash (e.g. "1", "1.5", "1/2").
+const QUANTITY_PATTERN = /^\d*(?:\.\d*)?(?:\/\d*)?$/;
 
 export async function getIngredients(recipeId: string): Promise<Ingredient[]> {
     const supabase = createClient();
@@ -37,13 +41,18 @@ export async function replaceIngredients(recipeId: string, ingredients: Ingredie
 
     const rows = ingredients
         .filter((ingredient) => ingredient.name.trim())
-        .map((ingredient, index) => ({
-            name: ingredient.name.trim(),
-            quantity: ingredient.quantity.trim(),
-            recipe_id: recipeId,
-            sort_order: index,
-            unit: ingredient.unit.trim()
-        }));
+        .map((ingredient, index) => {
+            const quantity = ingredient.quantity.trim();
+            const unit = ingredient.unit.trim();
+
+            return {
+                name: ingredient.name.trim(),
+                quantity: QUANTITY_PATTERN.test(quantity) ? quantity : '',
+                recipe_id: recipeId,
+                sort_order: index,
+                unit: isAllowedUnit(unit) ? unit : DEFAULT_UNIT
+            };
+        });
 
     if (rows.length === 0) {
         return [];

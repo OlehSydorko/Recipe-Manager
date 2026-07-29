@@ -1,3 +1,7 @@
+'use client';
+
+import { CategoryDropdown } from '@/components/CategoryDropdown';
+import { useDeleteCategory } from '@/hooks/useCategories';
 import type { Category } from '@/types/category';
 
 type CategoryFilterProps = {
@@ -7,23 +11,29 @@ type CategoryFilterProps = {
 };
 
 export function CategoryFilter({ categories, value, onChange }: CategoryFilterProps) {
-    const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        onChange(event.target.value);
+    const deleteCategory = useDeleteCategory();
+
+    const handleDeleteCategory = (category: Category) => {
+        deleteCategory.mutate(category.id, {
+            onSuccess: () => {
+                if (value === category.id) {
+                    onChange('');
+                }
+            },
+            onError: (error) => {
+                window.alert(error instanceof Error ? error.message : 'Could not delete category.');
+            }
+        });
     };
 
     return (
-        <select
-            aria-label='Filter by category'
+        <CategoryDropdown
+            ariaLabel='Filter by category'
+            categories={categories}
             value={value}
-            onChange={handleChange}
-            className='rounded border px-3 py-2 text-sm'
-        >
-            <option value=''>All categories</option>
-            {categories?.map((category) => (
-                <option key={category.id} value={category.id}>
-                    {category.name}
-                </option>
-            ))}
-        </select>
+            placeholderLabel='All categories'
+            onChange={onChange}
+            onDeleteCategory={handleDeleteCategory}
+        />
     );
 }

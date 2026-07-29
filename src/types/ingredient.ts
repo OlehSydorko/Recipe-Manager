@@ -1,3 +1,13 @@
+export const ALLOWED_UNITS = ['g', 'kg', 'ml', 'l', 'tsp', 'Tbsp', 'cup', 'pinch', 'piece'] as const;
+
+export type Unit = (typeof ALLOWED_UNITS)[number];
+
+export const DEFAULT_UNIT: Unit = 'g';
+
+export function isAllowedUnit(value: string): value is Unit {
+    return (ALLOWED_UNITS as readonly string[]).includes(value);
+}
+
 export type Ingredient = {
     id: string;
     recipe_id: string;

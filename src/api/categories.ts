@@ -40,6 +40,19 @@ export async function createCategory(name: string): Promise<Category> {
 export async function deleteCategory(id: string): Promise<void> {
     const supabase = createClient();
 
+    const { count, error: countError } = await supabase
+        .from('recipes')
+        .select('id', { count: 'exact', head: true })
+        .eq('category_id', id);
+
+    if (countError) {
+        throw countError;
+    }
+
+    if (count) {
+        throw new Error('This category still has recipes in it. Move or delete them first.');
+    }
+
     const { error } = await supabase.from('categories').delete().eq('id', id);
 
     if (error) {
