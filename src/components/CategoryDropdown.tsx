@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import type { Category } from '@/types/category';
+import { DEFAULT_CATEGORY_COUNT, type Category } from '@/types/category';
 
 type CategoryDropdownProps = {
     id?: string;
@@ -44,6 +44,10 @@ export function CategoryDropdown({
     }, []);
 
     const selectedLabel = categories?.find((category) => category.id === value)?.name ?? placeholderLabel;
+
+    // categories is already sorted oldest-first (see getCategories), so the
+    // first DEFAULT_CATEGORY_COUNT rows are the ones seeded at signup.
+    const defaultCategoryIds = new Set(categories?.slice(0, DEFAULT_CATEGORY_COUNT).map((category) => category.id));
 
     const handleSelect = (categoryId: string) => {
         onChange(categoryId);
@@ -108,7 +112,7 @@ export function CategoryDropdown({
                                 {category.name}
                             </button>
 
-                            {onDeleteCategory && !category.is_default && (
+                            {onDeleteCategory && !defaultCategoryIds.has(category.id) && (
                                 <button
                                     type='button'
                                     aria-label={`Delete ${category.name}`}

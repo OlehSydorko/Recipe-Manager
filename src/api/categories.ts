@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabaseClient';
-import type { Category } from '@/types/category';
+import { DEFAULT_CATEGORY_COUNT, type Category } from '@/types/category';
 
 export async function getCategories(): Promise<Category[]> {
     const supabase = createClient();
@@ -39,6 +39,29 @@ export async function createCategory(name: string): Promise<Category> {
 
 export async function deleteCategory(id: string): Promise<void> {
     const supabase = createClient();
+
+    const {
+        data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error('Not authenticated');
+    }
+
+    const { data: defaultCategories, error: defaultsError } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(DEFAULT_CATEGORY_COUNT);
+
+    if (defaultsError) {
+        throw defaultsError;
+    }
+
+    if (defaultCategories.some((defaultCategory) => defaultCategory.id === id)) {
+        throw new Error('Default categories cannot be deleted.');
+    }
 
     const { count, error: countError } = await supabase
         .from('recipes')
