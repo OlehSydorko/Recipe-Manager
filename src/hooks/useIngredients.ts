@@ -1,5 +1,4 @@
-import { getIngredients, replaceIngredients } from '@/API/ingredients';
-import type { IngredientInput } from '@/API/ingredients';
+import { getIngredients, replaceIngredients, type IngredientInput } from '@/API/ingredients';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function useIngredients(recipeId: string) {

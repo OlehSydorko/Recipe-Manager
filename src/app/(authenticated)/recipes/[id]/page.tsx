@@ -1,6 +1,7 @@
 'use client';
 
 import { use, useState } from 'react';
+import { LeaveButton } from '@/components/LeaveButton';
 import { useIngredients } from '@/hooks/useIngredients';
 import { useDeleteRecipe, useRecipe } from '@/hooks/useRecipes';
 import Link from 'next/link';
@@ -104,6 +105,15 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
                     </ul>
                 )}
             </div>
+
+            {recipe.instructions && (
+                <div className='mt-6'>
+                    <h2 className='text-lg font-semibold'>Instructions</h2>
+                    <p className='mt-2 whitespace-pre-line text-sm text-gray-700'>{recipe.instructions}</p>
+                </div>
+            )}
+
+            <LeaveButton />
         </div>
     );
 }
