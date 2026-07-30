@@ -22,6 +22,9 @@ export function LeaveButton({
     const router = useRouter();
 
     const handleLeave = () => {
+        // Native confirm is the simplest guard against losing unsaved changes here;
+        // no custom modal component exists in the app yet to replace it with.
+        // eslint-disable-next-line no-alert
         if (isDirty && !window.confirm(confirmMessage)) {
             return;
         }

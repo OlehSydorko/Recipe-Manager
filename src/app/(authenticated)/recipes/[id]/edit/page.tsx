@@ -4,10 +4,17 @@ import { use, useEffect, useState } from 'react';
 import { CategorySelect } from '@/components/CategorySelect';
 import { IngredientRows, createEmptyIngredientDraft } from '@/components/IngredientRows';
 import { LeaveButton } from '@/components/LeaveButton';
+import { RecipeImagePicker } from '@/components/RecipeImagePicker';
 import { useIngredients, useReplaceIngredients } from '@/hooks/useIngredients';
-import { useRecipe, useUpdateRecipe } from '@/hooks/useRecipes';
+import {
+    useRecipe,
+    useRecipeImageUrl,
+    useRemoveRecipeImage,
+    useUpdateRecipe,
+    useUploadRecipeImage
+} from '@/hooks/useRecipes';
 import { isFormDirty } from '@/lib/formDirty';
-import { DEFAULT_UNIT, isAllowedUnit, type IngredientDraft } from '@/types/ingredient';
+import { DEFAULT_UNIT, type IngredientDraft, isAllowedUnit } from '@/types/ingredient';
 import { useRouter } from 'next/navigation';
 
 type EditRecipePageProps = {
@@ -19,14 +26,19 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     const router = useRouter();
     const { data: recipe, isPending: recipePending } = useRecipe(id);
     const { data: existingIngredients, isPending: ingredientsPending } = useIngredients(id);
+    const { data: existingImageUrl } = useRecipeImageUrl(recipe?.image_url);
     const updateRecipe = useUpdateRecipe();
     const replaceIngredients = useReplaceIngredients();
+    const uploadImage = useUploadRecipeImage();
+    const removeImage = useRemoveRecipeImage();
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [instructions, setInstructions] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [ingredients, setIngredients] = useState<IngredientDraft[]>([createEmptyIngredientDraft()]);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageRemoved, setImageRemoved] = useState(false);
 
     // Snapshots of the loaded data, used only to detect unsaved changes for the Leave button.
     // `null` until the fetch resolves, so isFormDirty treats "still loading" as "not dirty".
@@ -71,7 +83,22 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
 
     const isDirty =
         isFormDirty(initialForm, { title, description, instructions, categoryId }) ||
-        isFormDirty(initialIngredients, ingredients);
+        isFormDirty(initialIngredients, ingredients) ||
+        Boolean(imageFile) ||
+        imageRemoved;
+
+    const isSubmitting =
+        updateRecipe.isPending || replaceIngredients.isPending || uploadImage.isPending || removeImage.isPending;
+
+    const handleImageFileChange = (nextFile: File | null) => {
+        setImageFile(nextFile);
+        setImageRemoved(false);
+    };
+
+    const handleImageRemove = () => {
+        setImageFile(null);
+        setImageRemoved(true);
+    };
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -83,6 +110,12 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
         await updateRecipe.mutateAsync({ id, title: title.trim(), description, instructions, categoryId });
 
         await replaceIngredients.mutateAsync({ ingredients, recipeId: id });
+
+        if (imageFile) {
+            await uploadImage.mutateAsync({ recipeId: id, file: imageFile, previousPath: recipe?.image_url });
+        } else if (imageRemoved && recipe?.image_url) {
+            await removeImage.mutateAsync({ recipeId: id, path: recipe.image_url });
+        }
 
         router.push(`/recipes/${id}`);
     };
@@ -140,16 +173,25 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                     />
                 </div>
 
+                <RecipeImagePicker
+                    existingImageUrl={existingImageUrl ?? null}
+                    file={imageFile}
+                    onFileChange={handleImageFileChange}
+                    removed={imageRemoved}
+                    onRemove={handleImageRemove}
+                    disabled={isSubmitting}
+                />
+
                 <button
                     type='submit'
-                    disabled={updateRecipe.isPending || replaceIngredients.isPending}
+                    disabled={isSubmitting}
                     className='rounded bg-black px-4 py-2 text-white disabled:opacity-50'
                 >
-                    {updateRecipe.isPending || replaceIngredients.isPending ? 'Saving…' : 'Save changes'}
+                    {isSubmitting ? 'Saving…' : 'Save changes'}
                 </button>
             </form>
 
-            <LeaveButton isDirty={isDirty} disabled={updateRecipe.isPending || replaceIngredients.isPending} />
+            <LeaveButton isDirty={isDirty} disabled={isSubmitting} />
         </div>
     );
 }

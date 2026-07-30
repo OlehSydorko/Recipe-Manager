@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-
-import { DEFAULT_CATEGORY_COUNT, type Category } from '@/types/category';
+import { type Category, DEFAULT_CATEGORY_COUNT } from '@/types/category';
 
 type CategoryDropdownProps = {
     id?: string;
@@ -61,6 +60,9 @@ export function CategoryDropdown({
             return;
         }
 
+        // A native confirm is the simplest guard against an accidental delete here;
+        // no custom modal component exists in the app yet to replace it with.
+        // eslint-disable-next-line no-alert
         if (!window.confirm(`Delete "${category.name}"? This can't be undone.`)) {
             return;
         }

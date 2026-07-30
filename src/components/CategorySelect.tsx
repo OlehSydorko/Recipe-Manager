@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-
 import { CategoryDropdown } from '@/components/CategoryDropdown';
 import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks/useCategories';
 import type { Category } from '@/types/category';
@@ -40,6 +39,9 @@ export function CategorySelect({ value, onChange }: CategorySelectProps) {
                 }
             },
             onError: (error) => {
+                // Native alert is the simplest error surface here; no toast/notification
+                // component exists in the app yet to replace it with.
+                // eslint-disable-next-line no-alert
                 window.alert(error instanceof Error ? error.message : 'Could not delete category.');
             }
         });
@@ -74,7 +76,11 @@ export function CategorySelect({ value, onChange }: CategorySelectProps) {
                     >
                         Add
                     </button>
-                    <button type='button' onClick={() => setIsCreating(false)} className='rounded border px-3 py-2 text-sm'>
+                    <button
+                        type='button'
+                        onClick={() => setIsCreating(false)}
+                        className='rounded border px-3 py-2 text-sm'
+                    >
                         Cancel
                     </button>
                 </div>

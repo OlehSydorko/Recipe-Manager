@@ -89,6 +89,10 @@ Enforced by the project's ESLint/Prettier config (ported from the team's work se
 
 Run `npm run lint` before considering any change done.
 
+### Limit code changes to a minimum
+
+Only touch code directly required by the task. Don't refactor, rename, reformat, or "improve" unrelated code, even if it looks wrong — flag it instead of fixing it inline. Prefer the smallest diff that correctly solves the task.
+
 ## Project Status
 
 Built incrementally, mentor-style, one sprint at a time — see conversation history for the full roadmap. Sprint 1 (project setup, tooling) is complete. Sprint 2 (Supabase project, database schema, RLS policies, auth) is next.

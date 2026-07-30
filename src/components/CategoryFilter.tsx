@@ -21,6 +21,9 @@ export function CategoryFilter({ categories, value, onChange }: CategoryFilterPr
                 }
             },
             onError: (error) => {
+                // Native alert is the simplest error surface here; no toast/notification
+                // component exists in the app yet to replace it with.
+                // eslint-disable-next-line no-alert
                 window.alert(error instanceof Error ? error.message : 'Could not delete category.');
             }
         });

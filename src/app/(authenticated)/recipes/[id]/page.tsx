@@ -3,7 +3,7 @@
 import { use, useState } from 'react';
 import { LeaveButton } from '@/components/LeaveButton';
 import { useIngredients } from '@/hooks/useIngredients';
-import { useDeleteRecipe, useRecipe } from '@/hooks/useRecipes';
+import { useDeleteRecipe, useRecipe, useRecipeImageUrl } from '@/hooks/useRecipes';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -16,15 +16,19 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
     const router = useRouter();
     const { data: recipe, isPending, isError } = useRecipe(id);
     const { data: ingredients, isPending: ingredientsPending } = useIngredients(id);
+    const { data: imageUrl } = useRecipeImageUrl(recipe?.image_url);
     const deleteRecipe = useDeleteRecipe();
 
     // Client-only checklist state — never persisted, resets on reload by design.
     const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
 
     const handleDelete = () => {
-        deleteRecipe.mutate(id, {
-            onSuccess: () => router.push('/recipes')
-        });
+        deleteRecipe.mutate(
+            { id, imagePath: recipe?.image_url },
+            {
+                onSuccess: () => router.push('/recipes')
+            }
+        );
     };
 
     const handleToggleIngredient = (ingredientId: string) => {
@@ -67,6 +71,10 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
                     </button>
                 </div>
             </div>
+
+            {imageUrl && (
+                <img src={imageUrl} alt={recipe.title} className='mt-4 max-h-80 w-full rounded object-cover' />
+            )}
 
             {recipe.description && <p className='mt-4 text-sm text-gray-600'>{recipe.description}</p>}
 
