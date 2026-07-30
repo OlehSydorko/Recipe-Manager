@@ -1,13 +1,15 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { LeaveButton } from '@/components/LeaveButton';
+import { PortionsChanger } from '@/components/PortionsChanger';
 import { ActionMenu } from '@/components/ui/ActionMenu';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { TextLineSkeleton } from '@/components/ui/Skeleton';
 import { useIngredients } from '@/hooks/useIngredients';
 import { useDeleteRecipe, useRecipe, useRecipeImageUrl } from '@/hooks/useRecipes';
+import { scaleQuantity } from '@/lib/quantity';
 import { Check, Image as ImageIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -26,6 +28,18 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
     // Client-only checklist state — never persisted, resets on reload by design.
     const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+    // Portions changer is also client-only and resets on reload, same as the
+    // checklist above — it never writes back to the recipe's base portions.
+    const [selectedPortions, setSelectedPortions] = useState(1);
+
+    useEffect(() => {
+        if (recipe) {
+            setSelectedPortions(recipe.portions);
+        }
+    }, [recipe]);
+
+    const scaleFactor = recipe ? selectedPortions / recipe.portions : 1;
 
     const handleDelete = () => {
         deleteRecipe.mutate(
@@ -90,7 +104,10 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
             {recipe.description && <p className='mt-2 text-body text-text-secondary'>{recipe.description}</p>}
 
             <div className='mt-8 rounded-lg border border-border bg-surface p-5'>
-                <h2 className='text-h2 font-semibold text-text-primary'>Ingredients</h2>
+                <div className='flex flex-wrap items-center justify-between gap-3'>
+                    <h2 className='text-h2 font-semibold text-text-primary'>Ingredients</h2>
+                    <PortionsChanger value={selectedPortions} onChange={setSelectedPortions} />
+                </div>
 
                 {ingredientsPending && (
                     <div className='mt-3 space-y-2'>
@@ -108,6 +125,7 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
                     <ul className='mt-3 space-y-2'>
                         {ingredients.map((ingredient) => {
                             const isChecked = checkedIds.has(ingredient.id);
+                            const scaledQuantity = scaleQuantity(ingredient.quantity, scaleFactor);
 
                             return (
                                 <li key={ingredient.id}>
@@ -139,7 +157,7 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
                                         <span
                                             className={`text-button font-mono ${isChecked ? 'text-text-disabled' : 'text-text-secondary'}`}
                                         >
-                                            {ingredient.quantity ? `${ingredient.quantity} ` : ''}
+                                            {scaledQuantity ? `${scaledQuantity} ` : ''}
                                             {ingredient.unit ?? ''}
                                         </span>
 

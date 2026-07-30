@@ -5,7 +5,7 @@
         "project": "./tsconfig.json",
         "sourceType": "module"
     },
-    "plugins": ["@typescript-eslint", "jsx-a11y", "prettier", "sort-keys-fix", "@microsoft/sdl"],
+    "plugins": ["@typescript-eslint", "jsx-a11y", "prettier", "sort-keys-fix", "@microsoft/sdl", "@next/next"],
     "settings": {
         "import/resolver": {
             "node": {
@@ -23,6 +23,7 @@
         "plugin:import/recommended",
         "plugin:import/typescript",
         "plugin:react/jsx-runtime",
+        "plugin:@next/next/recommended-legacy",
         "airbnb-typescript",
         "plugin:@microsoft/sdl/typescript",
         "plugin:@microsoft/sdl/common",

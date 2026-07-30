@@ -4,8 +4,9 @@ import { DEFAULT_UNIT, type Ingredient, isAllowedUnit } from '@/types/ingredient
 // Matches what the Qty input allows client-side: digits with at most one
 // decimal point and at most one fraction slash (e.g. "1", "1.5", "1/2").
 // Groups are sequential (not nested), so there's no catastrophic-backtracking risk here.
+// Exported so src/lib/quantity.ts can parse the same format when scaling for portions.
 // eslint-disable-next-line security/detect-unsafe-regex
-const QUANTITY_PATTERN = /^\d*(?:\.\d*)?(?:\/\d*)?$/;
+export const QUANTITY_PATTERN = /^\d*(?:\.\d*)?(?:\/\d*)?$/;
 
 export async function getIngredients(recipeId: string): Promise<Ingredient[]> {
     const supabase = createClient();

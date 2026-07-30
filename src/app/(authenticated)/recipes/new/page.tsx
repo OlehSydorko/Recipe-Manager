@@ -14,7 +14,7 @@ import { isFormDirty } from '@/lib/formDirty';
 import type { IngredientDraft } from '@/types/ingredient';
 import { useRouter } from 'next/navigation';
 
-const INITIAL_FORM = { title: '', description: '', instructions: '', categoryId: '' };
+const INITIAL_FORM = { title: '', description: '', instructions: '', categoryId: '', portions: 1 };
 
 export default function NewRecipePage() {
     const router = useRouter();
@@ -26,6 +26,7 @@ export default function NewRecipePage() {
     const [description, setDescription] = useState('');
     const [instructions, setInstructions] = useState('');
     const [categoryId, setCategoryId] = useState('');
+    const [portions, setPortions] = useState(1);
     const [ingredients, setIngredients] = useState<IngredientDraft[]>([createEmptyIngredientDraft()]);
     const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -33,7 +34,7 @@ export default function NewRecipePage() {
     const initialIngredientsRef = useRef(ingredients);
 
     const isDirty =
-        isFormDirty(INITIAL_FORM, { title, description, instructions, categoryId }) ||
+        isFormDirty(INITIAL_FORM, { title, description, instructions, categoryId, portions }) ||
         isFormDirty(initialIngredientsRef.current, ingredients) ||
         Boolean(imageFile);
 
@@ -50,7 +51,8 @@ export default function NewRecipePage() {
             title: title.trim(),
             description,
             instructions,
-            categoryId
+            categoryId,
+            portions
         });
 
         await replaceIngredients.mutateAsync({ ingredients, recipeId: recipe.id });
@@ -62,6 +64,12 @@ export default function NewRecipePage() {
         }
 
         router.push(`/recipes/${recipe.id}`);
+    };
+
+    const handlePortionsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const parsed = Number.parseInt(event.target.value, 10);
+
+        setPortions(Number.isNaN(parsed) ? 1 : Math.max(1, parsed));
     };
 
     return (
@@ -84,6 +92,24 @@ export default function NewRecipePage() {
                     </div>
 
                     <CategorySelect value={categoryId} onChange={setCategoryId} />
+
+                    <div>
+                        <label
+                            htmlFor='portions'
+                            className='mb-1.5 block text-label font-medium text-text-secondary'
+                        >
+                            Portions
+                        </label>
+                        <Input
+                            id='portions'
+                            type='number'
+                            min={1}
+                            value={portions}
+                            onChange={handlePortionsChange}
+                            className='w-24'
+                            required
+                        />
+                    </div>
 
                     <div>
                         <label

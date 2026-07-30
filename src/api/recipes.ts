@@ -36,6 +36,7 @@ export type CreateRecipeInput = {
     description: string;
     instructions: string;
     categoryId: string;
+    portions: number;
 };
 
 export async function createRecipe(input: CreateRecipeInput): Promise<Recipe> {
@@ -56,6 +57,7 @@ export async function createRecipe(input: CreateRecipeInput): Promise<Recipe> {
             description: input.description,
             instructions: input.instructions,
             category_id: input.categoryId,
+            portions: input.portions,
             user_id: user.id
         })
         .select()
@@ -74,6 +76,7 @@ export type UpdateRecipeInput = {
     description: string;
     instructions: string;
     categoryId: string;
+    portions: number;
 };
 
 export async function updateRecipe(input: UpdateRecipeInput): Promise<Recipe> {
@@ -86,6 +89,7 @@ export async function updateRecipe(input: UpdateRecipeInput): Promise<Recipe> {
             description: input.description,
             instructions: input.instructions,
             category_id: input.categoryId,
+            portions: input.portions,
             updated_at: new Date().toISOString()
         })
         .eq('id', input.id)

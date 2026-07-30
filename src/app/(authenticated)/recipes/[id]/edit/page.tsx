@@ -39,6 +39,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     const [description, setDescription] = useState('');
     const [instructions, setInstructions] = useState('');
     const [categoryId, setCategoryId] = useState('');
+    const [portions, setPortions] = useState(1);
     const [ingredients, setIngredients] = useState<IngredientDraft[]>([createEmptyIngredientDraft()]);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imageRemoved, setImageRemoved] = useState(false);
@@ -50,6 +51,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
         description: string;
         instructions: string;
         categoryId: string;
+        portions: number;
     } | null>(null);
     const [initialIngredients, setInitialIngredients] = useState<IngredientDraft[] | null>(null);
 
@@ -59,13 +61,15 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                 title: recipe.title,
                 description: recipe.description ?? '',
                 instructions: recipe.instructions ?? '',
-                categoryId: recipe.category_id
+                categoryId: recipe.category_id,
+                portions: recipe.portions
             };
 
             setTitle(loadedForm.title);
             setDescription(loadedForm.description);
             setInstructions(loadedForm.instructions);
             setCategoryId(loadedForm.categoryId);
+            setPortions(loadedForm.portions);
             setInitialForm(loadedForm);
         }
     }, [recipe]);
@@ -85,7 +89,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     }, [existingIngredients]);
 
     const isDirty =
-        isFormDirty(initialForm, { title, description, instructions, categoryId }) ||
+        isFormDirty(initialForm, { title, description, instructions, categoryId, portions }) ||
         isFormDirty(initialIngredients, ingredients) ||
         Boolean(imageFile) ||
         imageRemoved;
@@ -110,7 +114,7 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
             return;
         }
 
-        await updateRecipe.mutateAsync({ id, title: title.trim(), description, instructions, categoryId });
+        await updateRecipe.mutateAsync({ id, title: title.trim(), description, instructions, categoryId, portions });
 
         await replaceIngredients.mutateAsync({ ingredients, recipeId: id });
 
@@ -121,6 +125,12 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
         }
 
         router.push(`/recipes/${id}`);
+    };
+
+    const handlePortionsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const parsed = Number.parseInt(event.target.value, 10);
+
+        setPortions(Number.isNaN(parsed) ? 1 : Math.max(1, parsed));
     };
 
     if (recipePending || ingredientsPending) {
@@ -147,6 +157,24 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                     </div>
 
                     <CategorySelect value={categoryId} onChange={setCategoryId} />
+
+                    <div>
+                        <label
+                            htmlFor='portions'
+                            className='mb-1.5 block text-label font-medium text-text-secondary'
+                        >
+                            Portions
+                        </label>
+                        <Input
+                            id='portions'
+                            type='number'
+                            min={1}
+                            value={portions}
+                            onChange={handlePortionsChange}
+                            className='w-24'
+                            required
+                        />
+                    </div>
 
                     <div>
                         <label
