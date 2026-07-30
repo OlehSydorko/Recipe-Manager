@@ -1,7 +1,7 @@
 'use client';
 
 import { type ChangeEvent, type DragEvent, useEffect, useRef, useState } from 'react';
-import { IconImage, IconX } from '@/components/icons';
+import { Image as ImageIcon, X } from 'lucide-react';
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -100,7 +100,7 @@ export function RecipeImagePicker({
                         aria-label='Remove photo'
                         className='absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-surface-elevated text-text-secondary shadow-md transition-colors duration-150 hover:text-error disabled:cursor-not-allowed disabled:opacity-50'
                     >
-                        <IconX size={14} />
+                        <X size={14} />
                     </button>
                 </div>
             ) : (
@@ -112,7 +112,7 @@ export function RecipeImagePicker({
                     onDrop={handleDrop}
                     className='flex h-32 w-full flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border-strong bg-bg-secondary text-text-secondary transition-colors duration-150 hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50 sm:w-64'
                 >
-                    <IconImage size={22} />
+                    <ImageIcon size={22} />
                     <span className='text-caption'>Click or drag a photo here</span>
                 </button>
             )}

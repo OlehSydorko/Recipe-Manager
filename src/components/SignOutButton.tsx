@@ -1,8 +1,8 @@
 'use client';
 
 import { signOut } from '@/API/auth';
-import { IconLogOut } from '@/components/icons';
 import { Button } from '@/components/ui/Button';
+import { LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function SignOutButton() {
@@ -16,7 +16,7 @@ export function SignOutButton() {
 
     return (
         <Button variant='ghost' onClick={handleSignOut}>
-            <IconLogOut size={16} />
+            <LogOut size={16} />
             Sign out
         </Button>
     );

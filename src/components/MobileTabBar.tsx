@@ -1,12 +1,12 @@
 'use client';
 
-import { IconBook, IconHome } from '@/components/icons';
+import { BookOpen, Home } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const links = [
-    { href: '/', label: 'Home', icon: IconHome },
-    { href: '/recipes', label: 'Recipes', icon: IconBook }
+    { href: '/', label: 'Home', icon: Home },
+    { href: '/recipes', label: 'Recipes', icon: BookOpen }
 ];
 
 export function MobileTabBar() {

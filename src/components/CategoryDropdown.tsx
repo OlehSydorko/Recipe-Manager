@@ -1,10 +1,10 @@
 'use client';
 
 import { type ReactNode, useEffect, useRef, useState } from 'react';
-import { IconCheck, IconChevronDown, IconX } from '@/components/icons';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { type Category, DEFAULT_CATEGORY_COUNT } from '@/types/category';
+import { Check, ChevronDown, X } from 'lucide-react';
 
 type CategoryDropdownProps = {
     id?: string;
@@ -87,7 +87,7 @@ export function CategoryDropdown({
                 className='flex h-11 w-full items-center justify-between rounded-sm border border-border bg-bg-secondary px-3 text-left text-body transition-colors duration-150 hover:border-border-strong focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15'
             >
                 <span className={value ? 'text-text-primary' : 'text-text-disabled'}>{selectedLabel}</span>
-                <IconChevronDown size={16} className='shrink-0 text-text-secondary' />
+                <ChevronDown size={16} className='shrink-0 text-text-secondary' />
             </button>
 
             {isOpen && (
@@ -123,7 +123,7 @@ export function CategoryDropdown({
                                     }`}
                                 >
                                     {category.name}
-                                    {isSelected && <IconCheck size={15} />}
+                                    {isSelected && <Check size={15} />}
                                 </button>
 
                                 {onDeleteCategory && !defaultCategoryIds.has(category.id) && (
@@ -133,7 +133,7 @@ export function CategoryDropdown({
                                         onClick={(event) => handleDeleteClick(event, category)}
                                         className='mr-1.5 shrink-0 rounded-sm p-1.5 text-text-disabled transition-colors duration-150 hover:bg-error-muted hover:text-error'
                                     >
-                                        <IconX size={14} />
+                                        <X size={14} />
                                     </button>
                                 )}
                             </li>

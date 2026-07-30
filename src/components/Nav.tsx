@@ -1,5 +1,5 @@
 import { SignOutButton } from '@/components/SignOutButton';
-import { IconSearch } from '@/components/icons';
+import { Search } from 'lucide-react';
 import Link from 'next/link';
 
 export function Nav() {
@@ -11,7 +11,7 @@ export function Nav() {
                 </Link>
 
                 <div className='relative hidden max-w-sm flex-1 sm:block'>
-                    <IconSearch
+                    <Search
                         size={17}
                         className='pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-text-disabled'
                     />

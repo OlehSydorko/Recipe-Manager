@@ -2,13 +2,13 @@
 
 import { use, useState } from 'react';
 import { LeaveButton } from '@/components/LeaveButton';
-import { IconCheck, IconImage } from '@/components/icons';
 import { ActionMenu } from '@/components/ui/ActionMenu';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { TextLineSkeleton } from '@/components/ui/Skeleton';
 import { useIngredients } from '@/hooks/useIngredients';
 import { useDeleteRecipe, useRecipe, useRecipeImageUrl } from '@/hooks/useRecipes';
+import { Check, Image as ImageIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 type RecipeDetailPageProps = {
@@ -71,7 +71,7 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
                 <img src={imageUrl} alt={recipe.title} className='h-56 w-full rounded-lg object-cover sm:h-72' />
             ) : (
                 <div className='flex h-56 w-full items-center justify-center rounded-lg bg-bg-secondary text-text-disabled sm:h-72'>
-                    <IconImage size={36} />
+                    <ImageIcon size={36} />
                 </div>
             )}
 
@@ -129,7 +129,7 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
                                                 }`}
                                             />
                                             {isChecked && (
-                                                <IconCheck
+                                                <Check
                                                     size={13}
                                                     className='animate-check-pop absolute inset-0 m-auto text-accent-foreground'
                                                 />

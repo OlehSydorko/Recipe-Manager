@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { RecipeCard } from '@/components/RecipeCard';
-import { IconBook, IconPlus } from '@/components/icons';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { useCategories } from '@/hooks/useCategories';
 import { useRecipes } from '@/hooks/useRecipes';
+import { BookOpen, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 export default function RecipesPage() {
@@ -29,7 +29,7 @@ export default function RecipesPage() {
                     href='/recipes/new'
                     className='inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-button font-medium text-accent-foreground shadow-sm transition-all duration-150 hover:bg-accent-hover hover:shadow-md active:scale-[0.98]'
                 >
-                    <IconPlus size={16} />
+                    <Plus size={16} />
                     New recipe
                 </Link>
             </div>
@@ -51,7 +51,7 @@ export default function RecipesPage() {
 
             {!isPending && !isError && filteredRecipes?.length === 0 && (
                 <div className='mt-16 flex flex-col items-center gap-3 text-center'>
-                    <IconBook size={32} className='text-text-disabled' />
+                    <BookOpen size={32} className='text-text-disabled' />
                     <p className='text-h3 font-medium text-text-primary'>
                         {categoryFilter ? 'No recipes in this category yet' : 'No recipes yet'}
                     </p>
@@ -63,7 +63,7 @@ export default function RecipesPage() {
                             href='/recipes/new'
                             className='mt-2 inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-button font-medium text-accent-foreground shadow-sm transition-colors duration-150 hover:bg-accent-hover'
                         >
-                            <IconPlus size={16} />
+                            <Plus size={16} />
                             Create recipe
                         </Link>
                     )}

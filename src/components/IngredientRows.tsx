@@ -1,7 +1,7 @@
 'use client';
 
-import { IconChevronDown, IconPlus, IconTrash } from '@/components/icons';
 import { ALLOWED_UNITS, DEFAULT_UNIT, type IngredientDraft } from '@/types/ingredient';
+import { ChevronDown, Plus, Trash2 } from 'lucide-react';
 
 // Keeps only digits, a single decimal point, and a single fraction slash
 // (e.g. "1", "1.5", "1/2") — letters and any extra punctuation are dropped as typed.
@@ -90,7 +90,7 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
                                     </option>
                                 ))}
                             </select>
-                            <IconChevronDown
+                            <ChevronDown
                                 size={14}
                                 className='pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary'
                             />
@@ -111,7 +111,7 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
                             aria-label='Remove ingredient'
                             className='flex h-11 w-11 shrink-0 items-center justify-center rounded-sm text-text-secondary transition-colors duration-150 hover:bg-error-muted hover:text-error disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-text-secondary'
                         >
-                            <IconTrash size={16} />
+                            <Trash2 size={16} />
                         </button>
                     </div>
                 ))}
@@ -122,7 +122,7 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
                 onClick={handleAddRow}
                 className='mt-3 inline-flex items-center gap-1.5 rounded-md border border-border-strong px-3 py-2 text-button font-medium text-text-primary transition-colors duration-150 hover:bg-hover'
             >
-                <IconPlus size={14} />
+                <Plus size={14} />
                 Add ingredient
             </button>
         </div>

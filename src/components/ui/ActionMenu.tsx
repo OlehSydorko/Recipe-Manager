@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { IconPencil } from '@/components/icons';
 import { IconButton } from '@/components/ui/IconButton';
+import { Pencil } from 'lucide-react';
 
 export type ActionMenuItem = {
     label: string;
@@ -78,7 +78,7 @@ export function ActionMenu({ ariaLabel, items }: ActionMenuProps) {
     return (
         <div ref={containerRef} className='relative'>
             <IconButton aria-label={ariaLabel} aria-haspopup='menu' aria-expanded={isOpen} onClick={handleTriggerClick}>
-                <IconPencil size={18} />
+                <Pencil size={18} />
             </IconButton>
 
             {isOpen && (

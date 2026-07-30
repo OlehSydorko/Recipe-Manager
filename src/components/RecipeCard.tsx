@@ -1,8 +1,8 @@
 'use client';
 
-import { IconImage } from '@/components/icons';
 import { useRecipeImageUrl } from '@/hooks/useRecipes';
 import type { Recipe } from '@/types/recipe';
+import { Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
 type RecipeCardProps = {
@@ -28,7 +28,7 @@ export function RecipeCard({ recipe, categoryName }: RecipeCardProps) {
                     />
                 ) : (
                     <div className='flex h-full w-full items-center justify-center text-text-disabled'>
-                        <IconImage size={28} />
+                        <ImageIcon size={28} />
                     </div>
                 )}
             </div>
