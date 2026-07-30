@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { type ChangeEvent, type DragEvent, useEffect, useRef, useState } from 'react';
+import { IconImage, IconX } from '@/components/icons';
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -24,6 +25,7 @@ export function RecipeImagePicker({
 }: RecipeImagePickerProps) {
     const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
     const [validationError, setValidationError] = useState<string | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Local preview for a freshly-picked file, before it's uploaded.
     useEffect(() => {
@@ -42,12 +44,7 @@ export function RecipeImagePicker({
 
     const previewUrl = localPreviewUrl ?? (removed ? null : existingImageUrl);
 
-    const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selected = event.target.files?.[0] ?? null;
-
-        // Allow re-selecting the same file later (e.g. after removing it).
-        event.target.value = '';
-
+    const processFile = (selected: File | null) => {
         if (!selected) {
             return;
         }
@@ -68,38 +65,68 @@ export function RecipeImagePicker({
         onFileChange(selected);
     };
 
+    const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const selected = event.target.files?.[0] ?? null;
+
+        // Allow re-selecting the same file later (e.g. after removing it).
+        event.target.value = '';
+        processFile(selected);
+    };
+
+    const handleDrop = (event: DragEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+
+        if (disabled) {
+            return;
+        }
+
+        processFile(event.dataTransfer.files?.[0] ?? null);
+    };
+
     return (
         <div>
-            <span className='block text-sm font-medium'>
-                Photo <span className='font-normal text-gray-500'>(optional)</span>
+            <span className='mb-1.5 block text-label font-medium text-text-secondary'>
+                Photo <span className='font-normal text-text-disabled'>(optional)</span>
             </span>
 
-            {previewUrl && (
-                <img src={previewUrl} alt='Recipe preview' className='mt-2 h-40 w-40 rounded object-cover' />
-            )}
-
-            <div className='mt-2 flex items-center gap-2'>
-                <input
-                    type='file'
-                    accept='image/jpeg,image/png,image/webp'
-                    onChange={handleFileInputChange}
-                    disabled={disabled}
-                    className='text-sm'
-                />
-
-                {previewUrl && (
+            {previewUrl ? (
+                <div className='relative w-40'>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={previewUrl} alt='Recipe preview' className='h-40 w-40 rounded-lg object-cover' />
                     <button
                         type='button'
                         onClick={onRemove}
                         disabled={disabled}
-                        className='rounded border px-3 py-2 text-sm disabled:opacity-50'
+                        aria-label='Remove photo'
+                        className='absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-surface-elevated text-text-secondary shadow-md transition-colors duration-150 hover:text-error disabled:cursor-not-allowed disabled:opacity-50'
                     >
-                        Remove
+                        <IconX size={14} />
                     </button>
-                )}
-            </div>
+                </div>
+            ) : (
+                <button
+                    type='button'
+                    disabled={disabled}
+                    onClick={() => inputRef.current?.click()}
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={handleDrop}
+                    className='flex h-32 w-full flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-border-strong bg-bg-secondary text-text-secondary transition-colors duration-150 hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50 sm:w-64'
+                >
+                    <IconImage size={22} />
+                    <span className='text-caption'>Click or drag a photo here</span>
+                </button>
+            )}
 
-            {validationError && <p className='mt-1 text-sm text-red-600'>{validationError}</p>}
+            <input
+                ref={inputRef}
+                type='file'
+                accept='image/jpeg,image/png,image/webp'
+                onChange={handleFileInputChange}
+                disabled={disabled}
+                className='hidden'
+            />
+
+            {validationError && <p className='mt-1.5 text-caption text-error'>{validationError}</p>}
         </div>
     );
 }

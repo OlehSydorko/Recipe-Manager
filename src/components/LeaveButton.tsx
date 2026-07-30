@@ -1,5 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+import { IconArrowLeft } from '@/components/icons';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import { useRouter } from 'next/navigation';
 
 const DEFAULT_CONFIRM_MESSAGE = 'You have unsaved changes. Leave without saving?';
@@ -12,7 +16,7 @@ type LeaveButtonProps = {
 };
 
 // Fixed bottom-right exit for any "recipe is open" view: detail, edit, or new.
-// Confirms via a native dialog when `isDirty` is true, otherwise navigates immediately.
+// Confirms via the shared Modal when `isDirty` is true, otherwise navigates immediately.
 export function LeaveButton({
     to = '/recipes',
     isDirty = false,
@@ -20,26 +24,52 @@ export function LeaveButton({
     confirmMessage = DEFAULT_CONFIRM_MESSAGE
 }: LeaveButtonProps) {
     const router = useRouter();
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-    const handleLeave = () => {
-        // Native confirm is the simplest guard against losing unsaved changes here;
-        // no custom modal component exists in the app yet to replace it with.
-        // eslint-disable-next-line no-alert
-        if (isDirty && !window.confirm(confirmMessage)) {
+    const handleLeaveClick = () => {
+        if (isDirty) {
+            setIsConfirmOpen(true);
+
             return;
         }
 
         router.push(to);
     };
 
+    const handleConfirmLeave = () => {
+        setIsConfirmOpen(false);
+        router.push(to);
+    };
+
     return (
-        <button
-            type='button'
-            onClick={handleLeave}
-            disabled={disabled}
-            className='fixed bottom-6 right-6 z-10 rounded bg-black px-4 py-2 text-sm text-white shadow-lg hover:bg-gray-800 disabled:opacity-50'
-        >
-            Leave
-        </button>
+        <>
+            <button
+                type='button'
+                onClick={handleLeaveClick}
+                disabled={disabled}
+                className='fixed bottom-20 right-6 z-20 flex items-center gap-2 rounded-full bg-surface-elevated px-5 py-3 text-button font-medium text-text-primary shadow-lg transition-transform duration-150 active:scale-[0.98] disabled:opacity-50 sm:bottom-6'
+            >
+                <IconArrowLeft size={16} />
+                Leave
+            </button>
+
+            <Modal
+                open={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                title='Leave without saving?'
+                footer={
+                    <>
+                        <Button variant='secondary' onClick={() => setIsConfirmOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant='danger' onClick={handleConfirmLeave}>
+                            Leave
+                        </Button>
+                    </>
+                }
+            >
+                {confirmMessage}
+            </Modal>
+        </>
     );
 }

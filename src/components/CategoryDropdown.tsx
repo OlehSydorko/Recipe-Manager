@@ -1,6 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { IconCheck, IconChevronDown, IconX } from '@/components/icons';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import { type Category, DEFAULT_CATEGORY_COUNT } from '@/types/category';
 
 type CategoryDropdownProps = {
@@ -11,7 +14,7 @@ type CategoryDropdownProps = {
     placeholderLabel: string;
     onChange: (categoryId: string) => void;
     onDeleteCategory?: (category: Category) => void;
-    footer?: React.ReactNode;
+    footer?: ReactNode;
 };
 
 // Custom listbox instead of a native <select> — a native <option> can't host
@@ -28,6 +31,7 @@ export function CategoryDropdown({
     footer
 }: CategoryDropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const [categoryPendingDelete, setCategoryPendingDelete] = useState<Category | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -53,21 +57,22 @@ export function CategoryDropdown({
         setIsOpen(false);
     };
 
-    const handleDelete = (event: React.MouseEvent, category: Category) => {
+    const handleDeleteClick = (event: React.MouseEvent, category: Category) => {
         event.stopPropagation();
 
         if (!onDeleteCategory) {
             return;
         }
 
-        // A native confirm is the simplest guard against an accidental delete here;
-        // no custom modal component exists in the app yet to replace it with.
-        // eslint-disable-next-line no-alert
-        if (!window.confirm(`Delete "${category.name}"? This can't be undone.`)) {
-            return;
+        setCategoryPendingDelete(category);
+    };
+
+    const handleConfirmDelete = () => {
+        if (categoryPendingDelete && onDeleteCategory) {
+            onDeleteCategory(categoryPendingDelete);
         }
 
-        onDeleteCategory(category);
+        setCategoryPendingDelete(null);
     };
 
     return (
@@ -79,57 +84,83 @@ export function CategoryDropdown({
                 aria-haspopup='listbox'
                 aria-expanded={isOpen}
                 onClick={() => setIsOpen((previous) => !previous)}
-                className='w-full rounded border px-3 py-2 text-left text-sm'
+                className='flex h-11 w-full items-center justify-between rounded-sm border border-border bg-bg-secondary px-3 text-left text-body transition-colors duration-150 hover:border-border-strong focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15'
             >
-                {selectedLabel}
+                <span className={value ? 'text-text-primary' : 'text-text-disabled'}>{selectedLabel}</span>
+                <IconChevronDown size={16} className='shrink-0 text-text-secondary' />
             </button>
 
             {isOpen && (
                 <ul
                     role='listbox'
-                    className='absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded border bg-white text-sm shadow-lg'
+                    className='animate-dropdown-in absolute z-20 mt-1.5 max-h-64 w-full overflow-auto rounded-md border border-border bg-surface-elevated py-1.5 text-body shadow-md'
                 >
                     <li role='option' aria-selected={value === ''}>
                         <button
                             type='button'
                             onClick={() => handleSelect('')}
-                            className='w-full px-3 py-2 text-left hover:bg-gray-50'
+                            className='w-full px-3 py-2 text-left text-text-secondary transition-colors duration-150 hover:bg-hover'
                         >
                             {placeholderLabel}
                         </button>
                     </li>
 
-                    {categories?.map((category) => (
-                        <li
-                            key={category.id}
-                            role='option'
-                            aria-selected={value === category.id}
-                            className='flex items-center justify-between'
-                        >
-                            <button
-                                type='button'
-                                onClick={() => handleSelect(category.id)}
-                                className='flex-1 px-3 py-2 text-left hover:bg-gray-50'
-                            >
-                                {category.name}
-                            </button>
+                    {categories?.map((category) => {
+                        const isSelected = value === category.id;
 
-                            {onDeleteCategory && !defaultCategoryIds.has(category.id) && (
+                        return (
+                            <li
+                                key={category.id}
+                                role='option'
+                                aria-selected={isSelected}
+                                className='flex items-center'
+                            >
                                 <button
                                     type='button'
-                                    aria-label={`Delete ${category.name}`}
-                                    onClick={(event) => handleDelete(event, category)}
-                                    className='mr-2 shrink-0 rounded px-1.5 py-0.5 text-xs text-gray-400 hover:bg-red-50 hover:text-red-600'
+                                    onClick={() => handleSelect(category.id)}
+                                    className={`flex flex-1 items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-150 hover:bg-hover ${
+                                        isSelected ? 'text-accent' : 'text-text-primary'
+                                    }`}
                                 >
-                                    ✕
+                                    {category.name}
+                                    {isSelected && <IconCheck size={15} />}
                                 </button>
-                            )}
-                        </li>
-                    ))}
+
+                                {onDeleteCategory && !defaultCategoryIds.has(category.id) && (
+                                    <button
+                                        type='button'
+                                        aria-label={`Delete ${category.name}`}
+                                        onClick={(event) => handleDeleteClick(event, category)}
+                                        className='mr-1.5 shrink-0 rounded-sm p-1.5 text-text-disabled transition-colors duration-150 hover:bg-error-muted hover:text-error'
+                                    >
+                                        <IconX size={14} />
+                                    </button>
+                                )}
+                            </li>
+                        );
+                    })}
 
                     {footer}
                 </ul>
             )}
+
+            <Modal
+                open={Boolean(categoryPendingDelete)}
+                onClose={() => setCategoryPendingDelete(null)}
+                title='Delete category?'
+                footer={
+                    <>
+                        <Button variant='secondary' onClick={() => setCategoryPendingDelete(null)}>
+                            Cancel
+                        </Button>
+                        <Button variant='danger' onClick={handleConfirmDelete}>
+                            Delete
+                        </Button>
+                    </>
+                }
+            >
+                {categoryPendingDelete ? `Delete "${categoryPendingDelete.name}"? This can't be undone.` : null}
+            </Modal>
         </div>
     );
 }

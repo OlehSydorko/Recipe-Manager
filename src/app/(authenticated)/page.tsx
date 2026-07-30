@@ -8,8 +8,10 @@ export default async function HomePage() {
 
     return (
         <div>
-            <h1 className='text-2xl font-semibold'>Welcome{user?.email ? `, ${user.email}` : ''}</h1>
-            <p className='mt-2 text-sm text-gray-600'>You&apos;re logged in. Recipes go here next.</p>
+            <h1 className='text-display font-semibold text-text-primary'>
+                Welcome{user?.email ? `, ${user.email}` : ''}
+            </h1>
+            <p className='mt-2 text-body text-text-secondary'>You&apos;re logged in. Recipes go here next.</p>
         </div>
     );
 }

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-
 import { signIn } from '@/API/auth';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -30,51 +31,48 @@ export default function LoginPage() {
     };
 
     return (
-        <main className='flex min-h-screen items-center justify-center px-4'>
-            <form onSubmit={handleSubmit} className='w-full max-w-sm space-y-4'>
-                <h1 className='text-2xl font-semibold'>Log in</h1>
+        <main className='flex min-h-screen items-center justify-center bg-bg px-4'>
+            <form
+                onSubmit={handleSubmit}
+                className='w-full max-w-sm space-y-5 rounded-lg border border-border bg-surface p-8 shadow-md'
+            >
+                <h1 className='text-display font-semibold text-text-primary'>Log in</h1>
 
-                {error && <p className='text-sm text-red-600'>{error}</p>}
+                {error && <p className='text-body text-error'>{error}</p>}
 
                 <div>
-                    <label htmlFor='email' className='block text-sm font-medium'>
+                    <label htmlFor='email' className='mb-1.5 block text-label font-medium text-text-secondary'>
                         Email
                     </label>
-                    <input
+                    <Input
                         id='email'
                         type='email'
                         value={email}
                         onChange={(event) => setEmail(event.target.value)}
                         required
-                        className='mt-1 w-full rounded border px-3 py-2'
                     />
                 </div>
 
                 <div>
-                    <label htmlFor='password' className='block text-sm font-medium'>
+                    <label htmlFor='password' className='mb-1.5 block text-label font-medium text-text-secondary'>
                         Password
                     </label>
-                    <input
+                    <Input
                         id='password'
                         type='password'
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
                         required
-                        className='mt-1 w-full rounded border px-3 py-2'
                     />
                 </div>
 
-                <button
-                    type='submit'
-                    disabled={loading}
-                    className='w-full rounded bg-black px-4 py-2 text-white disabled:opacity-50'
-                >
+                <Button type='submit' variant='primary' disabled={loading} fullWidth>
                     {loading ? 'Logging in…' : 'Log in'}
-                </button>
+                </Button>
 
-                <p className='text-sm'>
+                <p className='text-body text-text-secondary'>
                     Don&apos;t have an account?{' '}
-                    <Link href='/signup' className='underline'>
+                    <Link href='/signup' className='font-medium text-accent hover:underline'>
                         Sign up
                     </Link>
                 </p>

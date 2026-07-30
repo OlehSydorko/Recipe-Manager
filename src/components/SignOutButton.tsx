@@ -1,8 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-
 import { signOut } from '@/API/auth';
+import { IconLogOut } from '@/components/icons';
+import { Button } from '@/components/ui/Button';
+import { useRouter } from 'next/navigation';
 
 export function SignOutButton() {
     const router = useRouter();
@@ -14,8 +15,9 @@ export function SignOutButton() {
     };
 
     return (
-        <button onClick={handleSignOut} className='rounded border px-3 py-2 text-sm'>
+        <Button variant='ghost' onClick={handleSignOut}>
+            <IconLogOut size={16} />
             Sign out
-        </button>
+        </Button>
     );
 }

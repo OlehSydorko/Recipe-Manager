@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabaseClient';
-import { DEFAULT_CATEGORY_COUNT, type Category } from '@/types/category';
+import { type Category, DEFAULT_CATEGORY_COUNT } from '@/types/category';
 
 export async function getCategories(): Promise<Category[]> {
     const supabase = createClient();
@@ -24,11 +24,7 @@ export async function createCategory(name: string): Promise<Category> {
         throw new Error('Not authenticated');
     }
 
-    const { data, error } = await supabase
-        .from('categories')
-        .insert({ name, user_id: user.id })
-        .select()
-        .single();
+    const { data, error } = await supabase.from('categories').insert({ name, user_id: user.id }).select().single();
 
     if (error) {
         throw error;

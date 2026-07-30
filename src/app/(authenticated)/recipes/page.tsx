@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-
 import { CategoryFilter } from '@/components/CategoryFilter';
+import { RecipeCard } from '@/components/RecipeCard';
+import { IconBook, IconPlus } from '@/components/icons';
+import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { useCategories } from '@/hooks/useCategories';
 import { useRecipes } from '@/hooks/useRecipes';
+import Link from 'next/link';
 
 export default function RecipesPage() {
     const { data: recipes, isPending, isError } = useRecipes();
@@ -14,50 +16,70 @@ export default function RecipesPage() {
 
     const categoryNameById = new Map(categories?.map((category) => [category.id, category.name]));
 
-    if (isPending) {
-        return <p className='text-sm text-gray-600'>Loading recipes…</p>;
-    }
-
-    if (isError) {
-        return <p className='text-sm text-red-600'>Could not load recipes.</p>;
-    }
-
     const filteredRecipes = categoryFilter
-        ? recipes.filter((recipe) => recipe.category_id === categoryFilter)
+        ? recipes?.filter((recipe) => recipe.category_id === categoryFilter)
         : recipes;
 
     return (
         <div>
-            <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-3'>
-                    <h1 className='text-2xl font-semibold'>Recipes</h1>
-                    <CategoryFilter categories={categories} value={categoryFilter} onChange={setCategoryFilter} />
-                </div>
-                <Link href='/recipes/new' className='rounded bg-black px-4 py-2 text-sm text-white'>
+            <div className='flex flex-wrap items-center justify-between gap-4'>
+                <h1 className='text-display font-semibold text-text-primary'>Recipes</h1>
+
+                <Link
+                    href='/recipes/new'
+                    className='inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-button font-medium text-accent-foreground shadow-sm transition-all duration-150 hover:bg-accent-hover hover:shadow-md active:scale-[0.98]'
+                >
+                    <IconPlus size={16} />
                     New recipe
                 </Link>
             </div>
 
-            {filteredRecipes.length === 0 ? (
-                <p className='mt-6 text-sm text-gray-600'>
-                    {categoryFilter ? 'No recipes in this category yet.' : 'No recipes yet — create your first one.'}
-                </p>
-            ) : (
-                <ul className='mt-6 space-y-2'>
-                    {filteredRecipes.map((recipe) => (
-                        <li key={recipe.id}>
-                            <Link
-                                href={`/recipes/${recipe.id}`}
-                                className='flex items-center justify-between rounded border px-3 py-2 hover:bg-gray-50'
-                            >
-                                <span>{recipe.title}</span>
-                                <span className='rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600'>
-                                    {categoryNameById.get(recipe.category_id) ?? 'Uncategorized'}
-                                </span>
-                            </Link>
-                        </li>
+            <div className='mt-5'>
+                <CategoryFilter categories={categories} value={categoryFilter} onChange={setCategoryFilter} />
+            </div>
+
+            {isError && <p className='mt-8 text-body text-error'>Could not load recipes.</p>}
+
+            {isPending && (
+                <div className='mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
+                    {Array.from({ length: 6 }).map((_, index) => (
+                        // eslint-disable-next-line react/no-array-index-key
+                        <RecipeCardSkeleton key={index} />
                     ))}
-                </ul>
+                </div>
+            )}
+
+            {!isPending && !isError && filteredRecipes?.length === 0 && (
+                <div className='mt-16 flex flex-col items-center gap-3 text-center'>
+                    <IconBook size={32} className='text-text-disabled' />
+                    <p className='text-h3 font-medium text-text-primary'>
+                        {categoryFilter ? 'No recipes in this category yet' : 'No recipes yet'}
+                    </p>
+                    <p className='text-body text-text-secondary'>
+                        {categoryFilter ? 'Try a different category.' : 'Create your first recipe to get started.'}
+                    </p>
+                    {!categoryFilter && (
+                        <Link
+                            href='/recipes/new'
+                            className='mt-2 inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-button font-medium text-accent-foreground shadow-sm transition-colors duration-150 hover:bg-accent-hover'
+                        >
+                            <IconPlus size={16} />
+                            Create recipe
+                        </Link>
+                    )}
+                </div>
+            )}
+
+            {!isPending && !isError && filteredRecipes && filteredRecipes.length > 0 && (
+                <div className='mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
+                    {filteredRecipes.map((recipe) => (
+                        <RecipeCard
+                            key={recipe.id}
+                            recipe={recipe}
+                            categoryName={categoryNameById.get(recipe.category_id) ?? 'Uncategorized'}
+                        />
+                    ))}
+                </div>
             )}
         </div>
     );

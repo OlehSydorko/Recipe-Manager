@@ -5,6 +5,9 @@ import { CategorySelect } from '@/components/CategorySelect';
 import { IngredientRows, createEmptyIngredientDraft } from '@/components/IngredientRows';
 import { LeaveButton } from '@/components/LeaveButton';
 import { RecipeImagePicker } from '@/components/RecipeImagePicker';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
 import { useReplaceIngredients } from '@/hooks/useIngredients';
 import { useCreateRecipe, useUploadRecipeImage } from '@/hooks/useRecipes';
 import { isFormDirty } from '@/lib/formDirty';
@@ -63,69 +66,69 @@ export default function NewRecipePage() {
 
     return (
         <div>
-            <h1 className='text-2xl font-semibold'>New recipe</h1>
+            <h1 className='text-display font-semibold text-text-primary'>New recipe</h1>
 
-            <form onSubmit={handleSubmit} className='mt-4 max-w-md space-y-4'>
-                <div>
-                    <label htmlFor='title' className='block text-sm font-medium'>
-                        Title
-                    </label>
-                    <input
-                        id='title'
-                        type='text'
-                        value={title}
-                        onChange={(event) => setTitle(event.target.value)}
-                        required
-                        className='mt-1 w-full rounded border px-3 py-2'
+            <form onSubmit={handleSubmit} className='mt-5 max-w-xl space-y-5'>
+                <div className='space-y-4 rounded-lg border border-border bg-surface p-5'>
+                    <div>
+                        <label htmlFor='title' className='mb-1.5 block text-label font-medium text-text-secondary'>
+                            Title
+                        </label>
+                        <Input
+                            id='title'
+                            type='text'
+                            value={title}
+                            onChange={(event) => setTitle(event.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <CategorySelect value={categoryId} onChange={setCategoryId} />
+
+                    <div>
+                        <label
+                            htmlFor='description'
+                            className='mb-1.5 block text-label font-medium text-text-secondary'
+                        >
+                            Description <span className='font-normal text-text-disabled'>(optional)</span>
+                        </label>
+                        <Textarea
+                            id='description'
+                            value={description}
+                            onChange={(event) => setDescription(event.target.value)}
+                            rows={2}
+                        />
+                    </div>
+
+                    <RecipeImagePicker
+                        existingImageUrl={null}
+                        file={imageFile}
+                        onFileChange={setImageFile}
+                        removed={false}
+                        onRemove={() => setImageFile(null)}
+                        disabled={isSubmitting}
                     />
                 </div>
 
-                <CategorySelect value={categoryId} onChange={setCategoryId} />
-
-                <div>
-                    <label htmlFor='description' className='block text-sm font-medium'>
-                        Description <span className='font-normal text-gray-500'>(optional)</span>
-                    </label>
-                    <textarea
-                        id='description'
-                        value={description}
-                        onChange={(event) => setDescription(event.target.value)}
-                        rows={2}
-                        className='mt-1 w-full rounded border px-3 py-2'
-                    />
+                <div className='rounded-lg border border-border bg-surface p-5'>
+                    <IngredientRows ingredients={ingredients} onChange={setIngredients} />
                 </div>
 
-                <IngredientRows ingredients={ingredients} onChange={setIngredients} />
-
-                <div>
-                    <label htmlFor='instructions' className='block text-sm font-medium'>
+                <div className='rounded-lg border border-border bg-surface p-5'>
+                    <label htmlFor='instructions' className='mb-1.5 block text-label font-medium text-text-secondary'>
                         Instructions
                     </label>
-                    <textarea
+                    <Textarea
                         id='instructions'
                         value={instructions}
                         onChange={(event) => setInstructions(event.target.value)}
                         rows={5}
-                        className='mt-1 w-full rounded border px-3 py-2'
                     />
                 </div>
 
-                <RecipeImagePicker
-                    existingImageUrl={null}
-                    file={imageFile}
-                    onFileChange={setImageFile}
-                    removed={false}
-                    onRemove={() => setImageFile(null)}
-                    disabled={isSubmitting}
-                />
-
-                <button
-                    type='submit'
-                    disabled={isSubmitting}
-                    className='rounded bg-black px-4 py-2 text-white disabled:opacity-50'
-                >
+                <Button type='submit' variant='primary' disabled={isSubmitting} fullWidth>
                     {isSubmitting ? 'Creating…' : 'Create recipe'}
-                </button>
+                </Button>
             </form>
 
             <LeaveButton isDirty={isDirty} disabled={isSubmitting} />

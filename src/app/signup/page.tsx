@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-
 import { signUp } from '@/API/auth';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function SignupPage() {
     const router = useRouter();
@@ -31,66 +32,62 @@ export default function SignupPage() {
     };
 
     return (
-        <main className='flex min-h-screen items-center justify-center px-4'>
-            <form onSubmit={handleSubmit} className='w-full max-w-sm space-y-4'>
-                <h1 className='text-2xl font-semibold'>Create your account</h1>
+        <main className='flex min-h-screen items-center justify-center bg-bg px-4'>
+            <form
+                onSubmit={handleSubmit}
+                className='w-full max-w-sm space-y-5 rounded-lg border border-border bg-surface p-8 shadow-md'
+            >
+                <h1 className='text-display font-semibold text-text-primary'>Create your account</h1>
 
-                {error && <p className='text-sm text-red-600'>{error}</p>}
+                {error && <p className='text-body text-error'>{error}</p>}
 
                 <div>
-                    <label htmlFor='displayName' className='block text-sm font-medium'>
+                    <label htmlFor='displayName' className='mb-1.5 block text-label font-medium text-text-secondary'>
                         Name
                     </label>
-                    <input
+                    <Input
                         id='displayName'
                         type='text'
                         value={displayName}
                         onChange={(event) => setDisplayName(event.target.value)}
                         required
-                        className='mt-1 w-full rounded border px-3 py-2'
                     />
                 </div>
 
                 <div>
-                    <label htmlFor='email' className='block text-sm font-medium'>
+                    <label htmlFor='email' className='mb-1.5 block text-label font-medium text-text-secondary'>
                         Email
                     </label>
-                    <input
+                    <Input
                         id='email'
                         type='email'
                         value={email}
                         onChange={(event) => setEmail(event.target.value)}
                         required
-                        className='mt-1 w-full rounded border px-3 py-2'
                     />
                 </div>
 
                 <div>
-                    <label htmlFor='password' className='block text-sm font-medium'>
+                    <label htmlFor='password' className='mb-1.5 block text-label font-medium text-text-secondary'>
                         Password
                     </label>
-                    <input
+                    <Input
                         id='password'
                         type='password'
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
                         required
                         minLength={6}
-                        className='mt-1 w-full rounded border px-3 py-2'
                     />
                 </div>
 
-                <button
-                    type='submit'
-                    disabled={loading}
-                    className='w-full rounded bg-black px-4 py-2 text-white disabled:opacity-50'
-                >
+                <Button type='submit' variant='primary' disabled={loading} fullWidth>
                     {loading ? 'Creating account…' : 'Sign up'}
-                </button>
+                </Button>
 
-                <p className='text-sm'>
+                <p className='text-body text-text-secondary'>
                     Already have an account?{' '}
-                    <Link href='/login' className='underline'>
+                    <Link href='/login' className='font-medium text-accent hover:underline'>
                         Log in
                     </Link>
                 </p>

@@ -1,5 +1,6 @@
 'use client';
 
+import { IconChevronDown, IconPlus, IconTrash } from '@/components/icons';
 import { ALLOWED_UNITS, DEFAULT_UNIT, type IngredientDraft } from '@/types/ingredient';
 
 // Keeps only digits, a single decimal point, and a single fraction slash
@@ -31,6 +32,9 @@ type IngredientRowsProps = {
     onChange: (ingredients: IngredientDraft[]) => void;
 };
 
+const FIELD_CLASSES =
+    'h-11 rounded-sm border border-border bg-bg-secondary text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15';
+
 export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
     const handleQuantityChange = (key: string, value: string) => {
         const quantity = sanitizeQuantity(value);
@@ -60,9 +64,9 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
 
     return (
         <div>
-            <span className='block text-sm font-medium'>Ingredients</span>
+            <span className='block text-label font-medium text-text-secondary'>Ingredients</span>
 
-            <div className='mt-1 space-y-2'>
+            <div className='mt-2 space-y-2'>
                 {ingredients.map((ingredient) => (
                     <div key={ingredient.key} className='flex gap-2'>
                         <input
@@ -71,40 +75,55 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
                             value={ingredient.quantity}
                             onChange={(event) => handleQuantityChange(ingredient.key, event.target.value)}
                             placeholder='Qty'
-                            className='w-20 rounded border px-3 py-2'
+                            className={`w-16 px-2.5 text-center ${FIELD_CLASSES}`}
                         />
-                        <select
-                            value={ingredient.unit}
-                            onChange={(event) => handleUnitChange(ingredient.key, event.target.value)}
-                            className='w-24 rounded border px-3 py-2'
-                        >
-                            {ALLOWED_UNITS.map((unit) => (
-                                <option key={unit} value={unit}>
-                                    {unit}
-                                </option>
-                            ))}
-                        </select>
+
+                        <div className='relative w-24 shrink-0'>
+                            <select
+                                value={ingredient.unit}
+                                onChange={(event) => handleUnitChange(ingredient.key, event.target.value)}
+                                className={`w-full appearance-none px-2.5 pr-7 ${FIELD_CLASSES}`}
+                            >
+                                {ALLOWED_UNITS.map((unit) => (
+                                    <option key={unit} value={unit}>
+                                        {unit}
+                                    </option>
+                                ))}
+                            </select>
+                            <IconChevronDown
+                                size={14}
+                                className='pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary'
+                            />
+                        </div>
+
                         <input
                             type='text'
                             value={ingredient.name}
                             onChange={(event) => handleNameChange(ingredient.key, event.target.value)}
                             placeholder='Ingredient'
-                            className='flex-1 rounded border px-3 py-2'
+                            className={`flex-1 px-3 ${FIELD_CLASSES}`}
                         />
+
                         <button
                             type='button'
                             onClick={() => handleRemoveRow(ingredient.key)}
                             disabled={ingredients.length === 1}
-                            className='rounded border px-3 py-2 text-sm disabled:opacity-50'
+                            aria-label='Remove ingredient'
+                            className='flex h-11 w-11 shrink-0 items-center justify-center rounded-sm text-text-secondary transition-colors duration-150 hover:bg-error-muted hover:text-error disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-text-secondary'
                         >
-                            Remove
+                            <IconTrash size={16} />
                         </button>
                     </div>
                 ))}
             </div>
 
-            <button type='button' onClick={handleAddRow} className='mt-2 rounded border px-3 py-2 text-sm'>
-                + Add ingredient
+            <button
+                type='button'
+                onClick={handleAddRow}
+                className='mt-3 inline-flex items-center gap-1.5 rounded-md border border-border-strong px-3 py-2 text-button font-medium text-text-primary transition-colors duration-150 hover:bg-hover'
+            >
+                <IconPlus size={14} />
+                Add ingredient
             </button>
         </div>
     );

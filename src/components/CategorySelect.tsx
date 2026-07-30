@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { CategoryDropdown } from '@/components/CategoryDropdown';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks/useCategories';
 import type { Category } from '@/types/category';
 
@@ -14,6 +17,7 @@ export function CategorySelect({ value, onChange }: CategorySelectProps) {
     const { data: categories, isPending } = useCategories();
     const createCategory = useCreateCategory();
     const deleteCategory = useDeleteCategory();
+    const { showToast } = useToast();
     const [isCreating, setIsCreating] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
 
@@ -39,73 +43,58 @@ export function CategorySelect({ value, onChange }: CategorySelectProps) {
                 }
             },
             onError: (error) => {
-                // Native alert is the simplest error surface here; no toast/notification
-                // component exists in the app yet to replace it with.
-                // eslint-disable-next-line no-alert
-                window.alert(error instanceof Error ? error.message : 'Could not delete category.');
+                showToast('error', error instanceof Error ? error.message : 'Could not delete category.');
             }
         });
     };
 
     if (isPending) {
-        return <p className='text-sm text-gray-600'>Loading categories…</p>;
+        return <p className='text-body text-text-secondary'>Loading categories…</p>;
     }
 
     return (
         <div>
-            <label htmlFor='category' className='block text-sm font-medium'>
+            <label htmlFor='category' className='mb-1.5 block text-label font-medium text-text-secondary'>
                 Category
             </label>
 
             {isCreating ? (
-                <div className='mt-1 flex gap-2'>
-                    <input
-                        type='text'
+                <div className='flex gap-2'>
+                    <Input
                         value={newCategoryName}
                         onChange={(event) => setNewCategoryName(event.target.value)}
                         placeholder='New category name'
                         // eslint-disable-next-line jsx-a11y/no-autofocus
                         autoFocus
-                        className='flex-1 rounded border px-3 py-2'
+                        className='flex-1'
                     />
-                    <button
-                        type='button'
-                        onClick={handleCreateCategory}
-                        disabled={createCategory.isPending}
-                        className='rounded bg-black px-3 py-2 text-sm text-white disabled:opacity-50'
-                    >
+                    <Button variant='primary' onClick={handleCreateCategory} disabled={createCategory.isPending}>
                         Add
-                    </button>
-                    <button
-                        type='button'
-                        onClick={() => setIsCreating(false)}
-                        className='rounded border px-3 py-2 text-sm'
-                    >
+                    </Button>
+                    <Button variant='secondary' onClick={() => setIsCreating(false)}>
                         Cancel
-                    </button>
+                    </Button>
                 </div>
             ) : (
-                <div className='mt-1'>
-                    <CategoryDropdown
-                        id='category'
-                        categories={categories}
-                        value={value}
-                        placeholderLabel='Select a category'
-                        onChange={onChange}
-                        onDeleteCategory={handleDeleteCategory}
-                        footer={
-                            <li>
-                                <button
-                                    type='button'
-                                    onClick={() => setIsCreating(true)}
-                                    className='w-full px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50'
-                                >
-                                    + Add new category
-                                </button>
-                            </li>
-                        }
-                    />
-                </div>
+                <CategoryDropdown
+                    id='category'
+                    categories={categories}
+                    value={value}
+                    placeholderLabel='Select a category'
+                    onChange={onChange}
+                    onDeleteCategory={handleDeleteCategory}
+                    footer={
+                        <li>
+                            <button
+                                type='button'
+                                onClick={() => setIsCreating(true)}
+                                className='w-full px-3 py-2 text-left text-body text-accent transition-colors duration-150 hover:bg-hover'
+                            >
+                                + Add new category
+                            </button>
+                        </li>
+                    }
+                />
             )}
         </div>
     );

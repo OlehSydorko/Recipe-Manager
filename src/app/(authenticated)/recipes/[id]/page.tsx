@@ -2,9 +2,13 @@
 
 import { use, useState } from 'react';
 import { LeaveButton } from '@/components/LeaveButton';
+import { IconCheck, IconImage } from '@/components/icons';
+import { ActionMenu } from '@/components/ui/ActionMenu';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { TextLineSkeleton } from '@/components/ui/Skeleton';
 import { useIngredients } from '@/hooks/useIngredients';
 import { useDeleteRecipe, useRecipe, useRecipeImageUrl } from '@/hooks/useRecipes';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 type RecipeDetailPageProps = {
@@ -21,6 +25,7 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
 
     // Client-only checklist state — never persisted, resets on reload by design.
     const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
     const handleDelete = () => {
         deleteRecipe.mutate(
@@ -46,64 +51,103 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
     };
 
     if (isPending) {
-        return <p className='text-sm text-gray-600'>Loading recipe…</p>;
+        return (
+            <div className='space-y-4'>
+                <TextLineSkeleton className='h-56 w-full rounded-lg sm:h-72' />
+                <TextLineSkeleton className='h-7 w-1/2' />
+                <TextLineSkeleton className='h-4 w-1/3' />
+            </div>
+        );
     }
 
     if (isError || !recipe) {
-        return <p className='text-sm text-red-600'>Recipe not found.</p>;
+        return <p className='text-body text-error'>Recipe not found.</p>;
     }
 
     return (
         <div>
-            <div className='flex items-center justify-between'>
-                <h1 className='text-2xl font-semibold'>{recipe.title}</h1>
-                <div className='flex gap-2'>
-                    <Link href={`/recipes/${recipe.id}/edit`} className='rounded border px-3 py-2 text-sm'>
-                        Edit
-                    </Link>
-                    <button
-                        type='button'
-                        onClick={handleDelete}
-                        disabled={deleteRecipe.isPending}
-                        className='rounded border border-red-600 px-3 py-2 text-sm text-red-600 disabled:opacity-50'
-                    >
-                        Delete
-                    </button>
+            {imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={imageUrl} alt={recipe.title} className='h-56 w-full rounded-lg object-cover sm:h-72' />
+            ) : (
+                <div className='flex h-56 w-full items-center justify-center rounded-lg bg-bg-secondary text-text-disabled sm:h-72'>
+                    <IconImage size={36} />
                 </div>
-            </div>
-
-            {imageUrl && (
-                <img src={imageUrl} alt={recipe.title} className='mt-4 max-h-80 w-full rounded object-cover' />
             )}
 
-            {recipe.description && <p className='mt-4 text-sm text-gray-600'>{recipe.description}</p>}
+            <div className='mt-5 flex items-start justify-between gap-3'>
+                <h1 className='text-display font-semibold text-text-primary'>{recipe.title}</h1>
 
-            <div className='mt-6'>
-                <h2 className='text-lg font-semibold'>Ingredients</h2>
+                <ActionMenu
+                    ariaLabel={`Actions for ${recipe.title}`}
+                    items={[
+                        { label: 'Edit', onSelect: () => router.push(`/recipes/${recipe.id}/edit`) },
+                        { label: 'Delete', variant: 'danger', onSelect: () => setIsDeleteConfirmOpen(true) }
+                    ]}
+                />
+            </div>
 
-                {ingredientsPending && <p className='mt-2 text-sm text-gray-600'>Loading ingredients…</p>}
+            {recipe.description && <p className='mt-2 text-body text-text-secondary'>{recipe.description}</p>}
+
+            <div className='mt-8 rounded-lg border border-border bg-surface p-5'>
+                <h2 className='text-h2 font-semibold text-text-primary'>Ingredients</h2>
+
+                {ingredientsPending && (
+                    <div className='mt-3 space-y-2'>
+                        <TextLineSkeleton className='w-full' />
+                        <TextLineSkeleton className='w-5/6' />
+                        <TextLineSkeleton className='w-2/3' />
+                    </div>
+                )}
 
                 {!ingredientsPending && ingredients?.length === 0 && (
-                    <p className='mt-2 text-sm text-gray-600'>No ingredients yet.</p>
+                    <p className='mt-3 text-body text-text-secondary'>No ingredients yet.</p>
                 )}
 
                 {!ingredientsPending && ingredients && ingredients.length > 0 && (
-                    <ul className='mt-2 space-y-1'>
+                    <ul className='mt-3 space-y-2'>
                         {ingredients.map((ingredient) => {
                             const isChecked = checkedIds.has(ingredient.id);
 
                             return (
                                 <li key={ingredient.id}>
-                                    <label className='flex items-center gap-2 text-sm'>
-                                        <input
-                                            type='checkbox'
-                                            checked={isChecked}
-                                            onChange={() => handleToggleIngredient(ingredient.id)}
-                                            className='h-4 w-4'
-                                        />
-                                        <span className={isChecked ? 'text-gray-400 line-through' : ''}>
+                                    <label
+                                        className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-body transition-colors duration-150 hover:bg-hover ${
+                                            isChecked ? 'bg-hover' : ''
+                                        }`}
+                                    >
+                                        <span className='relative flex h-5 w-5 shrink-0 items-center justify-center'>
+                                            <input
+                                                type='checkbox'
+                                                checked={isChecked}
+                                                onChange={() => handleToggleIngredient(ingredient.id)}
+                                                className='sr-only'
+                                            />
+                                            <span
+                                                className={`h-5 w-5 rounded-sm border transition-colors duration-150 ${
+                                                    isChecked ? 'border-accent bg-accent' : 'border-border-strong'
+                                                }`}
+                                            />
+                                            {isChecked && (
+                                                <IconCheck
+                                                    size={13}
+                                                    className='animate-check-pop absolute inset-0 m-auto text-accent-foreground'
+                                                />
+                                            )}
+                                        </span>
+
+                                        <span
+                                            className={`text-button font-mono ${isChecked ? 'text-text-disabled' : 'text-text-secondary'}`}
+                                        >
                                             {ingredient.quantity ? `${ingredient.quantity} ` : ''}
-                                            {ingredient.unit ? `${ingredient.unit} ` : ''}
+                                            {ingredient.unit ?? ''}
+                                        </span>
+
+                                        <span
+                                            className={
+                                                isChecked ? 'text-text-disabled line-through' : 'text-text-primary'
+                                            }
+                                        >
                                             {ingredient.name}
                                         </span>
                                     </label>
@@ -115,13 +159,31 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
             </div>
 
             {recipe.instructions && (
-                <div className='mt-6'>
-                    <h2 className='text-lg font-semibold'>Instructions</h2>
-                    <p className='mt-2 whitespace-pre-line text-sm text-gray-700'>{recipe.instructions}</p>
+                <div className='mt-6 rounded-lg border border-border bg-surface p-5'>
+                    <h2 className='text-h2 font-semibold text-text-primary'>Instructions</h2>
+                    <p className='mt-3 whitespace-pre-line text-body text-text-secondary'>{recipe.instructions}</p>
                 </div>
             )}
 
             <LeaveButton />
+
+            <Modal
+                open={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                title='Delete recipe?'
+                footer={
+                    <>
+                        <Button variant='secondary' onClick={() => setIsDeleteConfirmOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant='danger' onClick={handleDelete} disabled={deleteRecipe.isPending}>
+                            {deleteRecipe.isPending ? 'Deleting…' : 'Delete'}
+                        </Button>
+                    </>
+                }
+            >
+                {`Delete "${recipe.title}"? This can't be undone.`}
+            </Modal>
         </div>
     );
 }
