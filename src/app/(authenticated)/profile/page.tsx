@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ActivityFeed } from '@/features/profile/components/ActivityFeed';
 import { CollectionCard } from '@/features/recipes/components/CollectionCard';
 import { CollectionModal } from '@/features/recipes/components/CollectionModal';
 import { EditProfileModal } from '@/features/profile/components/EditProfileModal';
@@ -15,7 +14,6 @@ import { RecipeListRow } from '@/features/recipes/components/RecipeListRow';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
-import { useActivity } from '@/hooks/useActivity';
 import { useCategories } from '@/hooks/useCategories';
 import { useCollections, useDeleteCollection } from '@/hooks/useCollections';
 import { useFollowCounts } from '@/hooks/useFollows';
@@ -43,10 +41,6 @@ export default function ProfilePage() {
     const [editingCollection, setEditingCollection] = useState<CollectionWithCount | null>(null);
     const [deletingCollection, setDeletingCollection] = useState<CollectionWithCount | null>(null);
     const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
-
-    const { data: activity, isPending: activityPending } = useActivity(
-        activeTab === 'activity' ? (profile?.id ?? null) : null
-    );
 
     const handleNewCollection = () => {
         setEditingCollection(null);
@@ -206,18 +200,6 @@ export default function ProfilePage() {
                             ))}
                         </div>
                     )}
-                </div>
-            )}
-
-            {activeTab === 'activity' && (
-                <div>
-                    {activityPending && <p className='mt-6 text-body text-text-secondary'>Loading…</p>}
-
-                    {!activityPending && activity?.length === 0 && (
-                        <p className='mt-8 text-body text-text-secondary'>No activity yet.</p>
-                    )}
-
-                    {!activityPending && activity && activity.length > 0 && <ActivityFeed items={activity} />}
                 </div>
             )}
 

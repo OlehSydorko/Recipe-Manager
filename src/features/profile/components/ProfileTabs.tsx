@@ -1,12 +1,11 @@
 'use client';
 
-export type ProfileTabId = 'my-recipes' | 'favorites' | 'collections' | 'activity';
+export type ProfileTabId = 'my-recipes' | 'favorites' | 'collections';
 
 const TABS: { id: ProfileTabId; label: string }[] = [
     { id: 'my-recipes', label: 'My Recipes' },
     { id: 'favorites', label: 'Favorites' },
-    { id: 'collections', label: 'Collections' },
-    { id: 'activity', label: 'Activity' }
+    { id: 'collections', label: 'Collections' }
 ];
 
 type ProfileTabsProps = {
