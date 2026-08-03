@@ -1,17 +1,17 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ActivityFeed } from '@/components/ActivityFeed';
-import { CollectionCard } from '@/components/CollectionCard';
-import { CollectionModal } from '@/components/CollectionModal';
-import { EditProfileModal } from '@/components/EditProfileModal';
-import { FollowListModal } from '@/components/FollowListModal';
-import { ProfileHeader } from '@/components/ProfileHeader';
-import { ProfileStats } from '@/components/ProfileStats';
-import { type ProfileTabId, ProfileTabs } from '@/components/ProfileTabs';
-import { RecipeCard } from '@/components/RecipeCard';
-import { RecipeGridControls, type RecipeSortOption, type RecipeViewMode } from '@/components/RecipeGridControls';
-import { RecipeListRow } from '@/components/RecipeListRow';
+import { ActivityFeed } from '@/features/profile/components/ActivityFeed';
+import { CollectionCard } from '@/features/recipes/components/CollectionCard';
+import { CollectionModal } from '@/features/recipes/components/CollectionModal';
+import { EditProfileModal } from '@/features/profile/components/EditProfileModal';
+import { FollowListModal } from '@/features/social/components/FollowListModal';
+import { ProfileHeader } from '@/features/profile/components/ProfileHeader';
+import { ProfileStats } from '@/features/profile/components/ProfileStats';
+import { type ProfileTabId, ProfileTabs } from '@/features/profile/components/ProfileTabs';
+import { RecipeCard } from '@/features/recipes/components/RecipeCard';
+import { RecipeGridControls, type RecipeSortOption, type RecipeViewMode } from '@/features/recipes/components/RecipeGridControls';
+import { RecipeListRow } from '@/features/recipes/components/RecipeListRow';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';

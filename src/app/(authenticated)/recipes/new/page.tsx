@@ -1,10 +1,10 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { CategorySelect } from '@/components/CategorySelect';
-import { IngredientRows, createEmptyIngredientDraft } from '@/components/IngredientRows';
-import { LeaveButton } from '@/components/LeaveButton';
-import { RecipeImagePicker } from '@/components/RecipeImagePicker';
+import { CategorySelect } from '@/features/recipes/components/CategorySelect';
+import { IngredientRows, createEmptyIngredientDraft } from '@/features/recipes/components/IngredientRows';
+import { LeaveButton } from '@/features/social/components/LeaveButton';
+import { RecipeImagePicker } from '@/features/recipes/components/RecipeImagePicker';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';

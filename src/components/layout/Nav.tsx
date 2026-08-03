@@ -1,4 +1,4 @@
-import { SignOutButton } from '@/components/SignOutButton';
+import { SignOutButton } from '@/components/layout/SignOutButton';
 import { Search } from 'lucide-react';
 import Link from 'next/link';
 

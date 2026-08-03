@@ -1,7 +1,7 @@
 'use client';
 
-import { FollowButton } from '@/components/FollowButton';
-import { ProfileListItem } from '@/components/ProfileListItem';
+import { FollowButton } from '@/features/social/components/FollowButton';
+import { ProfileListItem } from '@/features/profile/components/ProfileListItem';
 import { Modal } from '@/components/ui/Modal';
 import { useFollowers, useFollowing } from '@/hooks/useFollows';
 

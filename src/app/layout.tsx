@@ -1,4 +1,4 @@
-import { QueryProvider } from '@/components/QueryProvider';
+import { QueryProvider } from '@/components/layout/QueryProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';

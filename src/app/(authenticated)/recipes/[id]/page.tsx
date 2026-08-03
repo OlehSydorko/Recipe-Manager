@@ -1,9 +1,9 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
-import { FavoriteStar } from '@/components/FavoriteStar';
-import { LeaveButton } from '@/components/LeaveButton';
-import { PortionsChanger } from '@/components/PortionsChanger';
+import { FavoriteStar } from '@/features/recipes/components/FavoriteStar';
+import { LeaveButton } from '@/features/social/components/LeaveButton';
+import { PortionsChanger } from '@/features/recipes/components/PortionsChanger';
 import { ActionMenu } from '@/components/ui/ActionMenu';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';

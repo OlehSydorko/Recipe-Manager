@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { CategoryFilter } from '@/components/CategoryFilter';
-import { RecipeCard } from '@/components/RecipeCard';
+import { CategoryFilter } from '@/features/recipes/components/CategoryFilter';
+import { RecipeCard } from '@/features/recipes/components/RecipeCard';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { useCategories } from '@/hooks/useCategories';
 import { useRecipes } from '@/hooks/useRecipes';

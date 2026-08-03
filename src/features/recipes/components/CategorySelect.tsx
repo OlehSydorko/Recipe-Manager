@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CategoryDropdown } from '@/components/CategoryDropdown';
+import { CategoryDropdown } from '@/features/recipes/components/CategoryDropdown';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';

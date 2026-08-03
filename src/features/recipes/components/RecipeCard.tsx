@@ -1,6 +1,6 @@
 'use client';
 
-import { FavoriteStar } from '@/components/FavoriteStar';
+import { FavoriteStar } from '@/features/recipes/components/FavoriteStar';
 import { useRecipeImageUrl } from '@/hooks/useRecipes';
 import type { Recipe } from '@/types/recipe';
 import { Image as ImageIcon } from 'lucide-react';

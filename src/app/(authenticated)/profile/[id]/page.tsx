@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useEffect } from 'react';
-import { FollowButton } from '@/components/FollowButton';
+import { FollowButton } from '@/features/social/components/FollowButton';
 import { useFollowCounts } from '@/hooks/useFollows';
 import { useAvatarUrl, useCurrentProfile, useProfile } from '@/hooks/useProfile';
 import { MapPin, User } from 'lucide-react';
