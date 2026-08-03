@@ -103,6 +103,23 @@ export async function updateRecipe(input: UpdateRecipeInput): Promise<Recipe> {
     return data;
 }
 
+export async function setRecipeFavorite(id: string, isFavorite: boolean): Promise<Recipe> {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+        .from('recipes')
+        .update({ is_favorite: isFavorite, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        throw error;
+    }
+
+    return data;
+}
+
 export async function deleteRecipe(id: string, imagePath?: string | null): Promise<void> {
     const supabase = createClient();
 

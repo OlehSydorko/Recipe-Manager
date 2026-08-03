@@ -5,9 +5,11 @@ import {
     getRecipeImageSignedUrl,
     getRecipes,
     removeRecipeImage,
+    setRecipeFavorite,
     updateRecipe,
     uploadRecipeImage
 } from '@/API/recipes';
+import type { Recipe } from '@/types/recipe';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const RECIPES_QUERY_KEY = ['recipes'];
@@ -90,6 +92,51 @@ export function useUploadRecipeImage() {
         onSuccess: (recipe) => {
             queryClient.invalidateQueries({ queryKey: RECIPES_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: ['recipes', recipe.id] });
+        }
+    });
+}
+
+type SetRecipeFavoriteInput = {
+    id: string;
+    isFavorite: boolean;
+};
+
+// The only optimistic mutation in this file: the star toggle is a high-frequency,
+// low-risk click where instant feedback matters, unlike every other mutation here,
+// which waits for the request to settle before invalidating.
+export function useSetRecipeFavorite() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, isFavorite }: SetRecipeFavoriteInput) => setRecipeFavorite(id, isFavorite),
+        onMutate: async ({ id, isFavorite }: SetRecipeFavoriteInput) => {
+            await queryClient.cancelQueries({ queryKey: RECIPES_QUERY_KEY });
+            await queryClient.cancelQueries({ queryKey: ['recipes', id] });
+
+            const previousRecipes = queryClient.getQueryData<Recipe[]>(RECIPES_QUERY_KEY);
+            const previousRecipe = queryClient.getQueryData<Recipe>(['recipes', id]);
+
+            queryClient.setQueryData<Recipe[]>(RECIPES_QUERY_KEY, (recipes) =>
+                recipes?.map((recipe) => (recipe.id === id ? { ...recipe, is_favorite: isFavorite } : recipe))
+            );
+            queryClient.setQueryData<Recipe>(['recipes', id], (recipe) =>
+                recipe ? { ...recipe, is_favorite: isFavorite } : recipe
+            );
+
+            return { previousRecipe, previousRecipes };
+        },
+        onError: (_error, { id }: SetRecipeFavoriteInput, context) => {
+            if (context?.previousRecipes) {
+                queryClient.setQueryData(RECIPES_QUERY_KEY, context.previousRecipes);
+            }
+
+            if (context?.previousRecipe) {
+                queryClient.setQueryData(['recipes', id], context.previousRecipe);
+            }
+        },
+        onSettled: (_data, _error, { id }: SetRecipeFavoriteInput) => {
+            queryClient.invalidateQueries({ queryKey: RECIPES_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: ['recipes', id] });
         }
     });
 }

@@ -12,6 +12,7 @@ export type Recipe = {
     // ({user_id}/{recipe_id}/{filename}), not a public URL. Resolve to a
     // viewable URL with useRecipeImageUrl.
     image_url: string | null;
+    is_favorite: boolean;
     created_at: string;
     updated_at: string;
 };

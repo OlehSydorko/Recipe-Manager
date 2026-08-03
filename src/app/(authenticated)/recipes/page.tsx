@@ -13,12 +13,15 @@ export default function RecipesPage() {
     const { data: recipes, isPending, isError } = useRecipes();
     const { data: categories } = useCategories();
     const [categoryFilter, setCategoryFilter] = useState('');
+    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
     const categoryNameById = new Map(categories?.map((category) => [category.id, category.name]));
 
-    const filteredRecipes = categoryFilter
-        ? recipes?.filter((recipe) => recipe.category_id === categoryFilter)
-        : recipes;
+    const filteredRecipes = recipes
+        ?.filter((recipe) => !categoryFilter || recipe.category_id === categoryFilter)
+        .filter((recipe) => !showFavoritesOnly || recipe.is_favorite);
+
+    const isFiltered = Boolean(categoryFilter) || showFavoritesOnly;
 
     return (
         <div>
@@ -35,7 +38,13 @@ export default function RecipesPage() {
             </div>
 
             <div className='mt-5'>
-                <CategoryFilter categories={categories} value={categoryFilter} onChange={setCategoryFilter} />
+                <CategoryFilter
+                    categories={categories}
+                    value={categoryFilter}
+                    onChange={setCategoryFilter}
+                    showFavoritesOnly={showFavoritesOnly}
+                    onToggleFavoritesOnly={() => setShowFavoritesOnly((previous) => !previous)}
+                />
             </div>
 
             {isError && <p className='mt-8 text-body text-error'>Could not load recipes.</p>}
@@ -53,12 +62,12 @@ export default function RecipesPage() {
                 <div className='mt-16 flex flex-col items-center gap-3 text-center'>
                     <BookOpen size={32} className='text-text-disabled' />
                     <p className='text-h3 font-medium text-text-primary'>
-                        {categoryFilter ? 'No recipes in this category yet' : 'No recipes yet'}
+                        {isFiltered ? 'No recipes match these filters' : 'No recipes yet'}
                     </p>
                     <p className='text-body text-text-secondary'>
-                        {categoryFilter ? 'Try a different category.' : 'Create your first recipe to get started.'}
+                        {isFiltered ? 'Try a different filter.' : 'Create your first recipe to get started.'}
                     </p>
-                    {!categoryFilter && (
+                    {!isFiltered && (
                         <Link
                             href='/recipes/new'
                             className='mt-2 inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-button font-medium text-accent-foreground shadow-sm transition-colors duration-150 hover:bg-accent-hover'

@@ -1,6 +1,7 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
+import { FavoriteStar } from '@/components/FavoriteStar';
 import { LeaveButton } from '@/components/LeaveButton';
 import { PortionsChanger } from '@/components/PortionsChanger';
 import { ActionMenu } from '@/components/ui/ActionMenu';
@@ -92,13 +93,17 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
             <div className='mt-5 flex items-start justify-between gap-3'>
                 <h1 className='text-display font-semibold text-text-primary'>{recipe.title}</h1>
 
-                <ActionMenu
-                    ariaLabel={`Actions for ${recipe.title}`}
-                    items={[
-                        { label: 'Edit', onSelect: () => router.push(`/recipes/${recipe.id}/edit`) },
-                        { label: 'Delete', variant: 'danger', onSelect: () => setIsDeleteConfirmOpen(true) }
-                    ]}
-                />
+                <div className='flex items-center gap-1'>
+                    <FavoriteStar recipeId={recipe.id} isFavorite={recipe.is_favorite} />
+
+                    <ActionMenu
+                        ariaLabel={`Actions for ${recipe.title}`}
+                        items={[
+                            { label: 'Edit', onSelect: () => router.push(`/recipes/${recipe.id}/edit`) },
+                            { label: 'Delete', variant: 'danger', onSelect: () => setIsDeleteConfirmOpen(true) }
+                        ]}
+                    />
+                </div>
             </div>
 
             {recipe.description && <p className='mt-2 text-body text-text-secondary'>{recipe.description}</p>}
