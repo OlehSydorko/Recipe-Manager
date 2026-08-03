@@ -9,9 +9,10 @@ import Link from 'next/link';
 type RecipeCardProps = {
     recipe: Recipe;
     categoryName: string;
+    hideFavorite?: boolean;
 };
 
-export function RecipeCard({ recipe, categoryName }: RecipeCardProps) {
+export function RecipeCard({ recipe, categoryName, hideFavorite }: RecipeCardProps) {
     const { data: imageUrl } = useRecipeImageUrl(recipe.image_url);
 
     return (
@@ -51,9 +52,11 @@ export function RecipeCard({ recipe, categoryName }: RecipeCardProps) {
 
             {/* Top-right corner badge, over the image — not inside the pointer-events-none
                 content wrapper above, so it's clickable without extra overrides. */}
-            <div className='absolute right-2 top-2 z-20 rounded-full bg-bg/70 backdrop-blur-sm'>
-                <FavoriteStar recipeId={recipe.id} isFavorite={recipe.is_favorite} />
-            </div>
+            {!hideFavorite && (
+                <div className='absolute right-2 top-2 z-20 rounded-full bg-bg/70 backdrop-blur-sm'>
+                    <FavoriteStar recipeId={recipe.id} isFavorite={recipe.is_favorite} />
+                </div>
+            )}
         </div>
     );
 }

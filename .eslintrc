@@ -23,7 +23,7 @@
         "plugin:import/recommended",
         "plugin:import/typescript",
         "plugin:react/jsx-runtime",
-        "plugin:@next/next/recommended-legacy",
+        "plugin:@next/next/recommended",
         "airbnb-typescript",
         "plugin:@microsoft/sdl/typescript",
         "plugin:@microsoft/sdl/common",
