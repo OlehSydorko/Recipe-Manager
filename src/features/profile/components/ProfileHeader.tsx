@@ -1,5 +1,6 @@
 'use client';
 
+import { SignOutButton } from '@/components/layout/SignOutButton';
 import { useAvatarUrl } from '@/hooks/useProfile';
 import type { Profile } from '@/types/profile';
 import { MapPin, Pencil, User } from 'lucide-react';
@@ -50,6 +51,9 @@ export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
                     Edit profile
                 </button>
             </div>
+                { <div className='ml-auto shrink-0'>
+                    <SignOutButton />
+                </div> } 
         </div>
     );
 }

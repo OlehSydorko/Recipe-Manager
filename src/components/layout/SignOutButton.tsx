@@ -16,7 +16,7 @@ export function SignOutButton() {
 
     return (
         <Button variant='ghost' onClick={handleSignOut}>
-            <LogOut size={16} />
+            <LogOut size={15} />
             Sign out
         </Button>
     );
