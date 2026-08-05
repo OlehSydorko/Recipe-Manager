@@ -20,6 +20,7 @@ npm run format    # Prettier --write across the project
 ## Local Environment Setup
 
 Create a `.env.local` file in the root (values come from your Supabase project settings):
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=<your Supabase project URL>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your Supabase anon/public key>
@@ -60,13 +61,13 @@ src/
 
 ### Data model
 
-| Table | Key columns | Notes |
-|---|---|---|
-| `profiles` | id (= auth.users.id), display_name, avatar_url | One per user |
-| `categories` | id, user_id, name | Seeded with 6 defaults on signup; user can add more |
-| `recipes` | id, user_id, category_id, title, description, image_url, created_at, updated_at | |
-| `ingredients` | id, recipe_id, name, quantity (text), sort_order | No `checked` column — checklist state is client-only, resets on reload |
-| `steps` | id, recipe_id, instruction, sort_order | |
+| Table         | Key columns                                                                     | Notes                                                                  |
+| ------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `profiles`    | id (= auth.users.id), display_name, avatar_url                                  | One per user                                                           |
+| `categories`  | id, user_id, name                                                               | Seeded with 6 defaults on signup; user can add more                    |
+| `recipes`     | id, user_id, category_id, title, description, image_url, created_at, updated_at |                                                                        |
+| `ingredients` | id, recipe_id, name, quantity (text), sort_order                                | No `checked` column — checklist state is client-only, resets on reload |
+| `steps`       | id, recipe_id, instruction, sort_order                                          |                                                                        |
 
 Future (not built): `recipe_shares (recipe_id, shared_with_user_id)` for family sharing — additive, no changes needed to existing tables.
 
@@ -77,6 +78,7 @@ Supabase Storage bucket `recipe-images`, paths scoped as `{user_id}/{recipe_id}/
 ## Code Style
 
 Enforced by the project's ESLint/Prettier config (ported from the team's work setup — see `.eslintrc` and `.prettierrc`). Before writing or modifying any code, enforce these on every file you touch:
+
 - Newline at end of file
 - Single quotes only
 - No explicit `any`

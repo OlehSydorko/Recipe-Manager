@@ -1,13 +1,13 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
-import { FavoriteStar } from '@/features/recipes/components/FavoriteStar';
-import { LeaveButton } from '@/features/social/components/LeaveButton';
-import { PortionsChanger } from '@/features/recipes/components/PortionsChanger';
 import { ActionMenu } from '@/components/ui/ActionMenu';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { TextLineSkeleton } from '@/components/ui/Skeleton';
+import { FavoriteStar } from '@/features/recipes/components/FavoriteStar';
+import { PortionsChanger } from '@/features/recipes/components/PortionsChanger';
+import { LeaveButton } from '@/features/social/components/LeaveButton';
 import { useIngredients } from '@/hooks/useIngredients';
 import { useDeleteRecipe, useRecipe, useRecipeImageUrl } from '@/hooks/useRecipes';
 import { scaleQuantity } from '@/lib/quantity';

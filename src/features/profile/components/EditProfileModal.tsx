@@ -1,11 +1,11 @@
 'use client';
 
 import { type FormEvent, useEffect, useState } from 'react';
-import { AvatarPicker } from '@/features/profile/components/AvatarPicker';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Textarea';
+import { AvatarPicker } from '@/features/profile/components/AvatarPicker';
 import { useAvatarUrl, useRemoveAvatar, useUpdateProfile, useUploadAvatar } from '@/hooks/useProfile';
 import type { Profile } from '@/types/profile';
 

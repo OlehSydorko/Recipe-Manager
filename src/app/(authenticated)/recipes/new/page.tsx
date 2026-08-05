@@ -1,13 +1,13 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { CategorySelect } from '@/features/recipes/components/CategorySelect';
-import { IngredientRows, createEmptyIngredientDraft } from '@/features/recipes/components/IngredientRows';
-import { LeaveButton } from '@/features/social/components/LeaveButton';
-import { RecipeImagePicker } from '@/features/recipes/components/RecipeImagePicker';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+import { CategorySelect } from '@/features/recipes/components/CategorySelect';
+import { IngredientRows, createEmptyIngredientDraft } from '@/features/recipes/components/IngredientRows';
+import { RecipeImagePicker } from '@/features/recipes/components/RecipeImagePicker';
+import { LeaveButton } from '@/features/social/components/LeaveButton';
 import { useReplaceIngredients } from '@/hooks/useIngredients';
 import { useCreateRecipe, useUploadRecipeImage } from '@/hooks/useRecipes';
 import { isFormDirty } from '@/lib/formDirty';
@@ -94,10 +94,7 @@ export default function NewRecipePage() {
                     <CategorySelect value={categoryId} onChange={setCategoryId} />
 
                     <div>
-                        <label
-                            htmlFor='portions'
-                            className='mb-1.5 block text-label font-medium text-text-secondary'
-                        >
+                        <label htmlFor='portions' className='mb-1.5 block text-label font-medium text-text-secondary'>
                             Portions
                         </label>
                         <Input

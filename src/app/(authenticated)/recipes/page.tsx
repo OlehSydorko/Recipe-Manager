@@ -1,27 +1,34 @@
 'use client';
 
 import { useState } from 'react';
+import { Input } from '@/components/ui/Input';
+import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { CategoryFilter } from '@/features/recipes/components/CategoryFilter';
 import { RecipeCard } from '@/features/recipes/components/RecipeCard';
-import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { useCategories } from '@/hooks/useCategories';
 import { useRecipes } from '@/hooks/useRecipes';
-import { BookOpen, Plus } from 'lucide-react';
+import { BookOpen, Plus , Search } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 export default function RecipesPage() {
+    const searchParams = useSearchParams();
     const { data: recipes, isPending, isError } = useRecipes();
     const { data: categories } = useCategories();
     const [categoryFilter, setCategoryFilter] = useState('');
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+    const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '');
 
     const categoryNameById = new Map(categories?.map((category) => [category.id, category.name]));
 
     const filteredRecipes = recipes
         ?.filter((recipe) => !categoryFilter || recipe.category_id === categoryFilter)
-        .filter((recipe) => !showFavoritesOnly || recipe.is_favorite);
+        .filter((recipe) => !showFavoritesOnly || recipe.is_favorite)
+        .filter(
+            (recipe) => !searchQuery.toLowerCase() || recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
-    const isFiltered = Boolean(categoryFilter) || showFavoritesOnly;
+    const isFiltered = Boolean(categoryFilter) || showFavoritesOnly || Boolean(searchQuery.trim());
 
     return (
         <div>
@@ -35,6 +42,21 @@ export default function RecipesPage() {
                     <Plus size={16} />
                     New recipe
                 </Link>
+            </div>
+
+             <div className='relative hidden mt-5 sm:block'>
+                <Search
+                    size={17}
+                    className='pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-text-disabled'
+                />
+                <Input
+                    type='search'
+                    placeholder='Search Recipes'
+                    aria-label='Search Recipes'
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    className='h-10 w-full rounded-full border border-border bg-bg-secondary pl-10 pr-4 text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-60'
+                />
             </div>
 
             <div className='mt-5'>

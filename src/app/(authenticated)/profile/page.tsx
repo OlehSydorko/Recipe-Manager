@@ -1,19 +1,23 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { CollectionCard } from '@/features/recipes/components/CollectionCard';
-import { CollectionModal } from '@/features/recipes/components/CollectionModal';
-import { EditProfileModal } from '@/features/profile/components/EditProfileModal';
-import { FollowListModal } from '@/features/social/components/FollowListModal';
-import { ProfileHeader } from '@/features/profile/components/ProfileHeader';
-import { ProfileStats } from '@/features/profile/components/ProfileStats';
-import { type ProfileTabId, ProfileTabs } from '@/features/profile/components/ProfileTabs';
-import { RecipeCard } from '@/features/recipes/components/RecipeCard';
-import { RecipeGridControls, type RecipeSortOption, type RecipeViewMode } from '@/features/recipes/components/RecipeGridControls';
-import { RecipeListRow } from '@/features/recipes/components/RecipeListRow';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
+import { EditProfileModal } from '@/features/profile/components/EditProfileModal';
+import { ProfileHeader } from '@/features/profile/components/ProfileHeader';
+import { ProfileStats } from '@/features/profile/components/ProfileStats';
+import { type ProfileTabId, ProfileTabs } from '@/features/profile/components/ProfileTabs';
+import { CollectionCard } from '@/features/recipes/components/CollectionCard';
+import { CollectionModal } from '@/features/recipes/components/CollectionModal';
+import { RecipeCard } from '@/features/recipes/components/RecipeCard';
+import {
+    RecipeGridControls,
+    type RecipeSortOption,
+    type RecipeViewMode
+} from '@/features/recipes/components/RecipeGridControls';
+import { RecipeListRow } from '@/features/recipes/components/RecipeListRow';
+import { FollowListModal } from '@/features/social/components/FollowListModal';
 import { useCategories } from '@/hooks/useCategories';
 import { useCollections, useDeleteCollection } from '@/hooks/useCollections';
 import { useFollowCounts } from '@/hooks/useFollows';

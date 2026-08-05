@@ -51,9 +51,11 @@ export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
                     Edit profile
                 </button>
             </div>
-                { <div className='ml-auto shrink-0'>
+            {
+                <div className='ml-auto shrink-0'>
                     <SignOutButton />
-                </div> } 
+                </div>
+            }
         </div>
     );
 }
