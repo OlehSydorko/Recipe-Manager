@@ -1,12 +1,13 @@
 'use client';
 
-import { BookOpen, Home } from 'lucide-react';
+import { BookOpen, Home, Scroll } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const links = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/recipes', label: 'Recipes', icon: BookOpen }
+    { href: '/recipes', label: 'Recipes', icon: BookOpen },
+    { href: '/collections', label: 'Collections', icon: Scroll }
 ];
 
 export function Sidebar() {

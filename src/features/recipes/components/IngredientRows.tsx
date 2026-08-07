@@ -36,6 +36,12 @@ const FIELD_CLASSES =
     'h-11 rounded-sm border border-border bg-bg-secondary text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15';
 
 export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
+    const handleNameChange = (key: string, value: string) => {
+        onChange(
+            ingredients.map((ingredient) => (ingredient.key === key ? { ...ingredient, name: value } : ingredient))
+        );
+    };
+
     const handleQuantityChange = (key: string, value: string) => {
         const quantity = sanitizeQuantity(value);
 
@@ -48,11 +54,6 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
         );
     };
 
-    const handleNameChange = (key: string, value: string) => {
-        onChange(
-            ingredients.map((ingredient) => (ingredient.key === key ? { ...ingredient, name: value } : ingredient))
-        );
-    };
 
     const handleAddRow = () => {
         onChange([...ingredients, createEmptyIngredientDraft()]);
@@ -69,6 +70,14 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
             <div className='mt-2 space-y-2'>
                 {ingredients.map((ingredient) => (
                     <div key={ingredient.key} className='flex gap-2'>
+
+                         <input
+                            type='text'
+                            value={ingredient.name}
+                            onChange={(event) => handleNameChange(ingredient.key, event.target.value)}
+                            placeholder='Ingredient'
+                            className={`flex-1 px-3 ${FIELD_CLASSES}`}
+                        />
                         <input
                             type='text'
                             inputMode='decimal'
@@ -95,14 +104,6 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
                                 className='pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary'
                             />
                         </div>
-
-                        <input
-                            type='text'
-                            value={ingredient.name}
-                            onChange={(event) => handleNameChange(ingredient.key, event.target.value)}
-                            placeholder='Ingredient'
-                            className={`flex-1 px-3 ${FIELD_CLASSES}`}
-                        />
 
                         <button
                             type='button'

@@ -37,7 +37,6 @@ export default function HomePage() {
 
     const favoritesCount = recipes?.filter((recipe) => recipe.is_favorite).length ?? 0;
     const topCollections = collections?.slice(0, COLLECTIONS_LIMIT) ?? [];
-    const hasCategories = Boolean(categories && categories.length > 0);
     const hasCollections = !collectionsPending && topCollections.length > 0;
 
     return (
@@ -50,29 +49,7 @@ export default function HomePage() {
                 followersCount={followCounts?.followers ?? 0}
                 followingCount={followCounts?.following ?? 0}
             />
-
-            {hasCategories && (
-                <section>
-                    <div className='flex items-center justify-between'>
-                        <h2 className='text-h2 font-semibold text-text-primary'>Categories</h2>
-                        <Link href='/recipes' className='text-label font-medium text-accent hover:text-accent-hover'>
-                            View all
-                        </Link>
-                    </div>
-
-                    <div className='mt-4 flex flex-wrap gap-2'>
-                        {categories?.map((category) => (
-                            <Link
-                                key={category.id}
-                                href='/recipes'
-                                className='rounded-full border border-border bg-surface px-3.5 py-1.5 text-label font-medium text-text-secondary transition-colors duration-150 hover:border-border-strong hover:text-text-primary'
-                            >
-                                {category.name}
-                            </Link>
-                        ))}
-                    </div>
-                </section>
-            )}
+            
 
             <section>
                 <div className='flex items-center justify-between'>

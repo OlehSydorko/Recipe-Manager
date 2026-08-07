@@ -1,4 +1,4 @@
-export const ALLOWED_UNITS = ['g', 'kg', 'ml', 'l', 'tsp', 'Tbsp', 'cup', 'pinch', 'piece'] as const;
+export const ALLOWED_UNITS = ['g', 'kg', 'ml', 'l', 'tsp', 'Tbsp', 'cup', 'pinch', 'piece', 'Whole'] as const;
 
 export type Unit = (typeof ALLOWED_UNITS)[number];
 
