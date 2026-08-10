@@ -3,6 +3,7 @@ import {
     deleteCollection,
     getCollectionRecipeIds,
     getCollections,
+    getSignedUrls,
     updateCollection
 } from '@/API/collections';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -55,5 +56,14 @@ export function useDeleteCollection() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: COLLECTIONS_QUERY_KEY });
         }
+    });
+}
+
+
+export function useCollectionCoverUrls(paths: string[]) {
+    return useQuery({
+        enabled: paths.length > 0,
+        queryFn: () => getSignedUrls(paths),
+        queryKey: ['collection-cover-urls', paths]
     });
 }

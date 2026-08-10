@@ -8,4 +8,5 @@ export type Collection = {
 
 export type CollectionWithCount = Collection & {
     recipeCount: number;
+    coverImagePaths: string[];
 };

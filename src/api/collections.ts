@@ -9,10 +9,13 @@ type CollectionRow = CollectionWithCount & {
 export async function getCollections(): Promise<CollectionWithCount[]> {
     const supabase = createClient();
 
-    const { data, error } = await supabase
+    const [{ data, error }, coverPathsByCollection] = await Promise.all([supabase
         .from('collections')
         .select('*, collection_recipes(count)')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }),
+    getCollectionCoverPaths()
+        ]);
+
 
     if (error) {
         throw error;
@@ -20,7 +23,8 @@ export async function getCollections(): Promise<CollectionWithCount[]> {
 
     return (data as CollectionRow[]).map(({ collection_recipes: counts, ...collection }) => ({
         ...collection,
-        recipeCount: counts?.[0]?.count ?? 0
+        recipeCount: counts?.[0]?.count ?? 0,
+        coverImagePaths: coverPathsByCollection.get(collection.id) ?? []
     }));
 }
 
@@ -38,6 +42,78 @@ export async function getCollectionRecipeIds(collectionId: string): Promise<stri
 
     return data.map((row) => row.recipe_id);
 }
+
+
+type CollectionCoverRow = {
+    collection_id: string;
+    recipe: { image_url: string | null } | null;
+};
+
+export async function getCollectionCoverPaths(): Promise<Map<string, string[]>> {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+        .from('collection_recipes')
+        .select('collection_id, recipe:recipes(image_url)')
+        .order('sort_order', { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        const pathsByCollection = new Map<string, string[]>();
+
+
+        // supabase-js infers embedded relations as arrays by default (it has no
+        // way to know the FK is many-to-one without generated Database types),
+        // so the inferred type doesn't overlap with the single-object shape
+        // below — go through `unknown` rather than widen CollectionCoverRow.
+        for (const row of data as unknown as CollectionCoverRow[]) {
+            // recipe_id is a many-to-one FK on collection_recipes, so Supabase
+            // embeds it as a single object: recipe: { image_url }, not an array.
+            const path = row.recipe?.image_url
+
+            if (!path) {continue;}    
+
+            const existing = pathsByCollection.get(row.collection_id) ?? [];
+
+            if (existing.length < 4) {
+                existing.push(path);
+                pathsByCollection.set(row.collection_id, existing);
+            }
+        }
+        
+return pathsByCollection;
+}
+
+
+export async function getSignedUrls(paths: string[]): Promise<Record<string, string>> {
+    if (paths.length === 0) {
+        return {};
+    }
+
+    const supabase = createClient();
+
+    const { data, error } = await supabase.storage
+        .from('recipe-images')
+        .createSignedUrls(paths, 60 * 60)
+
+
+    if (error) {
+        throw error;
+    }
+
+    const urlsByPath: Record<string, string> = {};
+
+    for (const entry of data) {
+        if (entry.path && entry.signedUrl) {
+            urlsByPath[entry.path] = entry.signedUrl
+        }
+    }
+    
+return urlsByPath;
+}
+
 
 // Replaces a collection's full recipe membership, mirroring how ingredients
 // are saved for a recipe: delete the existing rows, then insert the current
