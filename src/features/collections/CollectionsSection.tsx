@@ -14,7 +14,12 @@ import { CollectionGridControls, type CollectionSortOption, type CollectionViewM
 import { CollectionListRow } from './CollectionListRow';
 
 
-export function CollectionsSection () {
+type CollectionsSectionProps = {
+    variant?: 'page' | 'tab';
+};
+
+export function CollectionsSection ({ variant = 'page' }: CollectionsSectionProps) {
+    const isTabVariant = variant === 'tab';
     const { data: recipes } = useRecipes();
     const { data: collections, isPending: collectionsPending } = useCollections();
     const deleteCollection = useDeleteCollection();
@@ -68,16 +73,18 @@ return b.created_at.localeCompare(a.created_at);
     };
 
     return <div>
-                    <div className='flex flex-wrap items-center justify-between gap-4'>
-                        <h1 className='text-display font-semibold text-text-primary'>Collections</h1>
+                    {!isTabVariant && (
+                        <div className='flex flex-wrap items-center justify-between gap-4'>
+                            <h1 className='text-display font-semibold text-text-primary'>Collections</h1>
 
-                        <Button variant='primary' onClick={handleNewCollection}>
-                            <Plus size={16} />
-                            New collection
-                        </Button>
-                    </div>
+                            <Button variant='primary' onClick={handleNewCollection}>
+                                <Plus size={16} />
+                                New collection
+                            </Button>
+                        </div>
+                    )}
 
-
+                    {!isTabVariant && (
                      <div className='relative mt-5'>
                        <Search
                           size={17}
@@ -91,11 +98,12 @@ return b.created_at.localeCompare(a.created_at);
                            onChange={(event) => setSearchQuery(event.target.value)}
                            className='h-10 w-full rounded-full border border-border bg-bg-secondary pl-10 pr-4 text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15'
                        />
-                       
-                       
-                       </div>
 
-                        <div className='mt-5 flex justify-end'> 
+
+                       </div>
+                    )}
+
+                        <div className='mt-5 flex justify-end'>
                             <CollectionGridControls 
                                 sortBy={sortBy}
                                 onSortChange={setSortBy}
@@ -130,6 +138,7 @@ return b.created_at.localeCompare(a.created_at);
                                     collection={collection}
                                     onEdit={() => handleEditCollection(collection)}
                                     onDelete={() => setDeletingCollection(collection)}
+                                    hideActions={isTabVariant}
                                 />
                             ))}
                         </div>
@@ -139,11 +148,12 @@ return b.created_at.localeCompare(a.created_at);
                     {!collectionsPending && sortedCollections.length > 0 && viewMode === 'list' && (
                        <div className='mt-6 space-y-3'>
                             {sortedCollections.map((collection) => (
-                            <CollectionListRow 
+                            <CollectionListRow
                                 key={collection.id}
                                 collection={collection}
                                 onEdit={() => handleEditCollection(collection)}
                                 onDelete={() => setDeletingCollection(collection)}
+                                hideActions={isTabVariant}
                             />
                             ))}
                        </div>

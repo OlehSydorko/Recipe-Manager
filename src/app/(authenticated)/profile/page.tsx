@@ -141,7 +141,7 @@ export default function ProfilePage() {
                     )}
                 </div>
             )}
-            {activeTab === 'collections' && <CollectionsSection />}
+            {activeTab === 'collections' && <CollectionsSection variant='tab' />}
 
             <EditProfileModal profile={profile} open={isEditOpen} onClose={() => setIsEditOpen(false)} />
 
