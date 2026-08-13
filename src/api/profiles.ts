@@ -71,6 +71,28 @@ export async function updateProfile(input: UpdateProfileInput): Promise<Profile>
     return data;
 }
 
+const SEARCH_RESULTS_LIMIT = 20;
+
+// Name search for the "Discover" page. Excludes the searching user's own
+// profile — following/viewing yourself isn't a meaningful result here, and
+// /profile/[id] already redirects your own id back to /profile anyway.
+export async function searchProfiles(query: string, excludeUserId: string): Promise<Profile[]> {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .ilike('display_name', `%${query}%`)
+        .neq('id', excludeUserId)
+        .limit(SEARCH_RESULTS_LIMIT);
+
+    if (error) {
+        throw error;
+    }
+
+    return data;
+}
+
 export async function getAvatarSignedUrl(path: string): Promise<string> {
     const supabase = createClient();
 

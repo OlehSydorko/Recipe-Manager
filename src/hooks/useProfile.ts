@@ -3,12 +3,14 @@ import {
     getCurrentProfile,
     getProfile,
     removeAvatar,
+    searchProfiles,
     updateProfile,
     uploadAvatar
 } from '@/API/profiles';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const CURRENT_PROFILE_QUERY_KEY = ['profile', 'me'];
+const MIN_SEARCH_QUERY_LENGTH = 2;
 
 export function useCurrentProfile() {
     return useQuery({
@@ -23,6 +25,21 @@ export function useProfile(userId: string) {
         enabled: Boolean(userId),
         queryFn: () => getProfile(userId),
         queryKey: ['profile', userId]
+    });
+}
+
+// Name search for the Discover page. Needs the current user's id to exclude
+// their own profile from results, so it depends on useCurrentProfile — stays
+// disabled (and returns no results) until that's loaded, same as it stays
+// disabled below the minimum query length.
+export function useSearchProfiles(query: string) {
+    const { data: currentProfile } = useCurrentProfile();
+    const trimmedQuery = query.trim();
+
+    return useQuery({
+        enabled: trimmedQuery.length >= MIN_SEARCH_QUERY_LENGTH && Boolean(currentProfile?.id),
+        queryFn: () => searchProfiles(trimmedQuery, currentProfile?.id as string),
+        queryKey: ['profiles', 'search', trimmedQuery]
     });
 }
 

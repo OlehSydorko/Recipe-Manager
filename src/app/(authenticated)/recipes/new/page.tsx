@@ -26,7 +26,8 @@ export default function NewRecipePage() {
     const [description, setDescription] = useState('');
     const [instructions, setInstructions] = useState('');
     const [categoryId, setCategoryId] = useState('');
-    const [portions, setPortions] = useState(1);
+    const [portions, setPortions] = useState<number | ''>(1);
+    const [portionsError, setPortionsError] = useState('');
     const [ingredients, setIngredients] = useState<IngredientDraft[]>([createEmptyIngredientDraft()]);
     const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -43,7 +44,11 @@ export default function NewRecipePage() {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
-        if (!title.trim() || !categoryId) {
+        if (!portions) {
+            setPortionsError('Oops, you cannot have 0 portions.');
+        }
+
+        if (!title.trim() || !categoryId || !portions) {
             return;
         }
 
@@ -67,9 +72,23 @@ export default function NewRecipePage() {
     };
 
     const handlePortionsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const parsed = Number.parseInt(event.target.value, 10);
+        const raw = event.target.value;
 
-        setPortions(Number.isNaN(parsed) ? 1 : Math.max(1, parsed));
+        if (raw === '') {
+            setPortions('');
+            setPortionsError('');
+
+            return;
+        }
+
+        const parsed = Number.parseInt(raw, 10);
+
+        if (Number.isNaN(parsed)) {
+            return;
+        }
+
+        setPortions(parsed);
+        setPortionsError(parsed === 0 ? 'Oops, you cannot have 0 portions.' : '');
     };
 
     return (
@@ -100,12 +119,13 @@ export default function NewRecipePage() {
                         <Input
                             id='portions'
                             type='number'
-                            min={1}
+                            min={0}
                             value={portions}
                             onChange={handlePortionsChange}
                             className='w-24'
                             required
                         />
+                        {portionsError && <p className='mt-1.5 text-body text-error'>{portionsError}</p>}
                     </div>
 
                     <div>

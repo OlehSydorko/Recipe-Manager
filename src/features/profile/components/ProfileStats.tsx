@@ -36,7 +36,7 @@ export function ProfileStats({
                     type='button'
                     onClick={onClick}
                     disabled={!onClick}
-                    className='rounded-lg border border-border bg-surface p-4 text-center transition-colors duration-150 enabled:hover:border-border-strong enabled:hover:bg-hover disabled:cursor-default'
+                    className='rounded-lg border border-border bg-surface p-3 text-center transition-colors duration-150 enabled:hover:border-border-strong enabled:hover:bg-hover disabled:cursor-default'
                 >
                     <Icon size={18} className='mx-auto text-accent' />
                     <p className='mt-2 text-h2 font-semibold text-text-primary'>{value}</p>
