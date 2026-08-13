@@ -2,7 +2,7 @@
 
 import { FavoriteStar } from '@/features/recipes/components/FavoriteStar';
 import { useRecipeImageUrl } from '@/hooks/useRecipes';
-import type { Recipe } from '@/types/recipe';
+import type { Recipe, RecipeAuthor } from '@/types/recipe';
 import { Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
@@ -10,9 +10,14 @@ type RecipeCardProps = {
     recipe: Recipe;
     categoryName: string;
     hideFavorite?: boolean;
+    // Only passed on the Community tab — omitted for "My Recipes", where
+    // showing your own name on every card would be noise. Plain text rather
+    // than a link to /profile/[id]: the whole card is already one giant link
+    // overlay (see below), and nesting a second link inside it isn't valid HTML.
+    author?: RecipeAuthor;
 };
 
-export function RecipeCard({ recipe, categoryName, hideFavorite }: RecipeCardProps) {
+export function RecipeCard({ recipe, categoryName, hideFavorite, author }: RecipeCardProps) {
     const { data: imageUrl } = useRecipeImageUrl(recipe.image_url);
 
     return (
@@ -46,6 +51,12 @@ export function RecipeCard({ recipe, categoryName, hideFavorite }: RecipeCardPro
 
                     {recipe.description && (
                         <p className='line-clamp-2 text-caption text-text-secondary'>{recipe.description}</p>
+                    )}
+
+                    {author && (
+                        <p className='truncate text-caption text-text-disabled'>
+                            by {author.displayName ?? 'Someone'}
+                        </p>
                     )}
                 </div>
             </div>

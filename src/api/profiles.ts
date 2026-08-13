@@ -1,9 +1,6 @@
 import { createClient } from '@/lib/supabaseClient';
 import type { Profile } from '@/types/profile';
 
-// avatar_url stores the object's path within this bucket, not a public URL —
-// the bucket is private, so viewing an avatar requires a signed URL (see
-// getAvatarSignedUrl below). Mirrors the recipe-images pattern in API/recipes.ts.
 const AVATARS_BUCKET = 'avatars';
 const SIGNED_URL_EXPIRY_SECONDS = 60 * 60;
 const NOT_AUTHENTICATED_MESSAGE = 'Not authenticated';
@@ -12,6 +9,22 @@ export async function getProfile(userId: string): Promise<Profile> {
     const supabase = createClient();
 
     const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+
+    if (error) {
+        throw error;
+    }
+
+    return data;
+}
+
+export async function getProfilesByIds(userIds: string[]): Promise<Profile[]> {
+    if (userIds.length === 0) {
+        return [];
+    }
+
+    const supabase = createClient();
+
+    const { data, error } = await supabase.from('profiles').select('*').in('id', userIds);
 
     if (error) {
         throw error;
@@ -73,9 +86,7 @@ export async function updateProfile(input: UpdateProfileInput): Promise<Profile>
 
 const SEARCH_RESULTS_LIMIT = 20;
 
-// Name search for the "Discover" page. Excludes the searching user's own
-// profile — following/viewing yourself isn't a meaningful result here, and
-// /profile/[id] already redirects your own id back to /profile anyway.
+
 export async function searchProfiles(query: string, excludeUserId: string): Promise<Profile[]> {
     const supabase = createClient();
 

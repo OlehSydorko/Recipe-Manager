@@ -64,13 +64,8 @@ export async function getCollectionCoverPaths(): Promise<Map<string, string[]>> 
         const pathsByCollection = new Map<string, string[]>();
 
 
-        // supabase-js infers embedded relations as arrays by default (it has no
-        // way to know the FK is many-to-one without generated Database types),
-        // so the inferred type doesn't overlap with the single-object shape
-        // below — go through `unknown` rather than widen CollectionCoverRow.
         for (const row of data as unknown as CollectionCoverRow[]) {
-            // recipe_id is a many-to-one FK on collection_recipes, so Supabase
-            // embeds it as a single object: recipe: { image_url }, not an array.
+
             const path = row.recipe?.image_url
 
             if (!path) {continue;}    
@@ -115,9 +110,7 @@ return urlsByPath;
 }
 
 
-// Replaces a collection's full recipe membership, mirroring how ingredients
-// are saved for a recipe: delete the existing rows, then insert the current
-// set, rather than diffing individual rows.
+
 async function replaceCollectionRecipes(collectionId: string, recipeIds: string[]): Promise<void> {
     const supabase = createClient();
 
@@ -141,6 +134,57 @@ async function replaceCollectionRecipes(collectionId: string, recipeIds: string[
 
     if (insertError) {
         throw insertError;
+    }
+}
+
+export async function getCollectionIdsForRecipe(recipeId: string): Promise<string[]> {
+    const supabase = createClient();
+
+    const { data, error } = await supabase.from('collection_recipes').select('collection_id').eq('recipe_id', recipeId);
+
+    if (error) {
+        throw error;
+    }
+
+    return data.map((row) => row.collection_id);
+}
+
+
+export async function addRecipeToCollection(collectionId: string, recipeId: string): Promise<void> {
+    const supabase = createClient();
+
+    const { data: lastRow, error: lastRowError } = await supabase
+        .from('collection_recipes')
+        .select('sort_order')
+        .eq('collection_id', collectionId)
+        .order('sort_order', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if (lastRowError) {
+        throw lastRowError;
+    }
+
+    const { error } = await supabase
+        .from('collection_recipes')
+        .insert({ collection_id: collectionId, recipe_id: recipeId, sort_order: (lastRow?.sort_order ?? -1) + 1 });
+
+    if (error) {
+        throw error;
+    }
+}
+
+export async function removeRecipeFromCollection(collectionId: string, recipeId: string): Promise<void> {
+    const supabase = createClient();
+
+    const { error } = await supabase
+        .from('collection_recipes')
+        .delete()
+        .eq('collection_id', collectionId)
+        .eq('recipe_id', recipeId);
+
+    if (error) {
+        throw error;
     }
 }
 

@@ -4,7 +4,7 @@ This file provides guidance to Claude when working with code in this repository.
 
 ## Project
 
-Recipe Manager — a personal, private recipe vault. Users write down their own recipes so they don't lose them, organize them into categories, and follow an interactive ingredient checklist while cooking. Every recipe is private to its owner by default; family sharing (explicit, account-based, not public links) is a planned future feature, not yet built.
+Recipe Manager — users write down their own recipes so they don't lose them, organize them into categories, and follow an interactive ingredient checklist while cooking. Recipes are public: any signed-in user can view any other user's recipes (and favorite or save them into their own collections), but only the owner can create, edit, or delete a recipe, or assign/manage its category. There is no per-recipe privacy toggle yet — that would be a future feature, not currently built.
 
 ## Commands
 
@@ -43,7 +43,12 @@ Uses `@supabase/ssr` (not plain `supabase-js`) because Next.js renders both serv
 
 ### Security model
 
-Every table has Row Level Security (RLS) enabled, default-deny. Policies key off `auth.uid()` — e.g. `recipes`: a user can only SELECT/INSERT/UPDATE/DELETE rows where `user_id = auth.uid()`. This is enforced by Postgres itself, not by frontend checks, so it holds even against direct API calls.
+Every table has Row Level Security (RLS) enabled, default-deny. This is enforced by Postgres itself, not by frontend checks, so it holds even against direct API calls. Two patterns:
+
+- **Public read, owner-scoped write** — `recipes`, `categories`, `ingredients`, `steps`, `profiles`, and the `recipe-images`/`avatars` storage buckets: SELECT is open to any authenticated user (`using (true)`), INSERT/UPDATE/DELETE require `user_id = auth.uid()` (or `owns_recipe(recipe_id)` for `ingredients`/`steps`, which derives ownership from the parent recipe).
+- **Fully owner-scoped** — `collections`, `recipe_favorites`, `follows`, `activity_log`: every operation requires `auth.uid()` to match the row's owner. `collection_recipes` is the one exception with a deliberately looser INSERT check — you can save *any* recipe (not just your own) into a collection you own.
+
+Because `getRecipes()`/`getCategories()` mean "mine" throughout the app (My Recipes page, category dropdowns, home stats), those API functions filter by `user_id = auth.uid()` explicitly in the query rather than relying on RLS to do it — RLS alone would now return every user's rows. `getCommunityRecipes()` is the deliberately unfiltered counterpart, backing the Community tab on `/recipes`.
 
 ### Folder structure
 
@@ -68,8 +73,9 @@ src/
 | `recipes`     | id, user_id, category_id, title, description, image_url, created_at, updated_at |                                                                        |
 | `ingredients` | id, recipe_id, name, quantity (text), sort_order                                | No `checked` column — checklist state is client-only, resets on reload |
 | `steps`       | id, recipe_id, instruction, sort_order                                          |                                                                        |
+| `recipe_favorites` | user_id, recipe_id                                                         | Per-user favorite, not a column on `recipes` — a recipe can be favorited by many different users now that recipes are public |
 
-Future (not built): `recipe_shares (recipe_id, shared_with_user_id)` for family sharing — additive, no changes needed to existing tables.
+This table is not exhaustive — `collections`, `collection_recipes`, `follows`, and `activity_log` also exist; verify against `supabase/migrations/` or the live schema rather than assuming this list is complete.
 
 ### Image storage
 

@@ -1,10 +1,24 @@
 import { createClient } from '@/lib/supabaseClient';
 import { type Category, DEFAULT_CATEGORY_COUNT } from '@/types/category';
 
+const NOT_AUTHENTICATED_MESSAGE = 'Not authenticated';
+
 export async function getCategories(): Promise<Category[]> {
     const supabase = createClient();
 
-    const { data, error } = await supabase.from('categories').select('*').order('created_at', { ascending: true });
+    const {
+        data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        throw new Error(NOT_AUTHENTICATED_MESSAGE);
+    }
+
+    const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true });
 
     if (error) {
         throw error;
@@ -21,7 +35,7 @@ export async function createCategory(name: string): Promise<Category> {
     } = await supabase.auth.getUser();
 
     if (!user) {
-        throw new Error('Not authenticated');
+        throw new Error(NOT_AUTHENTICATED_MESSAGE);
     }
 
     const { data, error } = await supabase.from('categories').insert({ name, user_id: user.id }).select().single();
@@ -41,7 +55,7 @@ export async function deleteCategory(id: string): Promise<void> {
     } = await supabase.auth.getUser();
 
     if (!user) {
-        throw new Error('Not authenticated');
+        throw new Error(NOT_AUTHENTICATED_MESSAGE);
     }
 
     const { data: defaultCategories, error: defaultsError } = await supabase

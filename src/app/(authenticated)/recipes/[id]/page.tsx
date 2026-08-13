@@ -7,11 +7,14 @@ import { Modal } from '@/components/ui/Modal';
 import { TextLineSkeleton } from '@/components/ui/Skeleton';
 import { FavoriteStar } from '@/features/recipes/components/FavoriteStar';
 import { PortionsChanger } from '@/features/recipes/components/PortionsChanger';
+import { SaveToCollectionButton } from '@/features/recipes/components/SaveToCollectionButton';
 import { LeaveButton } from '@/features/social/components/LeaveButton';
 import { useIngredients } from '@/hooks/useIngredients';
+import { useCurrentProfile, useProfile } from '@/hooks/useProfile';
 import { useDeleteRecipe, useRecipe, useRecipeImageUrl } from '@/hooks/useRecipes';
 import { scaleQuantity } from '@/lib/quantity';
 import { Check, Image as ImageIcon } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 type RecipeDetailPageProps = {
@@ -24,6 +27,12 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
     const { data: recipe, isPending, isError } = useRecipe(id);
     const { data: ingredients, isPending: ingredientsPending } = useIngredients(id);
     const { data: imageUrl } = useRecipeImageUrl(recipe?.image_url);
+    const { data: currentProfile } = useCurrentProfile();
+    // Only fetched once we know the recipe and it's not yours — showing a
+    // byline for your own recipes would be noise, same reasoning as
+    // RecipeCard's author prop.
+    const isOwner = Boolean(recipe && currentProfile && recipe.user_id === currentProfile.id);
+    const { data: author } = useProfile(recipe && !isOwner ? recipe.user_id : '');
     const deleteRecipe = useDeleteRecipe();
 
     // Client-only checklist state — never persisted, resets on reload by design.
@@ -95,16 +104,28 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
 
                 <div className='flex items-center gap-1'>
                     <FavoriteStar recipeId={recipe.id} isFavorite={recipe.is_favorite} />
+                    <SaveToCollectionButton recipeId={recipe.id} />
 
-                    <ActionMenu
-                        ariaLabel={`Actions for ${recipe.title}`}
-                        items={[
-                            { label: 'Edit', onSelect: () => router.push(`/recipes/${recipe.id}/edit`) },
-                            { label: 'Delete', variant: 'danger', onSelect: () => setIsDeleteConfirmOpen(true) }
-                        ]}
-                    />
+                    {isOwner && (
+                        <ActionMenu
+                            ariaLabel={`Actions for ${recipe.title}`}
+                            items={[
+                                { label: 'Edit', onSelect: () => router.push(`/recipes/${recipe.id}/edit`) },
+                                { label: 'Delete', variant: 'danger', onSelect: () => setIsDeleteConfirmOpen(true) }
+                            ]}
+                        />
+                    )}
                 </div>
             </div>
+
+            {!isOwner && author && (
+                <Link
+                    href={`/profile/${author.id}`}
+                    className='mt-1 inline-block text-label text-text-secondary hover:text-accent'
+                >
+                    by {author.display_name ?? 'Someone'}
+                </Link>
+            )}
 
             {recipe.description && <p className='mt-2 text-body text-text-secondary'>{recipe.description}</p>}
 

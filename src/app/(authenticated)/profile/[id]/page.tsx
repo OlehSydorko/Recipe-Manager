@@ -1,20 +1,19 @@
 'use client';
 
 import { use, useEffect } from 'react';
+import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
+import { RecipeCard } from '@/features/recipes/components/RecipeCard';
 import { FollowButton } from '@/features/social/components/FollowButton';
 import { useFollowCounts } from '@/hooks/useFollows';
 import { useAvatarUrl, useCurrentProfile, useProfile } from '@/hooks/useProfile';
-import { MapPin, User } from 'lucide-react';
+import { useRecipesByUser } from '@/hooks/useRecipes';
+import { BookOpen, MapPin, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 type UserProfilePageProps = {
     params: Promise<{ id: string }>;
 };
 
-// Read-only view of another user's profile. Recipes stay private per the
-// existing RLS model — following someone grants no visibility into their
-// recipes, so this page only ever shows public profile fields + follow
-// counts + a follow/unfollow action, never a recipe grid.
 export default function UserProfilePage({ params }: UserProfilePageProps) {
     const { id } = use(params);
     const router = useRouter();
@@ -22,6 +21,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
     const { data: profile, isPending, isError } = useProfile(id);
     const { data: avatarUrl } = useAvatarUrl(profile?.avatar_url);
     const { data: followCounts } = useFollowCounts(id);
+    const { data: recipes, isPending: recipesPending } = useRecipesByUser(id);
 
     // Visiting your own id here redirects to the editable /profile page instead.
     useEffect(() => {
@@ -87,9 +87,33 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                 </div>
             </div>
 
-            <p className='mt-8 text-caption text-text-disabled'>
-                Recipes are private to their owner, so they aren&apos;t shown here.
-            </p>
+            <div className='mt-8'>
+                <h2 className='text-h2 font-semibold text-text-primary'>Recipes</h2>
+
+                {recipesPending && (
+                    <div className='mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
+                        {Array.from({ length: 3 }).map((_, index) => (
+                            // eslint-disable-next-line react/no-array-index-key
+                            <RecipeCardSkeleton key={index} />
+                        ))}
+                    </div>
+                )}
+
+                {!recipesPending && recipes?.length === 0 && (
+                    <div className='mt-10 flex flex-col items-center gap-3 text-center'>
+                        <BookOpen size={32} className='text-text-disabled' />
+                        <p className='text-h3 font-medium text-text-primary'>No recipes yet</p>
+                    </div>
+                )}
+
+                {!recipesPending && recipes && recipes.length > 0 && (
+                    <div className='mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
+                        {recipes.map((recipe) => (
+                            <RecipeCard key={recipe.id} recipe={recipe} categoryName={recipe.categoryName ?? 'Uncategorized'} />
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
