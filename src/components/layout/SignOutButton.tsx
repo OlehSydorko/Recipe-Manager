@@ -1,6 +1,6 @@
 'use client';
 
-import { signOut } from '@/API/auth';
+import { signOut } from '@/api/auth';
 import { Button } from '@/components/ui/Button';
 import { LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';

@@ -8,7 +8,7 @@ import {
     getSignedUrls,
     removeRecipeFromCollection,
     updateCollection
-} from '@/API/collections';
+} from '@/api/collections';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const COLLECTIONS_QUERY_KEY = ['collections'];

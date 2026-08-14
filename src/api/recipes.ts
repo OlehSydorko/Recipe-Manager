@@ -1,5 +1,5 @@
-import { getFavoriteRecipeIds, isRecipeFavorited } from '@/API/favorites';
-import { getProfilesByIds } from '@/API/profiles';
+import { getFavoriteRecipeIds, isRecipeFavorited } from '@/api/favorites';
+import { getProfilesByIds } from '@/api/profiles';
 import { createClient } from '@/lib/supabaseClient';
 import type { Recipe, RecipeAuthor, RecipeWithAuthor, RecipeWithCategory } from '@/types/recipe';
 
@@ -11,7 +11,7 @@ const SIGNED_URL_EXPIRY_SECONDS = 60 * 60;
 const NOT_AUTHENTICATED_MESSAGE = 'Not authenticated';
 
 // recipes.is_favorite no longer exists in the DB — it's now the
-// recipe_favorites join table (see @/API/favorites), since favoriting had to
+// recipe_favorites join table (see @/api/favorites), since favoriting had to
 // become per-viewer once recipes became readable by any user. RecipeRow is
 // what the DB actually returns; the functions below merge in `is_favorite`
 // so the rest of the app can keep working against the `Recipe` shape.

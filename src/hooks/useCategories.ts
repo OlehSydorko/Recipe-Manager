@@ -1,4 +1,4 @@
-import { createCategory, deleteCategory, getCategories } from '@/API/categories';
+import { createCategory, deleteCategory, getCategories } from '@/api/categories';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const CATEGORIES_QUERY_KEY = ['categories'];

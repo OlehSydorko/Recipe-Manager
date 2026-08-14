@@ -1,4 +1,4 @@
-import { QUANTITY_PATTERN } from '@/API/ingredients';
+import { QUANTITY_PATTERN } from '@/api/ingredients';
 
 // Parses the constrained quantity format the app allows ("1", "1.5", "1/2")
 // into a plain number. Returns null for empty or unparseable input so callers

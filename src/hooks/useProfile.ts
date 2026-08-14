@@ -6,7 +6,7 @@ import {
     searchProfiles,
     updateProfile,
     uploadAvatar
-} from '@/API/profiles';
+} from '@/api/profiles';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const CURRENT_PROFILE_QUERY_KEY = ['profile', 'me'];

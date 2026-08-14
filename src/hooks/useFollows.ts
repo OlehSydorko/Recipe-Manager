@@ -5,7 +5,7 @@ import {
     getFollowers,
     getFollowing,
     unfollowUser
-} from '@/API/follows';
+} from '@/api/follows';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const FOLLOW_COUNTS_KEY = 'follow-counts';

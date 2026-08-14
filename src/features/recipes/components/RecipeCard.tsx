@@ -10,10 +10,6 @@ type RecipeCardProps = {
     recipe: Recipe;
     categoryName: string;
     hideFavorite?: boolean;
-    // Only passed on the Community tab — omitted for "My Recipes", where
-    // showing your own name on every card would be noise. Plain text rather
-    // than a link to /profile/[id]: the whole card is already one giant link
-    // overlay (see below), and nesting a second link inside it isn't valid HTML.
     author?: RecipeAuthor;
 };
 

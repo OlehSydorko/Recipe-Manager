@@ -1,4 +1,4 @@
-import { addFavorite, removeFavorite } from '@/API/favorites';
+import { addFavorite, removeFavorite } from '@/api/favorites';
 import {
     createRecipe,
     deleteRecipe,
@@ -10,7 +10,7 @@ import {
     removeRecipeImage,
     updateRecipe,
     uploadRecipeImage
-} from '@/API/recipes';
+} from '@/api/recipes';
 import type { Recipe, RecipeWithAuthor } from '@/types/recipe';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 

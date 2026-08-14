@@ -28,19 +28,13 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
     const { data: ingredients, isPending: ingredientsPending } = useIngredients(id);
     const { data: imageUrl } = useRecipeImageUrl(recipe?.image_url);
     const { data: currentProfile } = useCurrentProfile();
-    // Only fetched once we know the recipe and it's not yours — showing a
-    // byline for your own recipes would be noise, same reasoning as
-    // RecipeCard's author prop.
     const isOwner = Boolean(recipe && currentProfile && recipe.user_id === currentProfile.id);
     const { data: author } = useProfile(recipe && !isOwner ? recipe.user_id : '');
     const deleteRecipe = useDeleteRecipe();
 
-    // Client-only checklist state — never persisted, resets on reload by design.
     const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
-    // Portions changer is also client-only and resets on reload, same as the
-    // checklist above — it never writes back to the recipe's base portions.
     const [selectedPortions, setSelectedPortions] = useState(1);
 
     useEffect(() => {
