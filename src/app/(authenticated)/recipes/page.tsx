@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { CategoryFilter } from '@/features/recipes/components/CategoryFilter';
@@ -23,6 +23,14 @@ const TAB_INACTIVE_CLASSES =
     'border-border bg-surface text-text-secondary hover:border-border-strong hover:text-text-primary';
 
 export default function RecipesPage() {
+    return (
+        <Suspense fallback={null}>
+            <RecipesPageContent />
+        </Suspense>
+    );
+}
+
+function RecipesPageContent() {
     const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState<RecipesTab>(MINE_TAB);
 
