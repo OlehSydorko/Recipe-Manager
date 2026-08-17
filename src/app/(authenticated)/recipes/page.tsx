@@ -1,7 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
-import { Input } from '@/components/ui/Input';
+import { Suspense, useEffect, useState } from 'react';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { CategoryFilter } from '@/features/recipes/components/CategoryFilter';
 import { RecipeCard } from '@/features/recipes/components/RecipeCard';
@@ -10,7 +9,7 @@ import { useHasMounted } from '@/hooks/useHasMounted';
 import { useCurrentProfile } from '@/hooks/useProfile';
 import { useCommunityRecipes, useRecipes } from '@/hooks/useRecipes';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { BookOpen, Plus , Search, Users } from 'lucide-react';
+import { BookOpen, Plus, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -50,6 +49,14 @@ function RecipesPageContent() {
     const [categoryFilter, setCategoryFilter] = useState('');
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
     const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '');
+
+    // Resyncs local state when the URL's ?q= changes after the initial mount
+    // -- e.g. the global nav search deep-links here while the user is
+    // already on this page, which the useState initializer above alone
+    // wouldn't pick up.
+    useEffect(() => {
+        setSearchQuery(searchParams.get('q') ?? '');
+    }, [searchParams]);
 
     const categoryNameById = new Map(categories?.map((category) => [category.id, category.name]));
     // Guests have no "My Recipes" — force the community tab regardless of
@@ -111,21 +118,6 @@ function RecipesPageContent() {
                     <Users size={14} />
                     Community
                 </button>
-            </div>
-
-             <div className='relative hidden mt-5 sm:block'>
-                <Search
-                    size={17}
-                    className='pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-text-disabled'
-                />
-                <Input
-                    type='search'
-                    placeholder='Search Recipes'
-                    aria-label='Search Recipes'
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    className='h-10 w-full rounded-full border border-border bg-bg-secondary pl-10 pr-4 text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-60'
-                />
             </div>
 
             {isMineTab && (

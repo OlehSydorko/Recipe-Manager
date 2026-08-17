@@ -1,12 +1,11 @@
 'use client'
 import { Modal } from '@/components/ui/Modal';
-import { Input } from '@/components/ui/Input';
 import { useCollections, useDeleteCollection } from '@/hooks/useCollections';
 import { useRecipes } from '@/hooks/useRecipes'
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-import { Folder, Plus, Search } from 'lucide-react';
+import { Folder, Plus } from 'lucide-react';
 import { CollectionWithCount } from '@/types/collection';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { CollectionCard } from './CollectionCard';
 import { CollectionModal } from './CollectionModal';
@@ -17,9 +16,12 @@ import { CollectionListRow } from './CollectionListRow';
 
 type CollectionsSectionProps = {
     variant?: 'page' | 'tab';
+    // Only relevant for the 'page' variant -- the /collections route's ?q=,
+    // set by the global nav search's fallback submit (see GlobalSearch).
+    initialQuery?: string;
 };
 
-export function CollectionsSection ({ variant = 'page' }: CollectionsSectionProps) {
+export function CollectionsSection ({ variant = 'page', initialQuery = '' }: CollectionsSectionProps) {
     const isTabVariant = variant === 'tab';
     const { data: recipes } = useRecipes();
     const { data: collections, isPending: collectionsPending } = useCollections();
@@ -28,7 +30,14 @@ export function CollectionsSection ({ variant = 'page' }: CollectionsSectionProp
     const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
     const [editingCollection, setEditingCollection] = useState<CollectionWithCount | null>(null)
     const [deletingCollection, setDeletingCollection] = useState<CollectionWithCount | null>(null)
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(initialQuery);
+
+    // Resyncs when the URL's ?q= changes after the initial mount -- e.g. the
+    // global nav search deep-links here while the user is already on this
+    // page, which the useState initializer above alone wouldn't pick up.
+    useEffect(() => {
+        setSearchQuery(initialQuery);
+    }, [initialQuery]);
 
 
     const filteredCollections = collections?.filter(
@@ -86,25 +95,6 @@ return b.created_at.localeCompare(a.created_at);
                                 New collection
                             </Button>
                         </div>
-                    )}
-
-                    {!isTabVariant && (
-                     <div className='relative mt-5'>
-                       <Search
-                          size={17}
-                           className='pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-text-disabled'
-                       />
-                       <Input
-                           type='search'
-                           placeholder='Search collections'
-                           aria-label='Search collections'
-                           value={searchQuery}
-                           onChange={(event) => setSearchQuery(event.target.value)}
-                           className='h-10 w-full rounded-full border border-border bg-bg-secondary pl-10 pr-4 text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15'
-                       />
-
-
-                       </div>
                     )}
 
                         <div className='mt-5 flex justify-end'>

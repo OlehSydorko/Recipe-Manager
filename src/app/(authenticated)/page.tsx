@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { HomeCollectionCard } from '@/features/home/components/HomeCollectionCard';
 import { HomeGreeting } from '@/features/home/components/HomeGreeting';
-import { HomeSearchBar } from '@/features/home/components/HomeSearchBar';
 import { HomeStats } from '@/features/home/components/HomeStats';
 import { RecipeCard } from '@/features/recipes/components/RecipeCard';
 import { useCategories } from '@/hooks/useCategories';
@@ -69,7 +68,6 @@ export default function HomePage() {
     return (
         <div className='space-y-10'>
             <HomeGreeting displayName={profile?.display_name ?? null} />
-            <HomeSearchBar />
 
             {isGuest ? (
                 <div className='rounded-lg border border-border bg-surface p-5'>

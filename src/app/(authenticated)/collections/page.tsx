@@ -1,19 +1,30 @@
 'use client';
 
+import { Suspense } from 'react';
 import { CollectionsSection } from '@/features/collections/components/CollectionsSection';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useCurrentProfile } from '@/hooks/useProfile';
 import { Folder } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+
+export default function CollectionsPage() {
+    return (
+        <Suspense fallback={null}>
+            <CollectionsPageContent />
+        </Suspense>
+    );
+}
 
 // Guests have no "my collections" to show here -- there's no community
 // collections feed in this pass (see GUEST_ACCESS_PLAN.md), so rather than
 // render an empty grid with a gate-on-click button, guests get a direct
 // sign-up prompt instead. A public collection someone shares a link to is
 // still viewable directly at /collections/[id] regardless of this page.
-export default function CollectionsPage() {
+function CollectionsPageContent() {
     const hasMounted = useHasMounted();
     const { data: profile, isPending } = useCurrentProfile();
+    const searchParams = useSearchParams();
     // hasMounted-gated so the client's first paint always matches the
     // server (which never resolves this) -- see useHasMounted for why.
     const isGuest = hasMounted && !isPending && !profile;
@@ -39,7 +50,7 @@ export default function CollectionsPage() {
 
     return (
         <div>
-            <CollectionsSection />
+            <CollectionsSection initialQuery={searchParams.get('q') ?? ''} />
         </div>
     );
 }

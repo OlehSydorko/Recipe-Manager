@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
+import { GlobalSearch } from '@/features/search/components/GlobalSearch';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useAvatarUrl, useCurrentProfile } from '@/hooks/useProfile';
-import { ChefHat, LogIn, User } from 'lucide-react';
+import { ChefHat, LogIn, Search, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -14,6 +16,7 @@ export function Nav() {
     const { data: profile, isPending: profilePending } = useCurrentProfile();
     const { data: avatarUrl } = useAvatarUrl(profile?.avatar_url);
     const isGuest = hasMounted && !profilePending && !profile;
+    const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
     // Gated on hasMounted too, not just profilePending -- otherwise, once the
     // profile query resolves fast enough, the client's first paint can skip
@@ -43,14 +46,33 @@ export function Nav() {
                         Recipe Manager
                     </Link>
 
-                    <Link
-                        href={`/login?redirect=${encodeURIComponent(pathname)}`}
-                        className='ml-auto flex shrink-0 items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-button font-medium text-accent-foreground shadow-sm transition-colors duration-150 hover:bg-accent-hover'
-                    >
-                        <LogIn size={16} />
-                        Sign In
-                    </Link>
+                    <GlobalSearch className='hidden flex-1 sm:block' />
+
+                    <div className='ml-auto flex shrink-0 items-center gap-2'>
+                        <button
+                            type='button'
+                            onClick={() => setIsMobileSearchOpen((open) => !open)}
+                            aria-label={isMobileSearchOpen ? 'Close search' : 'Open search'}
+                            className='flex h-10 w-10 items-center justify-center rounded-md text-text-secondary transition-colors duration-150 hover:bg-hover hover:text-text-primary sm:hidden'
+                        >
+                            {isMobileSearchOpen ? <X size={20} /> : <Search size={20} />}
+                        </button>
+
+                        <Link
+                            href={`/login?redirect=${encodeURIComponent(pathname)}`}
+                            className='flex items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-button font-medium text-accent-foreground shadow-sm transition-colors duration-150 hover:bg-accent-hover'
+                        >
+                            <LogIn size={16} />
+                            Sign In
+                        </Link>
+                    </div>
                 </div>
+
+                {isMobileSearchOpen && (
+                    <div className='border-t border-border bg-bg-secondary px-4 py-3 sm:hidden'>
+                        <GlobalSearch autoFocus onNavigate={() => setIsMobileSearchOpen(false)} />
+                    </div>
+                )}
             </header>
         );
     }
@@ -62,9 +84,19 @@ export function Nav() {
                 <Link href='/' className='shrink-0 text-h3 font-semibold text-text-primary'>
                     Recipe Manager
                 </Link>
-                
 
-                <div className='ml-auto shrink-0'>
+                <GlobalSearch className='hidden flex-1 sm:block' />
+
+                <div className='ml-auto flex shrink-0 items-center gap-2'>
+                    <button
+                        type='button'
+                        onClick={() => setIsMobileSearchOpen((open) => !open)}
+                        aria-label={isMobileSearchOpen ? 'Close search' : 'Open search'}
+                        className='flex h-10 w-10 items-center justify-center rounded-md text-text-secondary transition-colors duration-150 hover:bg-hover hover:text-text-primary sm:hidden'
+                    >
+                        {isMobileSearchOpen ? <X size={20} /> : <Search size={20} />}
+                    </button>
+
                     {links.map((link) => {
                         const isActive = pathname === link.href;
                         const Icon = link.icon;
@@ -100,6 +132,12 @@ export function Nav() {
                     })}
                 </div>
             </div>
+
+            {isMobileSearchOpen && (
+                <div className='border-t border-border bg-bg-secondary px-4 py-3 sm:hidden'>
+                    <GlobalSearch autoFocus onNavigate={() => setIsMobileSearchOpen(false)} />
+                </div>
+            )}
         </header>
     );
 }
