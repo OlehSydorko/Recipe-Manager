@@ -19,7 +19,7 @@ import { useFollowCounts } from '@/hooks/useFollows';
 import { useCurrentProfile } from '@/hooks/useProfile';
 import { useRecipes } from '@/hooks/useRecipes';
 import { BookOpen } from 'lucide-react';
-import { CollectionsSection } from '@/features/collections/CollectionsSection';
+import { CollectionsSection } from '@/features/collections/components/CollectionsSection';
 
 
 const MY_RECIPES_TAB: ProfileTabId = 'my-recipes';

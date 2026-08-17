@@ -1,6 +1,6 @@
 'use client';
 
-import { CollectionsSection } from '@/features/collections/CollectionsSection';
+import { CollectionsSection } from '@/features/collections/components/CollectionsSection';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useCurrentProfile } from '@/hooks/useProfile';
 import { Folder } from 'lucide-react';
