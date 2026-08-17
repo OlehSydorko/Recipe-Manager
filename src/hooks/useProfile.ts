@@ -28,17 +28,18 @@ export function useProfile(userId: string) {
     });
 }
 
-// Name search for the Discover page. Needs the current user's id to exclude
-// their own profile from results, so it depends on useCurrentProfile — stays
-// disabled (and returns no results) until that's loaded, same as it stays
-// disabled below the minimum query length.
+// Name search for the Discover page. Waits on useCurrentProfile only to know
+// whether to exclude the viewer's own profile from results (logged-in) or not
+// (guest, where currentProfile resolves to null) -- it must NOT stay disabled
+// for a null profile, since a guest with no profile is a valid, common state
+// for this query, not a "not ready yet" state.
 export function useSearchProfiles(query: string) {
-    const { data: currentProfile } = useCurrentProfile();
+    const { data: currentProfile, isPending: profilePending } = useCurrentProfile();
     const trimmedQuery = query.trim();
 
     return useQuery({
-        enabled: trimmedQuery.length >= MIN_SEARCH_QUERY_LENGTH && Boolean(currentProfile?.id),
-        queryFn: () => searchProfiles(trimmedQuery, currentProfile?.id as string),
+        enabled: trimmedQuery.length >= MIN_SEARCH_QUERY_LENGTH && !profilePending,
+        queryFn: () => searchProfiles(trimmedQuery, currentProfile?.id),
         queryKey: ['profiles', 'search', trimmedQuery]
     });
 }

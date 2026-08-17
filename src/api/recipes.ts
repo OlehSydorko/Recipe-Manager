@@ -9,6 +9,7 @@ import type { Recipe, RecipeAuthor, RecipeWithAuthor, RecipeWithCategory } from 
 const RECIPE_IMAGES_BUCKET = 'recipe-images';
 const SIGNED_URL_EXPIRY_SECONDS = 60 * 60;
 const NOT_AUTHENTICATED_MESSAGE = 'Not authenticated';
+const RECIPE_WITH_CATEGORY_SELECT = '*, categories(name)';
 
 // recipes.is_favorite no longer exists in the DB — it's now the
 // recipe_favorites join table (see @/api/favorites), since favoriting had to
@@ -22,15 +23,19 @@ type RecipeRow = Omit<Recipe, 'is_favorite'>;
 // explicitly to keep "my recipes" behavior for every existing caller
 // (the /recipes page, profile page, home page stats) unchanged.
 // getCommunityRecipes below is the new, deliberately unfiltered counterpart.
+// Guests (no session) get an empty list rather than an error -- "my recipes"
+// is meaningless for a guest, and several of this function's callers now
+// live on public pages (home, recipes) that must not error for a guest.
 export async function getRecipes(): Promise<Recipe[]> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
-        throw new Error(NOT_AUTHENTICATED_MESSAGE);
+        return [];
     }
 
     const [{ data, error }, favoriteIds] = await Promise.all([
@@ -55,26 +60,24 @@ type CommunityRecipeRow = RecipeRow & { categories: { name: string } | null };
 // Backs the Community tab: every other user's recipes, with the author and
 // category name attached for display. Excludes the current user's own
 // recipes — those already have a home on "My Recipes", mirroring how
-// searchProfiles excludes the current user from People search results.
+// searchProfiles excludes the current user from People search results. For a
+// guest (no session) there's no "own recipes" to exclude, so this becomes
+// every recipe -- guests are meant to be able to browse the Community tab.
 export async function getCommunityRecipes(): Promise<RecipeWithAuthor[]> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
-    if (!user) {
-        throw new Error(NOT_AUTHENTICATED_MESSAGE);
+    let query = supabase.from('recipes').select(RECIPE_WITH_CATEGORY_SELECT).order('created_at', { ascending: false });
+
+    if (user) {
+        query = query.neq('user_id', user.id);
     }
 
-    const [{ data, error }, favoriteIds] = await Promise.all([
-        supabase
-            .from('recipes')
-            .select('*, categories(name)')
-            .neq('user_id', user.id)
-            .order('created_at', { ascending: false }),
-        getFavoriteRecipeIds()
-    ]);
+    const [{ data, error }, favoriteIds] = await Promise.all([query, getFavoriteRecipeIds()]);
 
     if (error) {
         throw error;
@@ -111,9 +114,40 @@ export async function getRecipesByUser(userId: string): Promise<RecipeWithCatego
     const [{ data, error }, favoriteIds] = await Promise.all([
         supabase
             .from('recipes')
-            .select('*, categories(name)')
+            .select(RECIPE_WITH_CATEGORY_SELECT)
             .eq('user_id', userId)
             .order('created_at', { ascending: false }),
+        getFavoriteRecipeIds()
+    ]);
+
+    if (error) {
+        throw error;
+    }
+
+    const rows = data as unknown as CommunityRecipeRow[];
+    const favoriteRecipeIds = new Set(favoriteIds);
+
+    return rows.map(({ categories, ...recipe }) => ({
+        ...recipe,
+        is_favorite: favoriteRecipeIds.has(recipe.id),
+        categoryName: categories?.name ?? null
+    }));
+}
+
+// Fetches a specific set of recipes by id, regardless of owner -- backs the
+// collection detail page, since a collection's recipes (especially a public
+// one) may belong to users other than the viewer. Recipes are public-read
+// (see public_recipe_read_access / guest_read_access migrations), so this
+// works the same for a guest, the collection's owner, or anyone else.
+export async function getRecipesByIds(ids: string[]): Promise<RecipeWithCategory[]> {
+    if (ids.length === 0) {
+        return [];
+    }
+
+    const supabase = createClient();
+
+    const [{ data, error }, favoriteIds] = await Promise.all([
+        supabase.from('recipes').select(RECIPE_WITH_CATEGORY_SELECT).in('id', ids),
         getFavoriteRecipeIds()
     ]);
 
@@ -158,8 +192,9 @@ export async function createRecipe(input: CreateRecipeInput): Promise<Recipe> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error(NOT_AUTHENTICATED_MESSAGE);
@@ -259,8 +294,9 @@ export async function uploadRecipeImage(recipeId: string, file: File, previousPa
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error(NOT_AUTHENTICATED_MESSAGE);

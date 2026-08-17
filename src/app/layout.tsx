@@ -1,5 +1,7 @@
+import { AuthListener } from '@/components/layout/AuthListener';
 import { QueryProvider } from '@/components/layout/QueryProvider';
 import { ToastProvider } from '@/components/ui/Toast';
+import { Analytics } from '@vercel/analytics/next';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
@@ -28,8 +30,10 @@ export default function RootLayout({
         <html lang='en' className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
             <body className='min-h-full flex flex-col'>
                 <QueryProvider>
+                    <AuthListener />
                     <ToastProvider>{children}</ToastProvider>
                 </QueryProvider>
+                <Analytics />
             </body>
         </html>
     );

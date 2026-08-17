@@ -6,6 +6,7 @@ import {
     getRecipe,
     getRecipeImageSignedUrl,
     getRecipes,
+    getRecipesByIds,
     getRecipesByUser,
     removeRecipeImage,
     updateRecipe,
@@ -43,6 +44,17 @@ export function useRecipesByUser(userId: string) {
         enabled: Boolean(userId),
         queryKey: [...RECIPES_QUERY_KEY, 'by-user', userId],
         queryFn: () => getRecipesByUser(userId)
+    });
+}
+
+// Backs the collection detail page -- the given ids may belong to any user,
+// not just the current one (see getRecipesByIds). Sorted key includes the id
+// list itself so different collections' recipe sets cache independently.
+export function useRecipesByIds(ids: string[]) {
+    return useQuery({
+        enabled: ids.length > 0,
+        queryKey: [...RECIPES_QUERY_KEY, 'by-ids', ...[...ids].sort()],
+        queryFn: () => getRecipesByIds(ids)
     });
 }
 

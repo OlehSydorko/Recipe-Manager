@@ -2,9 +2,11 @@ import {
     addRecipeToCollection,
     createCollection,
     deleteCollection,
+    getCollection,
     getCollectionIdsForRecipe,
     getCollectionRecipeIds,
     getCollections,
+    getPublicCollectionsByUser,
     getSignedUrls,
     removeRecipeFromCollection,
     updateCollection
@@ -14,11 +16,33 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 const COLLECTIONS_QUERY_KEY = ['collections'];
 
 const collectionIdsForRecipeKey = (recipeId: string | null) => ['collections', 'for-recipe', recipeId];
+const collectionDetailKey = (id: string | null) => ['collections', 'detail', id];
 
 export function useCollections() {
     return useQuery({
         queryKey: COLLECTIONS_QUERY_KEY,
         queryFn: getCollections
+    });
+}
+
+// Single-collection fetch for the collection detail page -- works for the
+// owner, a guest, or any other user viewing a public collection, since
+// visibility is enforced by RLS rather than an explicit owner filter (see
+// getCollection in api/collections.ts).
+export function useCollection(id: string | null) {
+    return useQuery({
+        enabled: Boolean(id),
+        queryFn: () => getCollection(id as string),
+        queryKey: collectionDetailKey(id)
+    });
+}
+
+// Backs the "Collections" section on a public profile page.
+export function usePublicCollectionsByUser(userId: string | null) {
+    return useQuery({
+        enabled: Boolean(userId),
+        queryFn: () => getPublicCollectionsByUser(userId as string),
+        queryKey: ['collections', 'public', userId]
     });
 }
 
@@ -49,6 +73,7 @@ export function useUpdateCollection() {
         onSuccess: (collection) => {
             queryClient.invalidateQueries({ queryKey: COLLECTIONS_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: ['collections', collection.id, 'recipe-ids'] });
+            queryClient.invalidateQueries({ queryKey: collectionDetailKey(collection.id) });
         }
     });
 }

@@ -37,7 +37,14 @@ export function CollectionCard({ collection, onEdit, onDelete, hideActions }: Co
                 </div>
 
                 <div className='p-4'>
-                    <h3 className='mt-3 truncate pr-8 text-h3 font-medium text-text-primary'>{collection.name}</h3>
+                    <div className='mt-3 flex items-center gap-2 pr-8'>
+                        <h3 className='truncate text-h3 font-medium text-text-primary'>{collection.name}</h3>
+                        {collection.is_public && (
+                            <span className='shrink-0 rounded-full bg-accent-muted px-2 py-0.5 text-caption font-medium text-accent'>
+                                Public
+                            </span>
+                        )}
+                    </div>
                     {collection.description && (
                         <p className='mt-1 line-clamp-2 text-caption text-text-secondary'>{collection.description}</p>
                     )}

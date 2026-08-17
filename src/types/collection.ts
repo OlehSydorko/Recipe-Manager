@@ -3,6 +3,7 @@ export type Collection = {
     user_id: string;
     name: string;
     description: string | null;
+    is_public: boolean;
     created_at: string;
 };
 

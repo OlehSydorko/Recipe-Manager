@@ -9,6 +9,7 @@ import {
     useCollections,
     useRemoveRecipeFromCollection
 } from '@/hooks/useCollections';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Bookmark } from 'lucide-react';
 import Link from 'next/link';
 
@@ -22,6 +23,7 @@ export function SaveToCollectionButton({ recipeId }: SaveToCollectionButtonProps
     const { data: collectionIds } = useCollectionIdsForRecipe(isOpen ? recipeId : null);
     const addToCollection = useAddRecipeToCollection();
     const removeFromCollection = useRemoveRecipeFromCollection();
+    const { requireAuth, authGate } = useRequireAuth('Sign in to save recipes to a collection.');
 
     const savedCollectionIds = new Set(collectionIds ?? []);
 
@@ -35,9 +37,10 @@ export function SaveToCollectionButton({ recipeId }: SaveToCollectionButtonProps
 
     return (
         <>
-            <IconButton aria-label='Save to collection' onClick={() => setIsOpen(true)}>
+            <IconButton aria-label='Save to collection' onClick={() => requireAuth(() => setIsOpen(true))}>
                 <Bookmark size={18} />
             </IconButton>
+            {authGate}
 
             <Modal open={isOpen} onClose={() => setIsOpen(false)} title='Save to collection'>
                 {collections?.length === 0 && (

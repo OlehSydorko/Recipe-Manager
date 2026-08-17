@@ -5,8 +5,9 @@ export async function getFavoriteRecipeIds(): Promise<string[]> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         return [];
@@ -25,8 +26,9 @@ export async function isRecipeFavorited(recipeId: string): Promise<boolean> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         return false;
@@ -50,8 +52,9 @@ export async function addFavorite(recipeId: string): Promise<void> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error('Not authenticated');
@@ -68,8 +71,9 @@ export async function removeFavorite(recipeId: string): Promise<void> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error('Not authenticated');

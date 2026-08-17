@@ -7,8 +7,9 @@ export async function getCategories(): Promise<Category[]> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error(NOT_AUTHENTICATED_MESSAGE);
@@ -31,8 +32,9 @@ export async function createCategory(name: string): Promise<Category> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error(NOT_AUTHENTICATED_MESSAGE);
@@ -51,8 +53,9 @@ export async function deleteCategory(id: string): Promise<void> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error(NOT_AUTHENTICATED_MESSAGE);

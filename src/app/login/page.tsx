@@ -1,14 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { signIn } from '@/api/auth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+// Copy for the `message` query param set by middleware.ts when it redirects
+// a guest away from a protected route, so the login form can explain why the
+// visitor landed here instead of just showing a bare form.
+const MESSAGE_COPY: Record<string, string> = {
+    profile: 'Sign in to view your profile.',
+    'recipe-new': 'Sign in to create a recipe.',
+    'recipe-edit': 'Sign in to edit this recipe.',
+    default: 'Sign in to continue.'
+};
 
 export default function LoginPage() {
+    return (
+        <Suspense fallback={null}>
+            <LoginPageContent />
+        </Suspense>
+    );
+}
+
+function LoginPageContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get('redirect') || '/';
+    const messageCode = searchParams.get('message');
+    const message = messageCode ? MESSAGE_COPY[messageCode] : null;
+    const signupParams = new URLSearchParams();
+
+    if (redirectTo !== '/') {
+        signupParams.set('redirect', redirectTo);
+    }
+    if (messageCode) {
+        signupParams.set('message', messageCode);
+    }
+
+    const signupQuery = signupParams.toString() ? `?${signupParams.toString()}` : '';
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -21,7 +54,7 @@ export default function LoginPage() {
 
         try {
             await signIn(email, password);
-            router.push('/');
+            router.push(redirectTo);
             router.refresh();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -37,6 +70,12 @@ export default function LoginPage() {
                 className='w-full max-w-sm space-y-5 rounded-lg border border-border bg-surface p-8 shadow-md'
             >
                 <h1 className='text-display font-semibold text-text-primary'>Log in</h1>
+
+                {message && (
+                    <p className='rounded-md border border-accent/30 bg-accent-muted px-3 py-2 text-body text-text-primary'>
+                        {message}
+                    </p>
+                )}
 
                 {error && <p className='text-body text-error'>{error}</p>}
 
@@ -57,9 +96,8 @@ export default function LoginPage() {
                     <label htmlFor='password' className='mb-1.5 block text-label font-medium text-text-secondary'>
                         Password
                     </label>
-                    <Input
+                    <PasswordInput
                         id='password'
-                        type='password'
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
                         required
@@ -72,7 +110,10 @@ export default function LoginPage() {
 
                 <p className='text-body text-text-secondary'>
                     Don&apos;t have an account?{' '}
-                    <Link href='/signup' className='font-medium text-accent hover:underline'>
+                    <Link
+                        href={`/signup${signupQuery}`}
+                        className='font-medium text-accent hover:underline'
+                    >
                         Sign up
                     </Link>
                 </p>

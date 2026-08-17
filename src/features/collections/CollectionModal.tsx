@@ -27,12 +27,14 @@ export function CollectionModal({ open, onClose, collection, recipes }: Collecti
 
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
+    const [isPublic, setIsPublic] = useState(false);
     const [selectedRecipeIds, setSelectedRecipeIds] = useState<string[]>([]);
 
     useEffect(() => {
         if (open) {
             setName(collection?.name ?? '');
             setDescription(collection?.description ?? '');
+            setIsPublic(collection?.is_public ?? false);
             setSelectedRecipeIds(collection ? (existingRecipeIds ?? []) : []);
         }
     }, [open, collection, existingRecipeIds]);
@@ -57,13 +59,15 @@ export function CollectionModal({ open, onClose, collection, recipes }: Collecti
                 id: collection.id,
                 name: name.trim(),
                 description: description.trim(),
-                recipeIds: selectedRecipeIds
+                recipeIds: selectedRecipeIds,
+                isPublic
             });
         } else {
             await createCollection.mutateAsync({
                 name: name.trim(),
                 description: description.trim(),
-                recipeIds: selectedRecipeIds
+                recipeIds: selectedRecipeIds,
+                isPublic
             });
         }
 
@@ -105,6 +109,20 @@ export function CollectionModal({ open, onClose, collection, recipes }: Collecti
                         rows={2}
                     />
                 </div>
+
+                <label className='flex items-center gap-2 text-body text-text-primary'>
+                    <input
+                        type='checkbox'
+                        checked={isPublic}
+                        onChange={(event) => setIsPublic(event.target.checked)}
+                        disabled={isSubmitting}
+                        className='h-4 w-4 rounded-sm border-border-strong accent-accent'
+                    />
+                    Make this collection public
+                </label>
+                <p className='-mt-2 text-caption text-text-secondary'>
+                    Public collections can be viewed by anyone, including people who aren&apos;t signed in.
+                </p>
 
                 <div>
                     <span className='mb-1.5 block text-label font-medium text-text-secondary'>Recipes</span>

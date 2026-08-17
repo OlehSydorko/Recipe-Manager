@@ -8,7 +8,7 @@ const links = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/recipes', label: 'Recipes', icon: BookOpen },
     { href: '/collections', label: 'Collections', icon: Scroll },
-    { href: '/people', label: 'Discover', icon: Search }
+     { href: '/people', label: 'Discover', icon: Search }
 ];
 
 export function Sidebar() {

@@ -3,6 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { useCollections, useDeleteCollection } from '@/hooks/useCollections';
 import { useRecipes } from '@/hooks/useRecipes'
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { Folder, Plus, Search } from 'lucide-react';
 import { CollectionWithCount } from '@/types/collection';
 import { useMemo, useState } from 'react';
@@ -23,6 +24,7 @@ export function CollectionsSection ({ variant = 'page' }: CollectionsSectionProp
     const { data: recipes } = useRecipes();
     const { data: collections, isPending: collectionsPending } = useCollections();
     const deleteCollection = useDeleteCollection();
+    const { requireAuth, authGate } = useRequireAuth('Sign in to create a collection.');
     const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
     const [editingCollection, setEditingCollection] = useState<CollectionWithCount | null>(null)
     const [deletingCollection, setDeletingCollection] = useState<CollectionWithCount | null>(null)
@@ -55,8 +57,10 @@ return b.created_at.localeCompare(a.created_at);
 
 
     const handleNewCollection = () => {
-        setEditingCollection(null)
-        setIsCollectionModalOpen(true);
+        requireAuth(() => {
+            setEditingCollection(null)
+            setIsCollectionModalOpen(true);
+        });
     }
     const handleEditCollection = (collection: CollectionWithCount) => {
         setEditingCollection(collection)
@@ -166,6 +170,8 @@ return b.created_at.localeCompare(a.created_at);
                 collection={editingCollection}
                 recipes={recipes ?? []}
             />
+
+            {authGate}
 
 
             <Modal

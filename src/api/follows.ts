@@ -25,8 +25,9 @@ export async function isFollowing(targetUserId: string): Promise<boolean> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         return false;
@@ -50,8 +51,9 @@ export async function followUser(targetUserId: string): Promise<void> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error('Not authenticated');
@@ -68,8 +70,9 @@ export async function unfollowUser(targetUserId: string): Promise<void> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error('Not authenticated');

@@ -33,15 +33,23 @@ export async function getProfilesByIds(userIds: string[]): Promise<Profile[]> {
     return data;
 }
 
-export async function getCurrentProfile(): Promise<Profile> {
+// Guests (no session) get null rather than an error -- this is called from
+// nearly every page (Nav, useRequireAuth, ...) to answer "who's logged in?",
+// and a guest not being logged in is an expected state, not a failure. If
+// this throws instead, TanStack Query's default retry (3x with backoff,
+// ~7s) kicks in and re-runs on every new mount of anything that calls this
+// (since an error result is always considered stale) -- effectively a ~7s
+// stall on every page for guests.
+export async function getCurrentProfile(): Promise<Profile | null> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
-        throw new Error(NOT_AUTHENTICATED_MESSAGE);
+        return null;
     }
 
     return getProfile(user.id);
@@ -58,8 +66,9 @@ export async function updateProfile(input: UpdateProfileInput): Promise<Profile>
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error(NOT_AUTHENTICATED_MESSAGE);
@@ -87,15 +96,18 @@ export async function updateProfile(input: UpdateProfileInput): Promise<Profile>
 const SEARCH_RESULTS_LIMIT = 20;
 
 
-export async function searchProfiles(query: string, excludeUserId: string): Promise<Profile[]> {
+// excludeUserId is optional -- a guest (no session) has no own profile to
+// exclude, so the .neq() only applies when there's a logged-in viewer.
+export async function searchProfiles(query: string, excludeUserId?: string): Promise<Profile[]> {
     const supabase = createClient();
 
-    const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .ilike('display_name', `%${query}%`)
-        .neq('id', excludeUserId)
-        .limit(SEARCH_RESULTS_LIMIT);
+    let request = supabase.from('profiles').select('*').ilike('display_name', `%${query}%`);
+
+    if (excludeUserId) {
+        request = request.neq('id', excludeUserId);
+    }
+
+    const { data, error } = await request.limit(SEARCH_RESULTS_LIMIT);
 
     if (error) {
         throw error;
@@ -125,8 +137,9 @@ export async function uploadAvatar(file: File, previousPath?: string | null): Pr
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error(NOT_AUTHENTICATED_MESSAGE);
@@ -163,8 +176,9 @@ export async function removeAvatar(path: string): Promise<Profile> {
     const supabase = createClient();
 
     const {
-        data: { user }
-    } = await supabase.auth.getUser();
+        data: { session }
+    } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     if (!user) {
         throw new Error(NOT_AUTHENTICATED_MESSAGE);

@@ -6,10 +6,13 @@ import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { CategoryFilter } from '@/features/recipes/components/CategoryFilter';
 import { RecipeCard } from '@/features/recipes/components/RecipeCard';
 import { useCategories } from '@/hooks/useCategories';
+import { useHasMounted } from '@/hooks/useHasMounted';
+import { useCurrentProfile } from '@/hooks/useProfile';
 import { useCommunityRecipes, useRecipes } from '@/hooks/useRecipes';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { BookOpen, Plus , Search, Users } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const MINE_TAB = 'mine';
 const COMMUNITY_TAB = 'community';
@@ -31,7 +34,14 @@ export default function RecipesPage() {
 }
 
 function RecipesPageContent() {
+    const router = useRouter();
     const searchParams = useSearchParams();
+    const hasMounted = useHasMounted();
+    const { data: currentProfile, isPending: profilePending } = useCurrentProfile();
+    // hasMounted-gated so the client's first paint always matches the
+    // server (which never resolves this) -- see useHasMounted for why.
+    const isGuest = hasMounted && !profilePending && !currentProfile;
+    const { requireAuth, authGate } = useRequireAuth('Sign in to create a recipe.');
     const [activeTab, setActiveTab] = useState<RecipesTab>(MINE_TAB);
 
     const { data: myRecipes, isPending: myRecipesPending, isError: myRecipesError } = useRecipes();
@@ -42,7 +52,9 @@ function RecipesPageContent() {
     const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '');
 
     const categoryNameById = new Map(categories?.map((category) => [category.id, category.name]));
-    const isMineTab = activeTab === MINE_TAB;
+    // Guests have no "My Recipes" — force the community tab regardless of
+    // whatever local state was set before the profile check resolved.
+    const isMineTab = !isGuest && activeTab === MINE_TAB;
 
     const filteredMyRecipes = myRecipes
         ?.filter((recipe) => !categoryFilter || recipe.category_id === categoryFilter)
@@ -67,24 +79,28 @@ function RecipesPageContent() {
             <div className='flex flex-wrap items-center justify-between gap-4'>
                 <h1 className='text-display font-semibold text-text-primary'>Recipes</h1>
 
-                <Link
-                    href='/recipes/new'
+                <button
+                    type='button'
+                    onClick={() => requireAuth(() => router.push('/recipes/new'))}
                     className='inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-button font-medium text-accent-foreground shadow-sm transition-all duration-150 hover:bg-accent-hover hover:shadow-md active:scale-[0.98]'
                 >
                     <Plus size={16} />
                     New recipe
-                </Link>
+                </button>
+                {authGate}
             </div>
 
             <div role='group' aria-label='Recipes tab' className='mt-5 flex flex-wrap gap-2'>
-                <button
-                    type='button'
-                    aria-pressed={isMineTab}
-                    onClick={() => setActiveTab(MINE_TAB)}
-                    className={`${TAB_BASE_CLASSES} ${isMineTab ? TAB_ACTIVE_CLASSES : TAB_INACTIVE_CLASSES}`}
-                >
-                    My Recipes
-                </button>
+                {!isGuest && (
+                    <button
+                        type='button'
+                        aria-pressed={isMineTab}
+                        onClick={() => setActiveTab(MINE_TAB)}
+                        className={`${TAB_BASE_CLASSES} ${isMineTab ? TAB_ACTIVE_CLASSES : TAB_INACTIVE_CLASSES}`}
+                    >
+                        My Recipes
+                    </button>
+                )}
 
                 <button
                     type='button'
