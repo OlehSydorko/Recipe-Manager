@@ -25,10 +25,25 @@ function useDebouncedValue(value: string, delayMs: number): string {
     return debounced;
 }
 
-export function FindPeopleSearch() {
-    const [query, setQuery] = useState('');
+type FindPeopleSearchProps = {
+    // Only relevant when this is mounted at /people -- the route's ?q=, set
+    // by the global nav search's fallback submit (see GlobalSearch), or by
+    // a person typing directly into this page's own search box on a fresh
+    // load via a shared link.
+    initialQuery?: string;
+};
+
+export function FindPeopleSearch({ initialQuery = '' }: FindPeopleSearchProps) {
+    const [query, setQuery] = useState(initialQuery);
     const debouncedQuery = useDebouncedValue(query, DEBOUNCE_MS);
     const { data: results, isPending, isFetching } = useSearchProfiles(debouncedQuery);
+
+    // Resyncs when the URL's ?q= changes after the initial mount -- e.g. the
+    // global nav search deep-links here while the user is already on this
+    // page, which the useState initializer above alone wouldn't pick up.
+    useEffect(() => {
+        setQuery(initialQuery);
+    }, [initialQuery]);
 
     const trimmedQuery = query.trim();
     const isBelowMinLength = trimmedQuery.length > 0 && trimmedQuery.length < MIN_QUERY_LENGTH;

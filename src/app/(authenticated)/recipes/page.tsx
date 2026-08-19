@@ -41,7 +41,9 @@ function RecipesPageContent() {
     // server (which never resolves this) -- see useHasMounted for why.
     const isGuest = hasMounted && !profilePending && !currentProfile;
     const { requireAuth, authGate } = useRequireAuth('Sign in to create a recipe.');
-    const [activeTab, setActiveTab] = useState<RecipesTab>(MINE_TAB);
+    const [activeTab, setActiveTab] = useState<RecipesTab>(
+        searchParams.get('tab') === COMMUNITY_TAB ? COMMUNITY_TAB : MINE_TAB
+    );
 
     const { data: myRecipes, isPending: myRecipesPending, isError: myRecipesError } = useRecipes();
     const { data: communityRecipes, isPending: communityPending, isError: communityError } = useCommunityRecipes();
@@ -56,6 +58,14 @@ function RecipesPageContent() {
     // wouldn't pick up.
     useEffect(() => {
         setSearchQuery(searchParams.get('q') ?? '');
+    }, [searchParams]);
+
+    // Same idea for ?tab= -- Home's "View all" on the Community Recipes
+    // section deep-links here with ?tab=community, including when the user
+    // is already on this page (the useState initializer above alone
+    // wouldn't pick that up).
+    useEffect(() => {
+        setActiveTab(searchParams.get('tab') === COMMUNITY_TAB ? COMMUNITY_TAB : MINE_TAB);
     }, [searchParams]);
 
     const categoryNameById = new Map(categories?.map((category) => [category.id, category.name]));

@@ -1,27 +1,37 @@
+'use client';
+
+import { CollectionCoverMosaic } from '@/features/collections/components/CollectionCoverMosaic';
+import { useCollectionCoverUrls } from '@/hooks/useCollections';
 import type { CollectionWithCount } from '@/types/collection';
-import { Folder } from 'lucide-react';
 import Link from 'next/link';
 
 type HomeCollectionCardProps = {
     collection: CollectionWithCount;
 };
 
-// Read-only summary tile for the Home dashboard. Deliberately not reusing
-// CollectionCard, which always renders an edit/delete ActionMenu — that
-// management UI belongs on the collection page's Collections tab, not here.
+// Read-only summary tile for the Home dashboard. Mirrors the cover mosaic
+// used by CollectionCard on the Collections page, but skips its edit/delete
+// ActionMenu -- that management UI belongs on the Collections tab, not here.
 export function HomeCollectionCard({ collection }: HomeCollectionCardProps) {
+    const { data: coverUrls } = useCollectionCoverUrls(collection.coverImagePaths);
+    const cellUrls = collection.coverImagePaths.map((path) => coverUrls?.[path]);
+
     return (
         <Link
             href='/collections'
-            className='block rounded-lg border border-border bg-surface p-4 transition-colors duration-150 hover:border-border-strong hover:bg-hover'
+            className='block overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-md'
         >
-            <Folder size={20} className='text-accent' />
+            <div className='relative aspect-[4/3] w-full bg-bg-secondary'>
+                <CollectionCoverMosaic imageUrls={cellUrls} />
 
-            <h3 className='mt-3 truncate text-h3 font-medium text-text-primary'>{collection.name}</h3>
+                <span className='absolute bottom-2 left-2 rounded-full bg-bg/70 px-2.5 py-0.5 text-caption font-medium text-text-primary backdrop-blur-sm'>
+                    {collection.recipeCount} {collection.recipeCount === 1 ? 'recipe' : 'recipes'}
+                </span>
+            </div>
 
-            <p className='mt-3 text-caption text-text-disabled'>
-                {collection.recipeCount} {collection.recipeCount === 1 ? 'recipe' : 'recipes'}
-            </p>
+            <div className='p-4'>
+                <h3 className='truncate text-h3 font-medium text-text-primary'>{collection.name}</h3>
+            </div>
         </Link>
     );
 }

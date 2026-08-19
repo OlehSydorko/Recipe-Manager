@@ -1,0 +1,86 @@
+import type { ReactNode } from 'react';
+import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
+import { RecipeCard } from '@/features/recipes/components/RecipeCard';
+import type { Recipe, RecipeWithAuthor } from '@/types/recipe';
+import { BookOpen } from 'lucide-react';
+import Link from 'next/link';
+
+type HomeRecipeSectionProps = {
+    title: string;
+    viewAllHref: string;
+    recipes: (Recipe | RecipeWithAuthor)[];
+    isPending: boolean;
+    isError: boolean;
+    skeletonCount: number;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyAction?: ReactNode;
+    categoryNameById?: Map<string, string>;
+};
+
+// Shared shell for the Home page's recipe grids (Community Recipes, Recently
+// added) -- both sections need the same heading/skeleton/error/empty/grid
+// states, just with different data, copy, and (for Recently added only) an
+// empty-state CTA. categoryNameById is only needed for plain `Recipe` rows
+// (the signed-in user's own recipes, which don't carry a categoryName);
+// community rows are already `RecipeWithAuthor` and carry their own.
+export function HomeRecipeSection({
+    title,
+    viewAllHref,
+    recipes,
+    isPending,
+    isError,
+    skeletonCount,
+    emptyTitle,
+    emptyDescription,
+    emptyAction,
+    categoryNameById
+}: HomeRecipeSectionProps) {
+    return (
+        <section>
+            <div className='flex items-center justify-between'>
+                <h2 className='text-h2 font-semibold text-text-primary'>{title}</h2>
+                <Link href={viewAllHref} className='text-label font-medium text-accent hover:text-accent-hover'>
+                    View all
+                </Link>
+            </div>
+
+            {isError && <p className='mt-4 text-body text-error'>Could not load recipes.</p>}
+
+            {isPending && (
+                <div className='mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4'>
+                    {Array.from({ length: skeletonCount }).map((_, index) => (
+                        // eslint-disable-next-line react/no-array-index-key
+                        <RecipeCardSkeleton key={index} />
+                    ))}
+                </div>
+            )}
+
+            {!isPending && !isError && recipes.length === 0 && (
+                <div className='mt-8 flex flex-col items-center gap-3 text-center'>
+                    <BookOpen size={32} className='text-text-disabled' />
+                    <p className='text-h3 font-medium text-text-primary'>{emptyTitle}</p>
+                    <p className='text-body text-text-secondary'>{emptyDescription}</p>
+                    {emptyAction}
+                </div>
+            )}
+
+            {!isPending && !isError && recipes.length > 0 && (
+                <div className='mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4'>
+                    {recipes.map((recipe) => (
+                        <RecipeCard
+                            key={recipe.id}
+                            recipe={recipe}
+                            categoryName={
+                                'categoryName' in recipe
+                                    ? (recipe.categoryName ?? 'Uncategorized')
+                                    : (categoryNameById?.get(recipe.category_id) ?? 'Uncategorized')
+                            }
+                            author={'author' in recipe ? recipe.author : undefined}
+                        />
+                    ))}
+                </div>
+            )}
+        </section>
+    );
+}

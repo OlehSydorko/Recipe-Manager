@@ -39,10 +39,10 @@ function CollectionsPageContent() {
                     prep&quot;.
                 </p>
                 <Link
-                    href='/signup?redirect=%2Fcollections'
+                    href='/login?redirect=%2Fcollections'
                     className='mt-2 inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-button font-medium text-accent-foreground shadow-sm transition-colors duration-150 hover:bg-accent-hover'
                 >
-                    Sign up
+                    Sign in
                 </Link>
             </div>
         );

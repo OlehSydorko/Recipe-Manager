@@ -24,11 +24,37 @@ const DESTINATION_BY_KIND: Record<SuggestionKind, string> = {
     person: '/profile'
 };
 
+// Recipes, collections, and people each have their own browsable, filterable
+// list page (RecipesPage / CollectionsSection / FindPeopleSearch, all read
+// ?q= on mount). Plain Enter -- i.e. the user typed and submitted without
+// arrowing to a specific suggestion -- sends them to that list instead of
+// guessing which exact one they meant, UNLESS the query is an exact,
+// unambiguous name match for a person -- see isExactNameMatch and
+// handleSubmit.
+const LIST_PAGE_BY_KIND: Record<SuggestionKind, string> = {
+    recipe: '/recipes',
+    collection: '/collections',
+    person: '/people'
+};
+
+// A fully-typed, exact name match is unambiguous enough to skip the "here's
+// everyone matching" list and jump straight to that one profile -- unlike a
+// partial match, or a recipe/collection match, which always goes to the list
+// page (see LIST_PAGE_BY_KIND) so the user can pick the right one.
+function isExactNameMatch(suggestion: FlatSuggestion, searchTerm: string): boolean {
+    return suggestion.label.trim().toLowerCase() === searchTerm.trim().toLowerCase();
+}
+
 // Debounces the raw input so useGlobalSearch (and the query it fires) only
 // runs once typing pauses, not on every keystroke -- same pattern as
-// FindPeopleSearch's local debounce hook.
-function useDebouncedValue(value: string, delayMs: number): string {
+// FindPeopleSearch's local debounce hook. Also returns a flush function so a
+// caller (handleSubmit below) can force the debounced value to catch up to
+// the live one immediately, instead of waiting out the rest of delayMs.
+function useDebouncedValue(value: string, delayMs: number): [string, () => void] {
     const [debounced, setDebounced] = useState(value);
+    const latestValueRef = useRef(value);
+
+    latestValueRef.current = value;
 
     useEffect(() => {
         const timeoutId = setTimeout(() => setDebounced(value), delayMs);
@@ -36,7 +62,9 @@ function useDebouncedValue(value: string, delayMs: number): string {
         return () => clearTimeout(timeoutId);
     }, [value, delayMs]);
 
-    return debounced;
+    const flush = () => setDebounced(latestValueRef.current);
+
+    return [debounced, flush];
 }
 
 type SuggestionRowProps = {
@@ -118,16 +146,29 @@ type GlobalSearchProps = {
 };
 
 // Unified search mounted in the nav -- suggests matching recipes,
-// collections, and people as the user types, and either jumps straight to a
-// specific suggestion or, on plain submit, falls back to the recipes list
-// filtered by the typed query.
+// collections, and people as the user types. Clicking a row (or arrowing to
+// one and pressing Enter) always jumps straight to that specific item.
+// Plain Enter -- no explicit arrow selection -- instead defers to the
+// top-ranked suggestion: an exact, full name match on a person jumps
+// straight to that profile, and everything else (a partial person match, or
+// any recipe/collection match) sends the user to that kind's filtered list
+// page instead of guessing which exact one they meant.
 export function GlobalSearch({ className, autoFocus = false, onNavigate }: GlobalSearchProps) {
     const router = useRouter();
     const containerRef = useRef<HTMLDivElement>(null);
     const [query, setQuery] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
-    const debouncedQuery = useDebouncedValue(query, DEBOUNCE_MS);
+    // Tracks whether the current highlight came from an explicit ArrowUp/
+    // ArrowDown press, as opposed to the automatic top-suggestion default
+    // below -- handleSubmit uses this to tell "user picked this one" apart
+    // from "this just happens to be first".
+    const [hasExplicitHighlight, setHasExplicitHighlight] = useState(false);
+    // Set by handleSubmit when Enter is pressed before the debounced query
+    // (and its results) have caught up with what's actually typed -- see the
+    // "flush on submit" effect below for how this gets resolved.
+    const [pendingSubmitQuery, setPendingSubmitQuery] = useState<string | null>(null);
+    const [debouncedQuery, flushDebouncedQuery] = useDebouncedValue(query, DEBOUNCE_MS);
     const { data: results, isPending, isFetching } = useGlobalSearch(debouncedQuery);
 
     const trimmedQuery = query.trim();
@@ -151,9 +192,16 @@ export function GlobalSearch({ className, autoFocus = false, onNavigate }: Globa
 
     const hasResults = flatSuggestions.length > 0;
 
+    // Defaults the highlight to the top suggestion whenever a search settles
+    // with results, purely so the top row reads as highlighted and Enter has
+    // something to act on -- handleSubmit decides what "acting on it" means
+    // based on hasExplicitHighlight and the suggestion's kind. Also clears
+    // hasExplicitHighlight, since a fresh result set invalidates any earlier
+    // arrow-key selection.
     useEffect(() => {
-        setHighlightedIndex(-1);
-    }, [debouncedQuery]);
+        setHighlightedIndex(hasResults ? 0 : -1);
+        setHasExplicitHighlight(false);
+    }, [debouncedQuery, hasResults]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -174,11 +222,32 @@ export function GlobalSearch({ className, autoFocus = false, onNavigate }: Globa
         onNavigate?.();
     };
 
-    const handleSubmit = (event: React.FormEvent) => {
-        event.preventDefault();
+    const goToListPage = (kind: SuggestionKind, searchTerm: string) => {
+        router.push(`${LIST_PAGE_BY_KIND[kind]}?q=${encodeURIComponent(searchTerm)}`);
+        setIsOpen(false);
+        setQuery('');
+        onNavigate?.();
+    };
 
-        if (highlightedIndex >= 0 && flatSuggestions[highlightedIndex]) {
-            navigateToSuggestion(flatSuggestions[highlightedIndex]);
+    // The actual "where does Enter go" decision, shared by the synchronous
+    // path (results already match what's typed) and the deferred path below
+    // (results just caught up after a flush). Deliberately reads
+    // hasResults/flatSuggestions fresh rather than the highlightedIndex
+    // state for the *implicit* case, since that state can lag a render
+    // behind a just-arrived result set -- explicit arrow selections don't
+    // have that lag, so those still use the real highlightedIndex.
+    const resolveSubmit = () => {
+        const effectiveIndex = !isSearching ? -1 : hasExplicitHighlight ? highlightedIndex : hasResults ? 0 : -1;
+        const topSuggestion = effectiveIndex >= 0 ? flatSuggestions[effectiveIndex] : undefined;
+
+        if (topSuggestion) {
+            const isUnambiguousPersonMatch = topSuggestion.kind === 'person' && isExactNameMatch(topSuggestion, trimmedQuery);
+
+            if (hasExplicitHighlight || isUnambiguousPersonMatch) {
+                navigateToSuggestion(topSuggestion);
+            } else {
+                goToListPage(topSuggestion.kind, trimmedQuery);
+            }
 
             return;
         }
@@ -193,6 +262,47 @@ export function GlobalSearch({ className, autoFocus = false, onNavigate }: Globa
         onNavigate?.();
     };
 
+    const handleSubmit = (event: React.FormEvent) => {
+        event.preventDefault();
+
+        const resultsMatchWhatsTyped = trimmedQuery === debouncedQuery.trim() && !isPending && !isFetching;
+
+        if (isSearching && !resultsMatchWhatsTyped) {
+            // The suggestions on screen right now describe an older (often
+            // shorter, or still-loading) query, not what's actually typed --
+            // e.g. Enter pressed right after the last keystroke, before the
+            // debounce fired, or while that query's fetch is still in
+            // flight. Force the real query through immediately and let the
+            // effect below finish once its results are actually in, rather
+            // than guessing off stale (often empty) suggestions.
+            flushDebouncedQuery();
+            setPendingSubmitQuery(trimmedQuery);
+
+            return;
+        }
+
+        resolveSubmit();
+    };
+
+    // Finishes a submit that had to wait on the flush above: once the
+    // debounced query catches up to the one we flushed for, and that
+    // query's fetch has settled, resolveSubmit sees accurate results.
+    useEffect(() => {
+        if (pendingSubmitQuery === null) {
+            return;
+        }
+
+        if (debouncedQuery.trim() !== pendingSubmitQuery || isPending || isFetching) {
+            return;
+        }
+
+        setPendingSubmitQuery(null);
+        resolveSubmit();
+        // resolveSubmit intentionally left out of the dependency array -- it
+        // closes over state that changes every render, and depending on it
+        // would fire this effect more than once for the same flush.
+    }, [pendingSubmitQuery, debouncedQuery, isPending, isFetching]);
+
     const handleKeyDown = (event: React.KeyboardEvent) => {
         if (event.key === 'Escape') {
             setIsOpen(false);
@@ -206,9 +316,11 @@ export function GlobalSearch({ className, autoFocus = false, onNavigate }: Globa
 
         if (event.key === 'ArrowDown') {
             event.preventDefault();
+            setHasExplicitHighlight(true);
             setHighlightedIndex((index) => (index + 1) % flatSuggestions.length);
         } else if (event.key === 'ArrowUp') {
             event.preventDefault();
+            setHasExplicitHighlight(true);
             setHighlightedIndex((index) => (index <= 0 ? flatSuggestions.length - 1 : index - 1));
         }
     };
@@ -226,7 +338,13 @@ export function GlobalSearch({ className, autoFocus = false, onNavigate }: Globa
                     type='search'
                     value={query}
                     autoFocus={autoFocus}
-                    onChange={(event) => setQuery(event.target.value)}
+                    onChange={(event) => {
+                        setQuery(event.target.value);
+                        // Further typing supersedes any submit that was
+                        // waiting on a flushed query -- that intent no
+                        // longer matches what's on screen.
+                        setPendingSubmitQuery(null);
+                    }}
                     onFocus={() => setIsOpen(true)}
                     onKeyDown={handleKeyDown}
                     placeholder='Search recipes, collections, people…'
