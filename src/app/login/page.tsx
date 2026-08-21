@@ -15,6 +15,7 @@ const MESSAGE_COPY: Record<string, string> = {
     profile: 'Sign in to view your profile.',
     'recipe-new': 'Sign in to create a recipe.',
     'recipe-edit': 'Sign in to edit this recipe.',
+    'password-reset': 'Your password has been updated. Log in with your new password.',
     default: 'Sign in to continue.'
 };
 
@@ -93,9 +94,14 @@ function LoginPageContent() {
                 </div>
 
                 <div>
-                    <label htmlFor='password' className='mb-1.5 block text-label font-medium text-text-secondary'>
-                        Password
-                    </label>
+                    <div className='mb-1.5 flex items-center justify-between'>
+                        <label htmlFor='password' className='block text-label font-medium text-text-secondary'>
+                            Password
+                        </label>
+                        <Link href='/forgot-password' className='text-label font-medium text-accent hover:underline'>
+                            Forgot password?
+                        </Link>
+                    </div>
                     <PasswordInput
                         id='password'
                         value={password}

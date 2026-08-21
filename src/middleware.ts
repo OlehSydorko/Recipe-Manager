@@ -77,6 +77,18 @@ async function updateSession(request: NextRequest) {
     const isAuthPath = authPaths.includes(request.nextUrl.pathname);
     const isProtectedPath = isProtectedRoute(request.nextUrl.pathname);
 
+    // /reset-password only has anything to act on once /auth/confirm has
+    // verified the emailed recovery token and set a session -- a guest
+    // landing here without one doesn't have a stale password to fix, they
+    // need a fresh link, so send them to /forgot-password rather than /login.
+    if (!user && request.nextUrl.pathname === '/reset-password') {
+        const url = request.nextUrl.clone();
+
+        url.pathname = '/forgot-password';
+
+        return NextResponse.redirect(url);
+    }
+
     if (!user && isProtectedPath) {
         const url = request.nextUrl.clone();
 
