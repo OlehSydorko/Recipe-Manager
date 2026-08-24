@@ -183,7 +183,6 @@ export async function getRecipe(id: string): Promise<Recipe> {
 export type CreateRecipeInput = {
     title: string;
     description: string;
-    instructions: string;
     categoryId: string;
     portions: number;
 };
@@ -205,7 +204,6 @@ export async function createRecipe(input: CreateRecipeInput): Promise<Recipe> {
         .insert({
             title: input.title,
             description: input.description,
-            instructions: input.instructions,
             category_id: input.categoryId,
             portions: input.portions,
             user_id: user.id
@@ -225,7 +223,6 @@ export type UpdateRecipeInput = {
     id: string;
     title: string;
     description: string;
-    instructions: string;
     categoryId: string;
     portions: number;
 };
@@ -239,7 +236,6 @@ export async function updateRecipe(input: UpdateRecipeInput): Promise<Recipe> {
             .update({
                 title: input.title,
                 description: input.description,
-                instructions: input.instructions,
                 category_id: input.categoryId,
                 portions: input.portions,
                 updated_at: new Date().toISOString()

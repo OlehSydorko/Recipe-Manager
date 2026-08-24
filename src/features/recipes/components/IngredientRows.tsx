@@ -1,6 +1,7 @@
 'use client';
 
 import { ALLOWED_UNITS, DEFAULT_UNIT, type IngredientDraft } from '@/types/ingredient';
+import type { SectionDraft } from '@/types/section';
 import { ChevronDown, Plus, Trash2 } from 'lucide-react';
 
 // Keeps only digits, a single decimal point, and a single fraction slash
@@ -23,19 +24,23 @@ function sanitizeQuantity(value: string): string {
     return cleaned;
 }
 
-export function createEmptyIngredientDraft(): IngredientDraft {
-    return { key: crypto.randomUUID(), name: '', quantity: '', unit: DEFAULT_UNIT };
+export function createEmptyIngredientDraft(sectionKey: string | null = null): IngredientDraft {
+    return { key: crypto.randomUUID(), name: '', quantity: '', sectionKey, unit: DEFAULT_UNIT };
 }
 
 type IngredientRowsProps = {
     ingredients: IngredientDraft[];
+    sections: SectionDraft[];
     onChange: (ingredients: IngredientDraft[]) => void;
 };
 
 const FIELD_CLASSES =
     'h-11 rounded-sm border border-border bg-bg-secondary text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15';
 
-export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
+// The optional Section dropdown (fed by `sections`, see SectionsManager.tsx) only
+// renders once at least one section exists -- with none, this looks exactly like it
+// did before sections existed.
+export function IngredientRows({ ingredients, sections, onChange }: IngredientRowsProps) {
     const handleNameChange = (key: string, value: string) => {
         onChange(
             ingredients.map((ingredient) => (ingredient.key === key ? { ...ingredient, name: value } : ingredient))
@@ -54,6 +59,13 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
         );
     };
 
+    const handleSectionChange = (key: string, value: string) => {
+        onChange(
+            ingredients.map((ingredient) =>
+                ingredient.key === key ? { ...ingredient, sectionKey: value || null } : ingredient
+            )
+        );
+    };
 
     const handleAddRow = () => {
         onChange([...ingredients, createEmptyIngredientDraft()]);
@@ -69,14 +81,13 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
 
             <div className='mt-2 space-y-2'>
                 {ingredients.map((ingredient) => (
-                    <div key={ingredient.key} className='flex gap-2'>
-
-                         <input
+                    <div key={ingredient.key} className='flex flex-wrap gap-2'>
+                        <input
                             type='text'
                             value={ingredient.name}
                             onChange={(event) => handleNameChange(ingredient.key, event.target.value)}
                             placeholder='Ingredient'
-                            className={`flex-1 px-3 ${FIELD_CLASSES}`}
+                            className={`min-w-[8rem] flex-1 px-3 ${FIELD_CLASSES}`}
                         />
                         <input
                             type='text'
@@ -104,6 +115,28 @@ export function IngredientRows({ ingredients, onChange }: IngredientRowsProps) {
                                 className='pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary'
                             />
                         </div>
+
+                        {sections.length > 0 && (
+                            <div className='relative w-32 shrink-0'>
+                                <select
+                                    value={ingredient.sectionKey ?? ''}
+                                    onChange={(event) => handleSectionChange(ingredient.key, event.target.value)}
+                                    aria-label='Section'
+                                    className={`w-full appearance-none px-2.5 pr-7 ${FIELD_CLASSES}`}
+                                >
+                                    <option value=''>No section</option>
+                                    {sections.map((section) => (
+                                        <option key={section.key} value={section.key}>
+                                            {section.name || 'Untitled section'}
+                                        </option>
+                                    ))}
+                                </select>
+                                <ChevronDown
+                                    size={14}
+                                    className='pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary'
+                                />
+                            </div>
+                        )}
 
                         <button
                             type='button'

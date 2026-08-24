@@ -7,39 +7,75 @@ import { Textarea } from '@/components/ui/Textarea';
 import { CategorySelect } from '@/features/recipes/components/CategorySelect';
 import { IngredientRows, createEmptyIngredientDraft } from '@/features/recipes/components/IngredientRows';
 import { RecipeImagePicker } from '@/features/recipes/components/RecipeImagePicker';
+import { SectionsManager } from '@/features/recipes/components/SectionsManager';
+import { StepRows, createEmptyStepDraft } from '@/features/recipes/components/StepRows';
+import {
+    createEmptySectionDraft,
+    namedSectionDrafts,
+    removeSection,
+    renameSection,
+    resolveSectionIds,
+    unassignSection
+} from '@/features/recipes/sectionedDrafts';
 import { LeaveButton } from '@/features/social/components/LeaveButton';
 import { useReplaceIngredients } from '@/hooks/useIngredients';
 import { useCreateRecipe, useUploadRecipeImage } from '@/hooks/useRecipes';
+import { useReplaceSections } from '@/hooks/useSections';
+import { useReplaceSteps } from '@/hooks/useSteps';
 import { isFormDirty } from '@/lib/formDirty';
 import type { IngredientDraft } from '@/types/ingredient';
+import type { SectionDraft } from '@/types/section';
+import type { StepDraft } from '@/types/step';
 import { useRouter } from 'next/navigation';
 
-const INITIAL_FORM = { title: '', description: '', instructions: '', categoryId: '', portions: 1 };
+const INITIAL_FORM = { title: '', description: '', categoryId: '', portions: 1 };
 
 export default function NewRecipePage() {
     const router = useRouter();
     const createRecipe = useCreateRecipe();
+    const replaceSections = useReplaceSections();
     const replaceIngredients = useReplaceIngredients();
+    const replaceSteps = useReplaceSteps();
     const uploadImage = useUploadRecipeImage();
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [instructions, setInstructions] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [portions, setPortions] = useState<number | ''>(1);
     const [portionsError, setPortionsError] = useState('');
+    const [sections, setSections] = useState<SectionDraft[]>([]);
     const [ingredients, setIngredients] = useState<IngredientDraft[]>([createEmptyIngredientDraft()]);
+    const [steps, setSteps] = useState<StepDraft[]>([createEmptyStepDraft()]);
     const [imageFile, setImageFile] = useState<File | null>(null);
 
-    // Captures the blank starting row once on mount, so edits/added/removed rows can be detected.
+    // Captures the blank starting rows once on mount, so edits/added/removed rows can be detected.
     const initialIngredientsRef = useRef(ingredients);
+    const initialStepsRef = useRef(steps);
 
     const isDirty =
-        isFormDirty(INITIAL_FORM, { title, description, instructions, categoryId, portions }) ||
+        isFormDirty(INITIAL_FORM, { title, description, categoryId, portions }) ||
+        isFormDirty<SectionDraft[]>([], sections) ||
         isFormDirty(initialIngredientsRef.current, ingredients) ||
+        isFormDirty(initialStepsRef.current, steps) ||
         Boolean(imageFile);
 
-    const isSubmitting = createRecipe.isPending || replaceIngredients.isPending || uploadImage.isPending;
+    const isSubmitting =
+        createRecipe.isPending ||
+        replaceSections.isPending ||
+        replaceIngredients.isPending ||
+        replaceSteps.isPending ||
+        uploadImage.isPending;
+
+    const handleAddSection = () => setSections((previous) => [...previous, createEmptySectionDraft()]);
+
+    const handleRenameSection = (key: string, name: string) =>
+        setSections((previous) => renameSection(previous, key, name));
+
+    const handleRemoveSection = (key: string) => {
+        setSections((previous) => removeSection(previous, key));
+        setIngredients((previous) => unassignSection(previous, key));
+        setSteps((previous) => unassignSection(previous, key));
+    };
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -55,15 +91,41 @@ export default function NewRecipePage() {
         const recipe = await createRecipe.mutateAsync({
             title: title.trim(),
             description,
-            instructions,
             categoryId,
             portions
         });
 
-        await replaceIngredients.mutateAsync({ ingredients, recipeId: recipe.id });
+        // Sections are saved before ingredients/steps so their real ids exist to
+        // attach to -- see sectionedDrafts.ts for how the local draft keys below get
+        // resolved to those real ids.
+        const namedSections = namedSectionDrafts(sections);
+        const savedSections = await replaceSections.mutateAsync({
+            names: namedSections.map((section) => section.name.trim()),
+            recipeId: recipe.id
+        });
+        const sectionIdByKey = resolveSectionIds(namedSections, savedSections);
+        const resolveSectionId = (key: string | null) => (key ? (sectionIdByKey.get(key) ?? null) : null);
+
+        await replaceIngredients.mutateAsync({
+            ingredients: ingredients.map((ingredient) => ({
+                name: ingredient.name,
+                quantity: ingredient.quantity,
+                sectionId: resolveSectionId(ingredient.sectionKey),
+                unit: ingredient.unit
+            })),
+            recipeId: recipe.id
+        });
+
+        await replaceSteps.mutateAsync({
+            recipeId: recipe.id,
+            steps: steps.map((step) => ({
+                instruction: step.instruction,
+                sectionId: resolveSectionId(step.sectionKey)
+            }))
+        });
 
         // The image can only be uploaded once the recipe (and its id) exists,
-        // same reason ingredients are saved as a second step above.
+        // same reason ingredients/sections/steps are saved as follow-up steps above.
         if (imageFile) {
             await uploadImage.mutateAsync({ recipeId: recipe.id, file: imageFile });
         }
@@ -154,19 +216,20 @@ export default function NewRecipePage() {
                 </div>
 
                 <div className='rounded-lg border border-border bg-surface p-5'>
-                    <IngredientRows ingredients={ingredients} onChange={setIngredients} />
+                    <SectionsManager
+                        sections={sections}
+                        onAdd={handleAddSection}
+                        onRename={handleRenameSection}
+                        onRemove={handleRemoveSection}
+                    />
                 </div>
 
                 <div className='rounded-lg border border-border bg-surface p-5'>
-                    <label htmlFor='instructions' className='mb-1.5 block text-label font-medium text-text-secondary'>
-                        Instructions
-                    </label>
-                    <Textarea
-                        id='instructions'
-                        value={instructions}
-                        onChange={(event) => setInstructions(event.target.value)}
-                        rows={5}
-                    />
+                    <IngredientRows ingredients={ingredients} sections={sections} onChange={setIngredients} />
+                </div>
+
+                <div className='rounded-lg border border-border bg-surface p-5'>
+                    <StepRows steps={steps} sections={sections} onChange={setSteps} />
                 </div>
 
                 <Button type='submit' variant='primary' disabled={isSubmitting} fullWidth>

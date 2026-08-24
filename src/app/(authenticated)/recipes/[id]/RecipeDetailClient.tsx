@@ -12,7 +12,10 @@ import { LeaveButton } from '@/features/social/components/LeaveButton';
 import { useIngredients } from '@/hooks/useIngredients';
 import { useCurrentProfile, useProfile } from '@/hooks/useProfile';
 import { useDeleteRecipe, useRecipe, useRecipeImageUrl } from '@/hooks/useRecipes';
+import { useSections } from '@/hooks/useSections';
+import { useSteps } from '@/hooks/useSteps';
 import { scaleQuantity } from '@/lib/quantity';
+import { groupBySection } from '@/lib/sections';
 import { Check, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -29,6 +32,8 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
     const router = useRouter();
     const { data: recipe, isPending, isError } = useRecipe(id);
     const { data: ingredients, isPending: ingredientsPending } = useIngredients(id);
+    const { data: steps, isPending: stepsPending } = useSteps(id);
+    const { data: sections, isPending: sectionsPending } = useSections(id);
     const { data: imageUrl } = useRecipeImageUrl(recipe?.image_url);
     const { data: currentProfile } = useCurrentProfile();
     const isOwner = Boolean(recipe && currentProfile && recipe.user_id === currentProfile.id);
@@ -47,6 +52,13 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
     }, [recipe]);
 
     const scaleFactor = recipe ? selectedPortions / recipe.portions : 1;
+
+    // Waits on sections too (not just ingredients/steps) so a sectioned recipe doesn't
+    // flash as one flat ungrouped list before its headings pop in.
+    const isIngredientsLoading = ingredientsPending || sectionsPending;
+    const isStepsLoading = stepsPending || sectionsPending;
+    const ingredientGroups = groupBySection(sections ?? [], ingredients ?? []);
+    const stepGroups = groupBySection(sections ?? [], steps ?? []);
 
     const handleDelete = () => {
         deleteRecipe.mutate(
@@ -132,7 +144,7 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
                     <PortionsChanger value={selectedPortions} onChange={setSelectedPortions} />
                 </div>
 
-                {ingredientsPending && (
+                {isIngredientsLoading && (
                     <div className='mt-3 space-y-2'>
                         <TextLineSkeleton className='w-full' />
                         <TextLineSkeleton className='w-5/6' />
@@ -140,69 +152,104 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
                     </div>
                 )}
 
-                {!ingredientsPending && ingredients?.length === 0 && (
+                {!isIngredientsLoading && ingredientGroups.length === 0 && (
                     <p className='mt-3 text-body text-text-secondary'>No ingredients yet.</p>
                 )}
 
-                {!ingredientsPending && ingredients && ingredients.length > 0 && (
-                    <ul className='mt-3 space-y-2'>
-                        {ingredients.map((ingredient) => {
-                            const isChecked = checkedIds.has(ingredient.id);
-                            const scaledQuantity = scaleQuantity(ingredient.quantity, scaleFactor);
+                {!isIngredientsLoading && ingredientGroups.length > 0 && (
+                    <div className='mt-3 space-y-5'>
+                        {ingredientGroups.map((group) => (
+                            <div key={group.sectionId ?? 'ungrouped'}>
+                                {group.name && (
+                                    <h3 className='mb-1 px-3 text-label font-semibold uppercase tracking-wide text-text-secondary'>
+                                        {group.name}
+                                    </h3>
+                                )}
 
-                            return (
-                                <li key={ingredient.id}>
-                                    <label
-                                        className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-body transition-colors duration-150 hover:bg-hover ${
-                                            isChecked ? 'bg-hover' : ''
-                                        }`}
-                                    >
-                                        <span className='relative flex h-5 w-5 shrink-0 items-center justify-center'>
-                                            <input
-                                                type='checkbox'
-                                                checked={isChecked}
-                                                onChange={() => handleToggleIngredient(ingredient.id)}
-                                                className='sr-only'
-                                            />
-                                            <span
-                                                className={`h-5 w-5 rounded-sm border transition-colors duration-150 ${
-                                                    isChecked ? 'border-accent bg-accent' : 'border-border-strong'
-                                                }`}
-                                            />
-                                            {isChecked && (
-                                                <Check
-                                                    size={13}
-                                                    className='animate-check-pop absolute inset-0 m-auto text-accent-foreground'
-                                                />
-                                            )}
-                                        </span>
+                                <ul className='space-y-2'>
+                                    {group.items.map((ingredient) => {
+                                        const isChecked = checkedIds.has(ingredient.id);
+                                        const scaledQuantity = scaleQuantity(ingredient.quantity, scaleFactor);
 
-                                        <span
-                                            className={`text-button font-mono ${isChecked ? 'text-text-disabled' : 'text-text-secondary'}`}
-                                        >
-                                            {scaledQuantity ? `${scaledQuantity} ` : ''}
-                                            {ingredient.unit ?? ''}
-                                        </span>
+                                        return (
+                                            <li key={ingredient.id}>
+                                                <label
+                                                    className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-body transition-colors duration-150 hover:bg-hover ${
+                                                        isChecked ? 'bg-hover' : ''
+                                                    }`}
+                                                >
+                                                    <span className='relative flex h-5 w-5 shrink-0 items-center justify-center'>
+                                                        <input
+                                                            type='checkbox'
+                                                            checked={isChecked}
+                                                            onChange={() => handleToggleIngredient(ingredient.id)}
+                                                            className='sr-only'
+                                                        />
+                                                        <span
+                                                            className={`h-5 w-5 rounded-sm border transition-colors duration-150 ${
+                                                                isChecked
+                                                                    ? 'border-accent bg-accent'
+                                                                    : 'border-border-strong'
+                                                            }`}
+                                                        />
+                                                        {isChecked && (
+                                                            <Check
+                                                                size={13}
+                                                                className='animate-check-pop absolute inset-0 m-auto text-accent-foreground'
+                                                            />
+                                                        )}
+                                                    </span>
 
-                                        <span
-                                            className={
-                                                isChecked ? 'text-text-disabled line-through' : 'text-text-primary'
-                                            }
-                                        >
-                                            {ingredient.name}
-                                        </span>
-                                    </label>
-                                </li>
-                            );
-                        })}
-                    </ul>
+                                                    <span
+                                                        className={`text-button font-mono ${isChecked ? 'text-text-disabled' : 'text-text-secondary'}`}
+                                                    >
+                                                        {scaledQuantity ? `${scaledQuantity} ` : ''}
+                                                        {ingredient.unit ?? ''}
+                                                    </span>
+
+                                                    <span
+                                                        className={
+                                                            isChecked
+                                                                ? 'text-text-disabled line-through'
+                                                                : 'text-text-primary'
+                                                        }
+                                                    >
+                                                        {ingredient.name}
+                                                    </span>
+                                                </label>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
 
-            {recipe.instructions && (
+            {!isStepsLoading && stepGroups.length > 0 && (
                 <div className='mt-6 rounded-lg border border-border bg-surface p-5'>
                     <h2 className='text-h2 font-semibold text-text-primary'>Instructions</h2>
-                    <p className='mt-3 whitespace-pre-line text-body text-text-secondary'>{recipe.instructions}</p>
+
+                    <div className='mt-3 space-y-5'>
+                        {stepGroups.map((group) => (
+                            <div key={group.sectionId ?? 'ungrouped'}>
+                                {group.name && (
+                                    <h3 className='mb-2 text-label font-semibold uppercase tracking-wide text-text-secondary'>
+                                        {group.name}
+                                    </h3>
+                                )}
+
+                                <ol className='list-decimal space-y-2 pl-5 text-body text-text-secondary'>
+                                    {group.items.map((step) => (
+                                        <li key={step.id} className='pl-1'>
+                                            {step.instruction}
+                                        </li>
+                                    ))}
+                                </ol>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
 

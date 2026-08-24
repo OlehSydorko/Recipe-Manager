@@ -28,6 +28,7 @@ export type IngredientInput = {
     name: string;
     quantity: string;
     unit: string;
+    sectionId: string | null;
 };
 
 // Recipes are edited as a whole form (like title/description), so ingredients are
@@ -52,6 +53,7 @@ export async function replaceIngredients(recipeId: string, ingredients: Ingredie
                 name: ingredient.name.trim(),
                 quantity: QUANTITY_PATTERN.test(quantity) ? quantity : '',
                 recipe_id: recipeId,
+                section_id: ingredient.sectionId,
                 sort_order: index,
                 unit: isAllowedUnit(unit) ? unit : DEFAULT_UNIT
             };
