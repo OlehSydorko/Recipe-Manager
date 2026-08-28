@@ -186,7 +186,13 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
             return;
         }
 
-        await updateRecipe.mutateAsync({ id, title: title.trim(), description, categoryId, portions });
+        await updateRecipe.mutateAsync({
+            id,
+            title: title.trim(),
+            description,
+            categoryId,
+            portions: Number(portions)
+        });
 
         const namedSections = namedSectionDrafts(sections);
         const savedSections = await replaceSections.mutateAsync({

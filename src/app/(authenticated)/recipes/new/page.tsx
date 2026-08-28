@@ -125,7 +125,7 @@ export default function NewRecipePage() {
             title: title.trim(),
             description,
             categoryId,
-            portions
+            portions: Number(portions)
         });
 
         const namedSections = namedSectionDrafts(sections);
