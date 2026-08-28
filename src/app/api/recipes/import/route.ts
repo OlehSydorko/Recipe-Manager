@@ -1,7 +1,9 @@
 import { GeminiConfigError, GeminiExtractionError, callGeminiForImageImport } from '@/lib/recipeImport/callGemini';
-import { checkAndRecordImport } from '@/lib/recipeImport/rateLimit';
+import { hasImportQuota, recordImport } from '@/lib/recipeImport/rateLimit';
 import { createClient } from '@/lib/supabaseServerClient';
 import { NextResponse } from 'next/server';
+
+type ServerSupabaseClient = Awaited<ReturnType<typeof createClient>>;
 
 export const runtime = 'nodejs';
 
@@ -35,7 +37,7 @@ export async function POST(request: Request) {
     let allowed: boolean;
 
     try {
-        allowed = await checkAndRecordImport(supabase, user.id, 'image');
+        allowed = await hasImportQuota(supabase, user.id);
     } catch {
         return errorResponse('Something went wrong. Please try again.', 500);
     }
@@ -44,10 +46,10 @@ export async function POST(request: Request) {
         return errorResponse('You have reached today’s import limit. Try again tomorrow.', 429);
     }
 
-    return handleImageImport(formData);
+    return handleImageImport(formData, supabase, user.id);
 }
 
-async function handleImageImport(formData: FormData) {
+async function handleImageImport(formData: FormData, supabase: ServerSupabaseClient, userId: string) {
     const images = formData.getAll('images');
 
     if (images.length === 0 || !images.every((image): image is File => image instanceof File)) {
@@ -76,6 +78,12 @@ async function handleImageImport(formData: FormData) {
             }))
         );
         const extracted = await callGeminiForImageImport(encodedImages);
+
+        try {
+            await recordImport(supabase, userId, 'image');
+        } catch {
+            // A logging failure shouldn't fail an import that already succeeded.
+        }
 
         return NextResponse.json({ ok: true, data: extracted });
     } catch (error) {

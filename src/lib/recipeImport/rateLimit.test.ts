@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { DAILY_IMPORT_LIMIT, checkAndRecordImport } from './rateLimit';
+import { DAILY_IMPORT_LIMIT, hasImportQuota, recordImport } from './rateLimit';
 
 type ChainResult = { count?: number | null; error?: unknown };
 
@@ -15,31 +15,50 @@ function createChain(result: ChainResult) {
     return chain;
 }
 
-describe('checkAndRecordImport', () => {
-    it('rejects without inserting once the daily cap is reached', async () => {
+describe('hasImportQuota', () => {
+    it('is false once the daily cap is reached', async () => {
         const chain = createChain({ count: DAILY_IMPORT_LIMIT, error: null });
         const supabase = { from: vi.fn(() => chain) };
 
-        const allowed = await checkAndRecordImport(supabase as never, 'user-1', 'image');
+        const allowed = await hasImportQuota(supabase as never, 'user-1');
 
         expect(allowed).toBe(false);
-        expect(chain.insert).not.toHaveBeenCalled();
     });
 
-    it('inserts a row and allows the import when under the cap', async () => {
+    it('is true when under the cap', async () => {
         const chain = createChain({ count: 3, error: null });
         const supabase = { from: vi.fn(() => chain) };
 
-        const allowed = await checkAndRecordImport(supabase as never, 'user-1', 'image');
+        const allowed = await hasImportQuota(supabase as never, 'user-1');
 
         expect(allowed).toBe(true);
-        expect(chain.insert).toHaveBeenCalledWith({ mode: 'image', user_id: 'user-1' });
     });
 
     it('propagates a count error', async () => {
         const chain = createChain({ count: null, error: new Error('db down') });
         const supabase = { from: vi.fn(() => chain) };
 
-        await expect(checkAndRecordImport(supabase as never, 'user-1', 'image')).rejects.toThrow('db down');
+        await expect(hasImportQuota(supabase as never, 'user-1')).rejects.toThrow('db down');
+    });
+});
+
+describe('recordImport', () => {
+    it('inserts a log row for the given user and mode', async () => {
+        const chain = createChain({});
+        const supabase = { from: vi.fn(() => chain) };
+
+        await recordImport(supabase as never, 'user-1', 'image');
+
+        expect(chain.insert).toHaveBeenCalledWith({ mode: 'image', user_id: 'user-1' });
+    });
+
+    it('propagates an insert error', async () => {
+        const chain = createChain({});
+
+        chain.insert = vi.fn(async () => ({ error: new Error('insert failed') }));
+
+        const supabase = { from: vi.fn(() => chain) };
+
+        await expect(recordImport(supabase as never, 'user-1', 'image')).rejects.toThrow('insert failed');
     });
 });
