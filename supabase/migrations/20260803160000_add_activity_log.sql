@@ -1,12 +1,3 @@
--- Activity feed backing the profile page's Activity tab. Rows are written by
--- triggers (not app code) so the log can't drift from what actually
--- happened, mirroring how the signup trigger seeds categories rather than
--- relying on frontend code to do it.
---
--- No insert/update/delete RLS policy is defined for regular users — the only
--- way rows get in is via the SECURITY DEFINER trigger functions below, which
--- bypass RLS by design. Users can only ever read their own activity.
-
 create table if not exists public.activity_log (
     id uuid primary key default gen_random_uuid(),
     user_id uuid not null references auth.users (id) on delete cascade,
@@ -28,7 +19,6 @@ create policy "Users can view their own activity"
     on public.activity_log for select
     using (user_id = auth.uid());
 
--- recipe_created
 create or replace function public.log_recipe_created()
 returns trigger
 language plpgsql
@@ -49,7 +39,6 @@ create trigger trg_log_recipe_created
     for each row
     execute function public.log_recipe_created();
 
--- recipe_favorited (only log the false -> true transition, not every save)
 create or replace function public.log_recipe_favorited()
 returns trigger
 language plpgsql
@@ -72,7 +61,6 @@ create trigger trg_log_recipe_favorited
     for each row
     execute function public.log_recipe_favorited();
 
--- followed_user
 create or replace function public.log_followed_user()
 returns trigger
 language plpgsql
@@ -93,7 +81,6 @@ create trigger trg_log_followed_user
     for each row
     execute function public.log_followed_user();
 
--- collection_created
 create or replace function public.log_collection_created()
 returns trigger
 language plpgsql

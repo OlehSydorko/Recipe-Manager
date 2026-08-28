@@ -1,20 +1,12 @@
 import { createClient } from '@/lib/supabaseClient';
 import type { CollectionWithCount } from '@/types/collection';
 
-// Supabase returns the embedded aggregate as collection_recipes: [{ count: N }].
 type CollectionRow = CollectionWithCount & {
     collection_recipes: { count: number }[];
 };
 
 const COLLECTION_WITH_RECIPE_COUNT_SELECT = '*, collection_recipes(count)';
 
-// "My collections" -- explicitly filtered to the current user rather than
-// relying on RLS to do it, since RLS now also allows reading public
-// collections owned by other users (see add_collections_visibility
-// migration). Mirrors the same pattern getRecipes() already uses for the
-// same reason. Guests (no session) get an empty list rather than an error --
-// this is only ever used to render "my" collections, which don't exist for a
-// guest.
 export async function getCollections(): Promise<CollectionWithCount[]> {
     const supabase = createClient();
 
@@ -47,13 +39,6 @@ export async function getCollections(): Promise<CollectionWithCount[]> {
     }));
 }
 
-// Single-collection fetch for the collection detail page. Unlike
-// getCollections(), this is intentionally unfiltered by owner -- visibility
-// is left entirely to RLS (is_public = true or user_id = auth.uid()), so it
-// works the same way for the owner, a guest, or any other user viewing a
-// public collection. Returns null rather than throwing when the collection
-// doesn't exist or isn't visible to the caller, so the page can render a
-// plain "not found" instead of distinguishing the two.
 export async function getCollection(id: string): Promise<CollectionWithCount | null> {
     const supabase = createClient();
 
@@ -77,10 +62,6 @@ export async function getCollection(id: string): Promise<CollectionWithCount | n
     return { ...collection, recipeCount: counts?.[0]?.count ?? 0, coverImagePaths };
 }
 
-// A given user's public collections -- backs the "Collections" section on
-// their public profile page. Explicitly filtered (not left to RLS alone) so
-// the profile owner viewing their own page doesn't see private collections
-// mixed into a section meant to show what's public.
 export async function getPublicCollectionsByUser(userId: string): Promise<CollectionWithCount[]> {
     const supabase = createClient();
 
@@ -119,7 +100,6 @@ export async function getCollectionRecipeIds(collectionId: string): Promise<stri
     return data.map((row) => row.recipe_id);
 }
 
-
 type CollectionCoverRow = {
     collection_id: string;
     recipe: { image_url: string | null } | null;
@@ -139,7 +119,6 @@ export async function getCollectionCoverPaths(): Promise<Map<string, string[]>> 
 
         const pathsByCollection = new Map<string, string[]>();
 
-
         for (const row of data as unknown as CollectionCoverRow[]) {
 
             const path = row.recipe?.image_url
@@ -157,12 +136,6 @@ export async function getCollectionCoverPaths(): Promise<Map<string, string[]>> 
 return pathsByCollection;
 }
 
-
-// Cover paths for a single collection (up to 4), used by getCollection and
-// getPublicCollectionsByUser instead of the all-collections map above --
-// those two fetch one collection (or one user's collections) at a time, so
-// pulling every collection_recipes row in the DB just to filter it down
-// isn't worth it the way it is for the "my collections" grid.
 type CollectionCoverRecipeRow = { recipe: { image_url: string | null } | null };
 
 async function getCollectionCoverPathsForCollection(collectionId: string): Promise<string[]> {
@@ -194,7 +167,6 @@ export async function getSignedUrls(paths: string[]): Promise<Record<string, str
     const { data, error } = await supabase.storage
         .from('recipe-images')
         .createSignedUrls(paths, 60 * 60)
-
 
     if (error) {
         throw error;
@@ -248,7 +220,6 @@ export async function getCollectionIdsForRecipe(recipeId: string): Promise<strin
 
     return data.map((row) => row.collection_id);
 }
-
 
 export async function addRecipeToCollection(collectionId: string, recipeId: string): Promise<void> {
     const supabase = createClient();
@@ -354,7 +325,6 @@ export async function updateCollection(input: UpdateCollectionInput): Promise<Co
 export async function deleteCollection(id: string): Promise<void> {
     const supabase = createClient();
 
-    // collection_recipes rows cascade-delete via the FK, no separate cleanup needed.
     const { error } = await supabase.from('collections').delete().eq('id', id);
 
     if (error) {

@@ -15,8 +15,6 @@ type LeaveButtonProps = {
     confirmMessage?: string;
 };
 
-// Fixed bottom-right exit for any "recipe is open" view: detail, edit, or new.
-// Confirms via the shared Modal when `isDirty` is true, otherwise navigates immediately.
 export function LeaveButton({
     to = '/recipes',
     isDirty = false,

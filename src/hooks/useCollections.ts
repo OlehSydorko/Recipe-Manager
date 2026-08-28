@@ -25,10 +25,6 @@ export function useCollections() {
     });
 }
 
-// Single-collection fetch for the collection detail page -- works for the
-// owner, a guest, or any other user viewing a public collection, since
-// visibility is enforced by RLS rather than an explicit owner filter (see
-// getCollection in api/collections.ts).
 export function useCollection(id: string | null) {
     return useQuery({
         enabled: Boolean(id),
@@ -37,7 +33,6 @@ export function useCollection(id: string | null) {
     });
 }
 
-// Backs the "Collections" section on a public profile page.
 export function usePublicCollectionsByUser(userId: string | null) {
     return useQuery({
         enabled: Boolean(userId),
@@ -89,7 +84,6 @@ export function useDeleteCollection() {
     });
 }
 
-
 export function useCollectionCoverUrls(paths: string[]) {
     return useQuery({
         enabled: paths.length > 0,
@@ -98,8 +92,6 @@ export function useCollectionCoverUrls(paths: string[]) {
     });
 }
 
-// Backs the "Save to collection" button on the recipe detail page — which of
-// the current user's collections already contain this particular recipe.
 export function useCollectionIdsForRecipe(recipeId: string | null) {
     return useQuery({
         enabled: Boolean(recipeId),

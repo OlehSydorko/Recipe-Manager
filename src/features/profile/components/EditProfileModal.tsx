@@ -28,7 +28,6 @@ export function EditProfileModal({ profile, open, onClose }: EditProfileModalPro
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarRemoved, setAvatarRemoved] = useState(false);
 
-    // Reset the form from the current profile every time the modal opens.
     useEffect(() => {
         if (open) {
             setDisplayName(profile.display_name ?? '');

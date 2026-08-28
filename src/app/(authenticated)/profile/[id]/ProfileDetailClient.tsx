@@ -16,9 +16,6 @@ type ProfileDetailClientProps = {
     id: string;
 };
 
-// Client-side body of the public profile page. Split out from page.tsx so
-// page.tsx can stay a Server Component and export generateMetadata --
-// metadata exports aren't allowed in a 'use client' file.
 export function ProfileDetailClient({ id }: ProfileDetailClientProps) {
     const router = useRouter();
     const { data: currentProfile } = useCurrentProfile();
@@ -28,7 +25,6 @@ export function ProfileDetailClient({ id }: ProfileDetailClientProps) {
     const { data: recipes, isPending: recipesPending } = useRecipesByUser(id);
     const { data: publicCollections, isPending: collectionsPending } = usePublicCollectionsByUser(id);
 
-    // Visiting your own id here redirects to the editable /profile page instead.
     useEffect(() => {
         if (currentProfile && currentProfile.id === id) {
             router.replace('/profile');

@@ -1,12 +1,7 @@
--- Private storage bucket for profile avatars. Objects are stored at
--- {user_id}/{filename}, mirroring the recipe-images bucket pattern.
-
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('avatars', 'avatars', false, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
 on conflict (id) do nothing;
 
--- Avatars are viewable by any authenticated user (profiles themselves are
--- viewable by anyone per the profiles table policy), not just the owner.
 create policy "Any authenticated user can view avatars"
     on storage.objects for select
     to authenticated

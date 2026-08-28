@@ -3,29 +3,13 @@ import { getProfilesByIds } from '@/api/profiles';
 import { createClient } from '@/lib/supabaseClient';
 import type { Recipe, RecipeAuthor, RecipeWithAuthor, RecipeWithCategory } from '@/types/recipe';
 
-// image_url stores the object's path within this bucket, not a public URL —
-// the bucket is private, so viewing an image requires a signed URL (see
-// getRecipeImageSignedUrl below).
 const RECIPE_IMAGES_BUCKET = 'recipe-images';
 const SIGNED_URL_EXPIRY_SECONDS = 60 * 60;
 const NOT_AUTHENTICATED_MESSAGE = 'Not authenticated';
 const RECIPE_WITH_CATEGORY_SELECT = '*, categories(name)';
 
-// recipes.is_favorite no longer exists in the DB — it's now the
-// recipe_favorites join table (see @/api/favorites), since favoriting had to
-// become per-viewer once recipes became readable by any user. RecipeRow is
-// what the DB actually returns; the functions below merge in `is_favorite`
-// so the rest of the app can keep working against the `Recipe` shape.
 type RecipeRow = Omit<Recipe, 'is_favorite'>;
 
-// recipes RLS now allows reading any user's rows (see the
-// public_recipe_read_access migration), so this filters to the current user
-// explicitly to keep "my recipes" behavior for every existing caller
-// (the /recipes page, profile page, home page stats) unchanged.
-// getCommunityRecipes below is the new, deliberately unfiltered counterpart.
-// Guests (no session) get an empty list rather than an error -- "my recipes"
-// is meaningless for a guest, and several of this function's callers now
-// live on public pages (home, recipes) that must not error for a guest.
 export async function getRecipes(): Promise<Recipe[]> {
     const supabase = createClient();
 
@@ -57,12 +41,6 @@ export async function getRecipes(): Promise<Recipe[]> {
 
 type CommunityRecipeRow = RecipeRow & { categories: { name: string } | null };
 
-// Backs the Community tab: every other user's recipes, with the author and
-// category name attached for display. Excludes the current user's own
-// recipes — those already have a home on "My Recipes", mirroring how
-// searchProfiles excludes the current user from People search results. For a
-// guest (no session) there's no "own recipes" to exclude, so this becomes
-// every recipe -- guests are meant to be able to browse the Community tab.
 export async function getCommunityRecipes(): Promise<RecipeWithAuthor[]> {
     const supabase = createClient();
 
@@ -103,11 +81,6 @@ export async function getCommunityRecipes(): Promise<RecipeWithAuthor[]> {
     }));
 }
 
-// Backs the recipe grid on another user's /profile/[id] page. Same shape as
-// getCommunityRecipes (recipes are public-read, see public_recipe_read_access
-// migration) but scoped to one author instead of "everyone but me" — no
-// author field on the result since the viewer is already on that person's
-// profile page.
 export async function getRecipesByUser(userId: string): Promise<RecipeWithCategory[]> {
     const supabase = createClient();
 
@@ -134,11 +107,6 @@ export async function getRecipesByUser(userId: string): Promise<RecipeWithCatego
     }));
 }
 
-// Fetches a specific set of recipes by id, regardless of owner -- backs the
-// collection detail page, since a collection's recipes (especially a public
-// one) may belong to users other than the viewer. Recipes are public-read
-// (see public_recipe_read_access / guest_read_access migrations), so this
-// works the same for a guest, the collection's owner, or anyone else.
 export async function getRecipesByIds(ids: string[]): Promise<RecipeWithCategory[]> {
     if (ids.length === 0) {
         return [];
@@ -215,7 +183,6 @@ export async function createRecipe(input: CreateRecipeInput): Promise<Recipe> {
         throw error;
     }
 
-    // A brand-new recipe can't already be favorited by anyone.
     return { ...(data as RecipeRow), is_favorite: false };
 }
 
@@ -257,8 +224,6 @@ export async function deleteRecipe(id: string, imagePath?: string | null): Promi
     const supabase = createClient();
 
     if (imagePath) {
-        // Best-effort: a storage hiccup here shouldn't block deleting the recipe row.
-        // Worst case is a rare orphaned file, which is an acceptable trade-off.
         await supabase.storage.from(RECIPE_IMAGES_BUCKET).remove([imagePath]);
     }
 
@@ -283,9 +248,6 @@ export async function getRecipeImageSignedUrl(path: string): Promise<string> {
     return data.signedUrl;
 }
 
-// Uploads a new image for a recipe, deleting the previous one (if any) first
-// so replacing a photo never leaves an orphaned file behind. Writes the
-// resulting path to recipes.image_url and returns the updated recipe.
 export async function uploadRecipeImage(recipeId: string, file: File, previousPath?: string | null): Promise<Recipe> {
     const supabase = createClient();
 
@@ -327,7 +289,6 @@ export async function uploadRecipeImage(recipeId: string, file: File, previousPa
     return { ...(data as RecipeRow), is_favorite: isFavorite };
 }
 
-// Clears a recipe's image: removes the storage object and sets image_url back to null.
 export async function removeRecipeImage(recipeId: string, path: string): Promise<Recipe> {
     const supabase = createClient();
 

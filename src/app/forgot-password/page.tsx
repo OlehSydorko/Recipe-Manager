@@ -27,13 +27,9 @@ function ForgotPasswordPageContent() {
         event.preventDefault();
         setLoading(true);
 
-        // Deliberately does not branch on success/failure here -- whether or
-        // not the email is registered, the visitor sees the same outcome.
-        // See requestPasswordReset in api/auth.ts.
         try {
             await requestPasswordReset(email);
         } catch {
-            // Ignored -- see comment above.
         } finally {
             setLoading(false);
             setSubmitted(true);
@@ -52,7 +48,7 @@ function ForgotPasswordPageContent() {
                         </p>
 
                         <p className='text-body text-text-primary'>
-                            P.S If u didn't receive it, please check the Spam section
+                            P.S If u didn&apos;t receive it, please check the Spam section
                         </p>
 
                         <p className='text-body text-text-secondary'>

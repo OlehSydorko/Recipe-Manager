@@ -37,8 +37,6 @@ function RecipesPageContent() {
     const searchParams = useSearchParams();
     const hasMounted = useHasMounted();
     const { data: currentProfile, isPending: profilePending } = useCurrentProfile();
-    // hasMounted-gated so the client's first paint always matches the
-    // server (which never resolves this) -- see useHasMounted for why.
     const isGuest = hasMounted && !profilePending && !currentProfile;
     const { requireAuth, authGate } = useRequireAuth('Sign in to create a recipe.');
     const [activeTab, setActiveTab] = useState<RecipesTab>(
@@ -52,25 +50,15 @@ function RecipesPageContent() {
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
     const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '');
 
-    // Resyncs local state when the URL's ?q= changes after the initial mount
-    // -- e.g. the global nav search deep-links here while the user is
-    // already on this page, which the useState initializer above alone
-    // wouldn't pick up.
     useEffect(() => {
         setSearchQuery(searchParams.get('q') ?? '');
     }, [searchParams]);
 
-    // Same idea for ?tab= -- Home's "View all" on the Community Recipes
-    // section deep-links here with ?tab=community, including when the user
-    // is already on this page (the useState initializer above alone
-    // wouldn't pick that up).
     useEffect(() => {
         setActiveTab(searchParams.get('tab') === COMMUNITY_TAB ? COMMUNITY_TAB : MINE_TAB);
     }, [searchParams]);
 
     const categoryNameById = new Map(categories?.map((category) => [category.id, category.name]));
-    // Guests have no "My Recipes" — force the community tab regardless of
-    // whatever local state was set before the profile check resolved.
     const isMineTab = !isGuest && activeTab === MINE_TAB;
 
     const filteredMyRecipes = myRecipes

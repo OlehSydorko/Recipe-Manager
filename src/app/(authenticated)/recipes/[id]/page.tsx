@@ -9,12 +9,6 @@ type RecipeDetailPageProps = {
 const SITE_NAME = 'Recipe Manager';
 const DEFAULT_DESCRIPTION = 'A recipe shared on Recipe Manager.';
 
-// Recipe detail pages are public now (see GUEST_ACCESS_PLAN.md), so unlike
-// the rest of this app -- which gets no real SEO benefit while everything
-// sits behind auth -- this one page is worth server-rendering metadata for.
-// Kept as a thin Server Component wrapper around the existing client
-// component rather than converting the whole page, since the interactive
-// checklist/portions/favorite state has no server-render equivalent anyway.
 export async function generateMetadata({ params }: RecipeDetailPageProps): Promise<Metadata> {
     const { id } = await params;
     const supabase = await createClient();

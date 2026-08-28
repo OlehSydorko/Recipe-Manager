@@ -1,12 +1,3 @@
--- Catch-up migration: `steps` and `owns_recipe()` already exist on the live
--- database (created directly, outside any migration file, before this
--- repo's migration history started being tracked) but were never captured
--- here. This brings the migrations folder in sync with reality so a fresh
--- database ends up with the same schema production already has. Applied to
--- the live DB this is a no-op; on a fresh database it creates both for the
--- first time. Definitions below were read back from the live database
--- rather than guessed.
-
 create or replace function public.owns_recipe(p_recipe_id uuid)
 returns boolean
 language sql

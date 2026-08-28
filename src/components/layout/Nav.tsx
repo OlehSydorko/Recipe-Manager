@@ -18,10 +18,6 @@ export function Nav() {
     const isGuest = hasMounted && !profilePending && !profile;
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
-    // Gated on hasMounted too, not just profilePending -- otherwise, once the
-    // profile query resolves fast enough, the client's first paint can skip
-    // this branch before the server-rendered HTML (which never runs the
-    // query) is done being compared, causing a hydration mismatch.
     if (!hasMounted || profilePending) {
         return (
             <header className='sticky top-0 z-30 border-b border-border bg-bg-secondary'>

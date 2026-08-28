@@ -16,17 +16,10 @@ export default function CollectionsPage() {
     );
 }
 
-// Guests have no "my collections" to show here -- there's no community
-// collections feed in this pass (see GUEST_ACCESS_PLAN.md), so rather than
-// render an empty grid with a gate-on-click button, guests get a direct
-// sign-up prompt instead. A public collection someone shares a link to is
-// still viewable directly at /collections/[id] regardless of this page.
 function CollectionsPageContent() {
     const hasMounted = useHasMounted();
     const { data: profile, isPending } = useCurrentProfile();
     const searchParams = useSearchParams();
-    // hasMounted-gated so the client's first paint always matches the
-    // server (which never resolves this) -- see useHasMounted for why.
     const isGuest = hasMounted && !isPending && !profile;
 
     if (isGuest) {

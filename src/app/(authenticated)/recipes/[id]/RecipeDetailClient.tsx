@@ -24,10 +24,6 @@ type RecipeDetailClientProps = {
     id: string;
 };
 
-// Client-side interactive body of the recipe detail page. Split out from
-// page.tsx so page.tsx can stay a Server Component and export
-// generateMetadata (title/description per recipe) -- metadata exports aren't
-// allowed in a 'use client' file.
 export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
     const router = useRouter();
     const { data: recipe, isPending, isError } = useRecipe(id);
@@ -53,8 +49,6 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
 
     const scaleFactor = recipe ? selectedPortions / recipe.portions : 1;
 
-    // Waits on sections too (not just ingredients/steps) so a sectioned recipe doesn't
-    // flash as one flat ungrouped list before its headings pop in.
     const isIngredientsLoading = ingredientsPending || sectionsPending;
     const isStepsLoading = stepsPending || sectionsPending;
     const ingredientGroups = groupBySection(sections ?? [], ingredients ?? []);

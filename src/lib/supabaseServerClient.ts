@@ -19,8 +19,6 @@ export async function createClient() {
                 try {
                     cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
                 } catch {
-                    // setAll was called from a Server Component, which can't write cookies.
-                    // Safe to ignore here because middleware.ts refreshes the session on every request.
                 }
             }
         }

@@ -9,6 +9,7 @@ import { Check, ChevronDown, X } from 'lucide-react';
 type CategoryDropdownProps = {
     id?: string;
     ariaLabel?: string;
+    ariaInvalid?: boolean;
     categories: Category[] | undefined;
     value: string;
     placeholderLabel: string;
@@ -17,12 +18,10 @@ type CategoryDropdownProps = {
     footer?: ReactNode;
 };
 
-// Custom listbox instead of a native <select> — a native <option> can't host
-// a delete button, so this renders each category as a row with the name as
-// one button and, for non-default categories, a small delete button on the right.
 export function CategoryDropdown({
     id,
     ariaLabel,
+    ariaInvalid,
     categories,
     value,
     placeholderLabel,
@@ -48,8 +47,6 @@ export function CategoryDropdown({
 
     const selectedLabel = categories?.find((category) => category.id === value)?.name ?? placeholderLabel;
 
-    // categories is already sorted oldest-first (see getCategories), so the
-    // first DEFAULT_CATEGORY_COUNT rows are the ones seeded at signup.
     const defaultCategoryIds = new Set(categories?.slice(0, DEFAULT_CATEGORY_COUNT).map((category) => category.id));
 
     const handleSelect = (categoryId: string) => {
@@ -83,8 +80,9 @@ export function CategoryDropdown({
                 aria-label={ariaLabel}
                 aria-haspopup='listbox'
                 aria-expanded={isOpen}
+                aria-invalid={ariaInvalid}
                 onClick={() => setIsOpen((previous) => !previous)}
-                className='flex h-11 w-full items-center justify-between rounded-sm border border-border bg-bg-secondary px-3 text-left text-body transition-colors duration-150 hover:border-border-strong focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15'
+                className='flex h-11 w-full items-center justify-between rounded-sm border border-border bg-bg-secondary px-3 text-left text-body transition-colors duration-150 hover:border-border-strong focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15 aria-invalid:border-error aria-invalid:focus:border-error aria-invalid:focus:ring-error/15'
             >
                 <span className={value ? 'text-text-primary' : 'text-text-disabled'}>{selectedLabel}</span>
                 <ChevronDown size={16} className='shrink-0 text-text-secondary' />

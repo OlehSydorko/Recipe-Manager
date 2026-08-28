@@ -7,10 +7,6 @@ type ChainResult = {
     count?: number | null;
 };
 
-// A minimal stand-in for the Supabase query builder: every filter/order
-// method returns itself so calls can be chained, and the chain is awaitable
-// (implements `then`) so `await supabase.from(...).select(...)` resolves to
-// whatever result this particular call was set up to return.
 function createChain(result: ChainResult) {
     const chain = {
         select: vi.fn(() => chain),

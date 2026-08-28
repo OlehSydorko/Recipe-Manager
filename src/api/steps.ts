@@ -22,9 +22,6 @@ export type StepInput = {
     sectionId: string | null;
 };
 
-// Recipes are edited as a whole form (like title/description), so steps are saved the
-// same way as ingredients: replace the full list for the recipe rather than diffing
-// individual rows against the database.
 export async function replaceSteps(recipeId: string, steps: StepInput[]): Promise<Step[]> {
     const supabase = createClient();
 

@@ -1,7 +1,3 @@
--- Ingredients table: one row per ingredient line on a recipe.
--- Checklist "checked" state is intentionally NOT stored here — it's client-only
--- (React state), resets on reload. See CLAUDE.md data model notes.
-
 create table if not exists public.ingredients (
     id uuid primary key default gen_random_uuid(),
     recipe_id uuid not null references public.recipes (id) on delete cascade,
@@ -14,8 +10,6 @@ create index if not exists ingredients_recipe_id_idx on public.ingredients (reci
 
 alter table public.ingredients enable row level security;
 
--- Ownership is derived from the parent recipe (ingredients has no user_id of its own).
--- drop-then-create makes this safe to re-run if the policies already exist.
 drop policy if exists "Users can view ingredients on their own recipes" on public.ingredients;
 create policy "Users can view ingredients on their own recipes"
     on public.ingredients for select

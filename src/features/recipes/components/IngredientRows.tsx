@@ -1,13 +1,12 @@
 'use client';
 
+import { normalizeQuantity } from '@/lib/quantity';
 import { ALLOWED_UNITS, DEFAULT_UNIT, type IngredientDraft } from '@/types/ingredient';
 import type { SectionDraft } from '@/types/section';
 import { ChevronDown, Plus, Trash2 } from 'lucide-react';
 
-// Keeps only digits, a single decimal point, and a single fraction slash
-// (e.g. "1", "1.5", "1/2") — letters and any extra punctuation are dropped as typed.
 function sanitizeQuantity(value: string): string {
-    let cleaned = value.replace(/[^0-9./]/g, '');
+    let cleaned = normalizeQuantity(value).replace(/[^0-9./]/g, '');
 
     const firstDot = cleaned.indexOf('.');
 
@@ -37,9 +36,6 @@ type IngredientRowsProps = {
 const FIELD_CLASSES =
     'h-11 rounded-sm border border-border bg-bg-secondary text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15';
 
-// The optional Section dropdown (fed by `sections`, see SectionsManager.tsx) only
-// renders once at least one section exists -- with none, this looks exactly like it
-// did before sections existed.
 export function IngredientRows({ ingredients, sections, onChange }: IngredientRowsProps) {
     const handleNameChange = (key: string, value: string) => {
         onChange(

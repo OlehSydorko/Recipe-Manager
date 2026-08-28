@@ -89,9 +89,6 @@ export async function unfollowUser(targetUserId: string): Promise<void> {
     }
 }
 
-// Two-step lookups (follows row ids, then matching profiles) rather than a
-// PostgREST embed — `follows` references auth.users, not public.profiles, so
-// there's no direct FK for PostgREST to embed through.
 export async function getFollowers(userId: string): Promise<Profile[]> {
     const supabase = createClient();
 

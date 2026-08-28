@@ -7,17 +7,9 @@ type CookieToSet = {
     options: CookieOptions;
 };
 
-// Guest access: browsing (home, recipes, recipe detail, discover, profiles,
-// collections) is public. Only page-level create/edit surfaces and the
-// user's own editable profile require a session — everything else is either
-// public by nature or gated action-by-action in the UI (see useRequireAuth),
-// not at the route level. See GUEST_ACCESS_PLAN.md for the full rationale.
 const EXACT_PROTECTED_PATHS = ['/profile', '/recipes/new'];
 const PROTECTED_PATH_PATTERNS = [/^\/recipes\/[^/]+\/edit$/];
 
-// Message code carried to /login so it can show a friendly, path-specific
-// reason for the redirect instead of a bare login form. Copy lives in
-// src/app/login/page.tsx (and src/app/signup/page.tsx) keyed by these codes.
 const EXACT_PATH_MESSAGE_CODES: Record<string, string> = {
     '/profile': 'profile',
     '/recipes/new': 'recipe-new'
@@ -65,10 +57,6 @@ async function updateSession(request: NextRequest) {
         }
     );
 
-    // Do not add logic between createServerClient and getUser() — getUser() re-validates
-    // the token against Supabase Auth itself (unlike getSession(), which just trusts the
-    // cookie). Skipping this, or reordering it, is a common way to accidentally let stale
-    // or forged sessions through.
     const {
         data: { user }
     } = await supabase.auth.getUser();
@@ -77,10 +65,6 @@ async function updateSession(request: NextRequest) {
     const isAuthPath = authPaths.includes(request.nextUrl.pathname);
     const isProtectedPath = isProtectedRoute(request.nextUrl.pathname);
 
-    // /reset-password only has anything to act on once /auth/confirm has
-    // verified the emailed recovery token and set a session -- a guest
-    // landing here without one doesn't have a stale password to fix, they
-    // need a fresh link, so send them to /forgot-password rather than /login.
     if (!user && request.nextUrl.pathname === '/reset-password') {
         const url = request.nextUrl.clone();
 

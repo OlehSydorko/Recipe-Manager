@@ -1,8 +1,3 @@
--- Collections: user-curated groupings of their own recipes, distinct from
--- `categories`. Categories are single-assignment/organizational (every
--- recipe has exactly one); collections are many-to-many curated lists
--- ("weeknight dinners", "meal prep"), matching the mockup's Collections tab.
-
 create table if not exists public.collections (
     id uuid primary key default gen_random_uuid(),
     user_id uuid not null references auth.users (id) on delete cascade,
@@ -36,7 +31,6 @@ create policy "Users can delete their own collections"
     on public.collections for delete
     using (user_id = auth.uid());
 
--- Join table: which recipes belong to which collection, with manual ordering.
 create table if not exists public.collection_recipes (
     collection_id uuid not null references public.collections (id) on delete cascade,
     recipe_id uuid not null references public.recipes (id) on delete cascade,
@@ -48,8 +42,6 @@ create index if not exists collection_recipes_recipe_id_idx on public.collection
 
 alter table public.collection_recipes enable row level security;
 
--- Ownership is derived from the parent collection (mirrors the `ingredients`
--- table's pattern of deriving ownership from its parent recipe).
 drop policy if exists "Users can view recipes in their own collections" on public.collection_recipes;
 create policy "Users can view recipes in their own collections"
     on public.collection_recipes for select

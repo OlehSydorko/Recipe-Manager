@@ -11,9 +11,10 @@ import type { Category } from '@/types/category';
 type CategorySelectProps = {
     value: string;
     onChange: (categoryId: string) => void;
+    error?: string;
 };
 
-export function CategorySelect({ value, onChange }: CategorySelectProps) {
+export function CategorySelect({ value, onChange, error }: CategorySelectProps) {
     const { data: categories, isPending } = useCategories();
     const createCategory = useCreateCategory();
     const deleteCategory = useDeleteCategory();
@@ -78,6 +79,7 @@ export function CategorySelect({ value, onChange }: CategorySelectProps) {
             ) : (
                 <CategoryDropdown
                     id='category'
+                    ariaInvalid={Boolean(error)}
                     categories={categories}
                     value={value}
                     placeholderLabel='Select a category'
@@ -96,6 +98,8 @@ export function CategorySelect({ value, onChange }: CategorySelectProps) {
                     }
                 />
             )}
+
+            {error && <p className='mt-1.5 text-body text-error'>{error}</p>}
         </div>
     );
 }

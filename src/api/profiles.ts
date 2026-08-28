@@ -33,13 +33,6 @@ export async function getProfilesByIds(userIds: string[]): Promise<Profile[]> {
     return data;
 }
 
-// Guests (no session) get null rather than an error -- this is called from
-// nearly every page (Nav, useRequireAuth, ...) to answer "who's logged in?",
-// and a guest not being logged in is an expected state, not a failure. If
-// this throws instead, TanStack Query's default retry (3x with backoff,
-// ~7s) kicks in and re-runs on every new mount of anything that calls this
-// (since an error result is always considered stale) -- effectively a ~7s
-// stall on every page for guests.
 export async function getCurrentProfile(): Promise<Profile | null> {
     const supabase = createClient();
 
@@ -95,9 +88,6 @@ export async function updateProfile(input: UpdateProfileInput): Promise<Profile>
 
 const SEARCH_RESULTS_LIMIT = 20;
 
-
-// excludeUserId is optional -- a guest (no session) has no own profile to
-// exclude, so the .neq() only applies when there's a logged-in viewer.
 export async function searchProfiles(query: string, excludeUserId?: string): Promise<Profile[]> {
     const supabase = createClient();
 
@@ -130,9 +120,6 @@ export async function getAvatarSignedUrl(path: string): Promise<string> {
     return data.signedUrl;
 }
 
-// Uploads a new avatar, deleting the previous one (if any) first so replacing
-// a photo never leaves an orphaned file behind. Writes the resulting path to
-// profiles.avatar_url and returns the updated profile.
 export async function uploadAvatar(file: File, previousPath?: string | null): Promise<Profile> {
     const supabase = createClient();
 
@@ -171,7 +158,6 @@ export async function uploadAvatar(file: File, previousPath?: string | null): Pr
     return data;
 }
 
-// Clears the current user's avatar: removes the storage object and sets avatar_url back to null.
 export async function removeAvatar(path: string): Promise<Profile> {
     const supabase = createClient();
 

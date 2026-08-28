@@ -1,8 +1,3 @@
--- Per-user favorites, replacing the recipes.is_favorite column. That column
--- only worked while a recipe could only ever be seen by its owner; once
--- recipes are readable by any user (see public_recipe_read_access
--- migration), "favorite" has to be per-viewer, not a single flag on the row.
-
 create table if not exists public.recipe_favorites (
     user_id uuid not null references auth.users (id) on delete cascade,
     recipe_id uuid not null references public.recipes (id) on delete cascade,
@@ -29,15 +24,10 @@ create policy "Users can unfavorite as themselves"
     on public.recipe_favorites for delete
     using (user_id = auth.uid());
 
--- Backfill existing favorites before the source column goes away.
 insert into public.recipe_favorites (user_id, recipe_id)
 select user_id, id from public.recipes where is_favorite = true
 on conflict (user_id, recipe_id) do nothing;
 
--- The old trigger logged favoriting against the recipe's owner (new.user_id),
--- which only happened to be correct because owner and favoriter were always
--- the same person under the old model. Replace it with a trigger on the new
--- table, keyed to whoever actually favorited it.
 drop trigger if exists trg_log_recipe_favorited on public.recipes;
 drop function if exists public.log_recipe_favorited();
 

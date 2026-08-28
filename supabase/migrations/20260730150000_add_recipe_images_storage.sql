@@ -1,9 +1,3 @@
--- Private storage bucket for recipe photos. Objects are stored at
--- {user_id}/{recipe_id}/{filename}, mirroring the RLS pattern used on every
--- table: a user can only read/write objects under their own auth.uid() folder.
--- Bucket-level size/type limits are defense in depth alongside the client-side
--- checks in RecipeImagePicker.
-
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('recipe-images', 'recipe-images', false, 5242880, array['image/jpeg', 'image/png', 'image/webp'])
 on conflict (id) do nothing;

@@ -45,12 +45,6 @@ export function useFollowing(userId: string | null) {
     });
 }
 
-// Optimistic on the is-following flag only — same "high-frequency, low-risk
-// toggle" reasoning as useSetRecipeFavorite. Counts/lists are broadly
-// invalidated on settle rather than patched in place, since a single follow
-// action affects two different users' stats (the follower's "following"
-// count and the followed user's "followers" count) and only one of those
-// user ids is known here.
 export function useFollowUser() {
     const queryClient = useQueryClient();
 

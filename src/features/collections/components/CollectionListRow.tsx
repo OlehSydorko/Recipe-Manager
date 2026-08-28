@@ -13,11 +13,6 @@ type CollectionListRowProps = {
     hideActions?: boolean;
 };
 
-// List-view counterpart to CollectionCard, used when CollectionsSection's
-// view toggle is set to "list". Shows a single cover thumbnail (the first
-// cover image) instead of the full 2x2 collage — there's no room for a
-// collage at row height, same tradeoff RecipeListRow makes showing one
-// image instead of RecipeCard's larger photo.
 export function CollectionListRow({ collection, onEdit, onDelete, hideActions }: CollectionListRowProps) {
     const { data: coverUrls } = useCollectionCoverUrls(collection.coverImagePaths);
 

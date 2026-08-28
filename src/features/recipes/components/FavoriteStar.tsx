@@ -11,9 +11,6 @@ type FavoriteStarProps = {
     isFavorite: boolean;
 };
 
-// Shared between the recipe card (list view) and the recipe detail header.
-// stopPropagation guards against bubbling into any clickable ancestor (e.g. the
-// card's link overlay) regardless of how the button ends up nested.
 export function FavoriteStar({ recipeId, isFavorite }: FavoriteStarProps) {
     const setFavorite = useSetRecipeFavorite();
     const { requireAuth, authGate } = useRequireAuth('Sign in to favorite recipes.');

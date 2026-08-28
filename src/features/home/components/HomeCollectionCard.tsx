@@ -9,9 +9,6 @@ type HomeCollectionCardProps = {
     collection: CollectionWithCount;
 };
 
-// Read-only summary tile for the Home dashboard. Mirrors the cover mosaic
-// used by CollectionCard on the Collections page, but skips its edit/delete
-// ActionMenu -- that management UI belongs on the Collections tab, not here.
 export function HomeCollectionCard({ collection }: HomeCollectionCardProps) {
     const { data: coverUrls } = useCollectionCoverUrls(collection.coverImagePaths);
     const cellUrls = collection.coverImagePaths.map((path) => coverUrls?.[path]);

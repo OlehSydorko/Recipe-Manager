@@ -7,7 +7,7 @@ type InputProps = InputHTMLAttributes<HTMLInputElement>;
 export function Input({ className, ...rest }: InputProps) {
     return (
         <input
-            className={`h-11 w-full rounded-sm border border-border bg-bg-secondary px-3 text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-50 ${className ?? ''}`}
+            className={`h-11 w-full rounded-sm border border-border bg-bg-secondary px-3 text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-error aria-invalid:focus:border-error aria-invalid:focus:ring-error/15 ${className ?? ''}`}
             {...rest}
         />
     );

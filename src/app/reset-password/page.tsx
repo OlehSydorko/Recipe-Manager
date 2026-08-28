@@ -6,9 +6,6 @@ import { Button } from '@/components/ui/Button';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { useRouter } from 'next/navigation';
 
-// Only reachable with an active session, which middleware.ts requires here --
-// that session comes from /auth/confirm having just verified the emailed
-// recovery token, not from a normal sign-in.
 export default function ResetPasswordPage() {
     const router = useRouter();
 
@@ -21,6 +18,7 @@ export default function ResetPasswordPage() {
         event.preventDefault();
         setError(null);
 
+        // eslint-disable-next-line security/detect-possible-timing-attacks
         if (password !== confirmPassword) {
             setError('Passwords do not match.');
 
@@ -31,8 +29,6 @@ export default function ResetPasswordPage() {
 
         try {
             await updatePassword(password);
-            // Sign out of the recovery session so the user comes back through
-            // a normal login with their new password, per the intended flow.
             await signOut();
             router.push('/login?message=password-reset');
             router.refresh();

@@ -8,8 +8,6 @@ type HomeStatsProps = {
     followingCount: number;
 };
 
-// Read-only dashboard counters — unlike ProfileStats (which switches tabs on
-// the profile page in place), these navigate to the page where that data lives.
 export function HomeStats({ recipesCount, favoritesCount, followersCount, followingCount }: HomeStatsProps) {
     const items = [
         { href: '/recipes', icon: BookOpen, label: 'Recipes', value: recipesCount },

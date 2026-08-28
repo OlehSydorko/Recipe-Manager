@@ -12,11 +12,6 @@ type AuthGateModalProps = {
     message?: string;
 };
 
-// Soft authentication gate: shown instead of blocking a page outright when a
-// guest attempts an account-only action (favorite, follow, save to
-// collection, create...). Carries the current path as a redirect param so
-// signing in returns the visitor to where they were, instead of just
-// dropping them on Home.
 export function AuthGateModal({ open, onClose, redirectTo, message }: AuthGateModalProps) {
     const router = useRouter();
     const query = `?redirect=${encodeURIComponent(redirectTo)}`;

@@ -1,5 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import { formatQuantity, parseQuantity, scaleQuantity } from './quantity';
+import { formatQuantity, normalizeQuantity, parseQuantity, scaleQuantity } from './quantity';
+
+describe('normalizeQuantity', () => {
+    it('converts a bare Unicode fraction to a plain fraction', () => {
+        expect(normalizeQuantity('¼')).toBe('1/4');
+        expect(normalizeQuantity('⅔')).toBe('2/3');
+    });
+
+    it('converts a mixed number to a decimal', () => {
+        expect(normalizeQuantity('2¼')).toBe('2.25');
+        expect(normalizeQuantity('2 ¼')).toBe('2.25');
+    });
+
+    it('converts the Unicode fraction slash to a regular slash', () => {
+        expect(normalizeQuantity('1⁄2')).toBe('1/2');
+    });
+
+    it('leaves an already-plain quantity unchanged', () => {
+        expect(normalizeQuantity('1/3')).toBe('1/3');
+        expect(normalizeQuantity('1.5')).toBe('1.5');
+        expect(normalizeQuantity('2')).toBe('2');
+    });
+
+    it('leaves unparseable text unchanged', () => {
+        expect(normalizeQuantity('a pinch')).toBe('a pinch');
+    });
+});
 
 describe('parseQuantity', () => {
     it('parses a plain integer', () => {
@@ -12,6 +38,10 @@ describe('parseQuantity', () => {
 
     it('parses a fraction', () => {
         expect(parseQuantity('1/2')).toBe(0.5);
+    });
+
+    it('parses a Unicode fraction', () => {
+        expect(parseQuantity('¼')).toBe(0.25);
     });
 
     it('returns null for empty input', () => {

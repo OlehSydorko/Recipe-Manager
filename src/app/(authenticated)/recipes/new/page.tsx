@@ -5,10 +5,13 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { CategorySelect } from '@/features/recipes/components/CategorySelect';
+import { ImportRecipeDialog } from '@/features/recipes/components/ImportRecipeDialog';
 import { IngredientRows, createEmptyIngredientDraft } from '@/features/recipes/components/IngredientRows';
 import { RecipeImagePicker } from '@/features/recipes/components/RecipeImagePicker';
 import { SectionsManager } from '@/features/recipes/components/SectionsManager';
 import { StepRows, createEmptyStepDraft } from '@/features/recipes/components/StepRows';
+import { extractedToFormState } from '@/features/recipes/importedDraft';
+import { firstInvalidFieldId, hasFormErrors, validateRecipeForm } from '@/features/recipes/recipeFormValidation';
 import {
     createEmptySectionDraft,
     namedSectionDrafts,
@@ -18,11 +21,13 @@ import {
     unassignSection
 } from '@/features/recipes/sectionedDrafts';
 import { LeaveButton } from '@/features/social/components/LeaveButton';
+import { useCategories } from '@/hooks/useCategories';
 import { useReplaceIngredients } from '@/hooks/useIngredients';
 import { useCreateRecipe, useUploadRecipeImage } from '@/hooks/useRecipes';
 import { useReplaceSections } from '@/hooks/useSections';
 import { useReplaceSteps } from '@/hooks/useSteps';
 import { isFormDirty } from '@/lib/formDirty';
+import type { ExtractedRecipe } from '@/lib/recipeImport/schema';
 import type { IngredientDraft } from '@/types/ingredient';
 import type { SectionDraft } from '@/types/section';
 import type { StepDraft } from '@/types/step';
@@ -32,6 +37,7 @@ const INITIAL_FORM = { title: '', description: '', categoryId: '', portions: 1 }
 
 export default function NewRecipePage() {
     const router = useRouter();
+    const { data: categories } = useCategories();
     const createRecipe = useCreateRecipe();
     const replaceSections = useReplaceSections();
     const replaceIngredients = useReplaceIngredients();
@@ -42,13 +48,16 @@ export default function NewRecipePage() {
     const [description, setDescription] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [portions, setPortions] = useState<number | ''>(1);
+    const [titleError, setTitleError] = useState('');
+    const [categoryError, setCategoryError] = useState('');
     const [portionsError, setPortionsError] = useState('');
     const [sections, setSections] = useState<SectionDraft[]>([]);
     const [ingredients, setIngredients] = useState<IngredientDraft[]>([createEmptyIngredientDraft()]);
     const [steps, setSteps] = useState<StepDraft[]>([createEmptyStepDraft()]);
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const [importDialogOpen, setImportDialogOpen] = useState(false);
+    const [showImportedBanner, setShowImportedBanner] = useState(false);
 
-    // Captures the blank starting rows once on mount, so edits/added/removed rows can be detected.
     const initialIngredientsRef = useRef(ingredients);
     const initialStepsRef = useRef(steps);
 
@@ -77,14 +86,38 @@ export default function NewRecipePage() {
         setSteps((previous) => unassignSection(previous, key));
     };
 
+    const handleImported = (extracted: ExtractedRecipe) => {
+        const formState = extractedToFormState(extracted, categories ?? []);
+
+        setTitle(formState.title);
+        setDescription(formState.description);
+        setPortions(formState.portions);
+        setCategoryId(formState.categoryId);
+        setSections(formState.sections);
+        setIngredients(formState.ingredients);
+        setSteps(formState.steps);
+        setShowImportedBanner(true);
+
+        setCategoryError(
+            formState.categoryId ? '' : 'Imported recipe didn’t match any of your categories — pick one before saving.'
+        );
+    };
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
-        if (!portions) {
-            setPortionsError('Oops, you cannot have 0 portions.');
-        }
+        const errors = validateRecipeForm({ title, categoryId, portions });
 
-        if (!title.trim() || !categoryId || !portions) {
+        setTitleError(errors.title);
+        setCategoryError(errors.categoryId);
+        setPortionsError(errors.portions);
+
+        if (hasFormErrors(errors)) {
+            const fieldId = firstInvalidFieldId(errors);
+
+            document.getElementById(fieldId ?? '')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById(fieldId ?? '')?.focus();
+
             return;
         }
 
@@ -95,9 +128,6 @@ export default function NewRecipePage() {
             portions
         });
 
-        // Sections are saved before ingredients/steps so their real ids exist to
-        // attach to -- see sectionedDrafts.ts for how the local draft keys below get
-        // resolved to those real ids.
         const namedSections = namedSectionDrafts(sections);
         const savedSections = await replaceSections.mutateAsync({
             names: namedSections.map((section) => section.name.trim()),
@@ -124,8 +154,6 @@ export default function NewRecipePage() {
             }))
         });
 
-        // The image can only be uploaded once the recipe (and its id) exists,
-        // same reason ingredients/sections/steps are saved as follow-up steps above.
         if (imageFile) {
             await uploadImage.mutateAsync({ recipeId: recipe.id, file: imageFile });
         }
@@ -153,9 +181,44 @@ export default function NewRecipePage() {
         setPortionsError(parsed === 0 ? 'Oops, you cannot have 0 portions.' : '');
     };
 
+    const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setTitle(event.target.value);
+        setTitleError('');
+    };
+
+    const handleCategoryChange = (nextCategoryId: string) => {
+        setCategoryId(nextCategoryId);
+        setCategoryError('');
+    };
+
     return (
         <div>
-            <h1 className='text-display font-semibold text-text-primary'>New recipe</h1>
+            <div className='flex flex-wrap items-center justify-between gap-3'>
+                <h1 className='text-display font-semibold text-text-primary'>New recipe</h1>
+                <Button variant='secondary' onClick={() => setImportDialogOpen(true)} disabled={isSubmitting}>
+                    Import from photos
+                </Button>
+            </div>
+
+            {showImportedBanner && (
+                <div className='mt-4 flex items-start justify-between gap-3 rounded-md border border-accent/30 bg-accent/10 px-4 py-3 text-body text-text-primary'>
+                    <p>Imported — review before saving, especially quantities and units.</p>
+                    <button
+                        type='button'
+                        onClick={() => setShowImportedBanner(false)}
+                        aria-label='Dismiss'
+                        className='shrink-0 text-text-secondary transition-colors duration-150 hover:text-text-primary'
+                    >
+                        Dismiss
+                    </button>
+                </div>
+            )}
+
+            <ImportRecipeDialog
+                open={importDialogOpen}
+                onClose={() => setImportDialogOpen(false)}
+                onImported={handleImported}
+            />
 
             <form onSubmit={handleSubmit} className='mt-5 max-w-xl space-y-5'>
                 <div className='space-y-4 rounded-lg border border-border bg-surface p-5'>
@@ -167,12 +230,14 @@ export default function NewRecipePage() {
                             id='title'
                             type='text'
                             value={title}
-                            onChange={(event) => setTitle(event.target.value)}
+                            onChange={handleTitleChange}
+                            aria-invalid={Boolean(titleError)}
                             required
                         />
+                        {titleError && <p className='mt-1.5 text-body text-error'>{titleError}</p>}
                     </div>
 
-                    <CategorySelect value={categoryId} onChange={setCategoryId} />
+                    <CategorySelect value={categoryId} onChange={handleCategoryChange} error={categoryError} />
 
                     <div>
                         <label htmlFor='portions' className='mb-1.5 block text-label font-medium text-text-secondary'>

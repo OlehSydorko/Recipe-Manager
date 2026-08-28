@@ -4,15 +4,9 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Folder } from 'lucide-react';
 
 type CollectionCoverMosaicProps = {
-    // One entry per cover image path (see getCollectionCoverPaths, capped at
-    // 4); undefined while that image's signed URL is still loading. Array
-    // length drives which layout renders.
     imageUrls: (string | undefined)[];
 };
 
-// Adaptive cover collage for a collection card — shapes itself differently
-// depending on how many recipe cover photos are available, similar to
-// Spotify playlist / Google Photos album covers.
 export function CollectionCoverMosaic({ imageUrls }: CollectionCoverMosaicProps) {
     if (imageUrls.length === 0) {
         return (

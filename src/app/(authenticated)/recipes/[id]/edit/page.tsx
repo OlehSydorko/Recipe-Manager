@@ -9,6 +9,7 @@ import { IngredientRows, createEmptyIngredientDraft } from '@/features/recipes/c
 import { RecipeImagePicker } from '@/features/recipes/components/RecipeImagePicker';
 import { SectionsManager } from '@/features/recipes/components/SectionsManager';
 import { StepRows, createEmptyStepDraft } from '@/features/recipes/components/StepRows';
+import { firstInvalidFieldId, hasFormErrors, validateRecipeForm } from '@/features/recipes/recipeFormValidation';
 import {
     createEmptySectionDraft,
     namedSectionDrafts,
@@ -57,6 +58,8 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     const [description, setDescription] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [portions, setPortions] = useState<number | ''>(1);
+    const [titleError, setTitleError] = useState('');
+    const [categoryError, setCategoryError] = useState('');
     const [portionsError, setPortionsError] = useState('');
     const [sections, setSections] = useState<SectionDraft[]>([]);
     const [ingredients, setIngredients] = useState<IngredientDraft[]>([createEmptyIngredientDraft()]);
@@ -64,8 +67,6 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imageRemoved, setImageRemoved] = useState(false);
 
-    // Snapshots of the loaded data, used only to detect unsaved changes for the Leave button.
-    // `null` until the fetch resolves, so isFormDirty treats "still loading" as "not dirty".
     const [initialForm, setInitialForm] = useState<{
         title: string;
         description: string;
@@ -93,10 +94,6 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
         }
     }, [recipe]);
 
-    // Uses each existing section's own id as its local draft key -- ingredient/step
-    // drafts loaded below reference a section by that same real id via `sectionKey`,
-    // and that's fine even though every save regenerates fresh section ids: it's the
-    // same wholesale-replace pattern ingredients already use (see api/sections.ts).
     useEffect(() => {
         if (existingSections) {
             const loadedSections = existingSections.map((section) => ({ key: section.id, name: section.name }));
@@ -174,18 +171,23 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
-        if (!portions) {
-            setPortionsError('Oops, you cannot have 0 portions.');
-        }
+        const errors = validateRecipeForm({ title, categoryId, portions });
 
-        if (!title.trim() || !categoryId || !portions) {
+        setTitleError(errors.title);
+        setCategoryError(errors.categoryId);
+        setPortionsError(errors.portions);
+
+        if (hasFormErrors(errors)) {
+            const fieldId = firstInvalidFieldId(errors);
+
+            document.getElementById(fieldId ?? '')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById(fieldId ?? '')?.focus();
+
             return;
         }
 
         await updateRecipe.mutateAsync({ id, title: title.trim(), description, categoryId, portions });
 
-        // Sections are saved before ingredients/steps so their (freshly regenerated,
-        // see api/sections.ts) real ids exist to attach to.
         const namedSections = namedSectionDrafts(sections);
         const savedSections = await replaceSections.mutateAsync({
             names: namedSections.map((section) => section.name.trim()),
@@ -241,6 +243,16 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
         setPortionsError(parsed === 0 ? 'Oops, you cannot have 0 portions.' : '');
     };
 
+    const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setTitle(event.target.value);
+        setTitleError('');
+    };
+
+    const handleCategoryChange = (nextCategoryId: string) => {
+        setCategoryId(nextCategoryId);
+        setCategoryError('');
+    };
+
     if (recipePending || sectionsPending || ingredientsPending || stepsPending) {
         return <p className='text-body text-text-secondary'>Loading…</p>;
     }
@@ -259,12 +271,14 @@ export default function EditRecipePage({ params }: EditRecipePageProps) {
                             id='title'
                             type='text'
                             value={title}
-                            onChange={(event) => setTitle(event.target.value)}
+                            onChange={handleTitleChange}
+                            aria-invalid={Boolean(titleError)}
                             required
                         />
+                        {titleError && <p className='mt-1.5 text-body text-error'>{titleError}</p>}
                     </div>
 
-                    <CategorySelect value={categoryId} onChange={setCategoryId} />
+                    <CategorySelect value={categoryId} onChange={handleCategoryChange} error={categoryError} />
 
                     <div>
                         <label htmlFor='portions' className='mb-1.5 block text-label font-medium text-text-secondary'>

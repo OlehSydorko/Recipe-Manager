@@ -17,13 +17,6 @@ type StepRowsProps = {
 const FIELD_CLASSES =
     'rounded-sm border border-border bg-bg-secondary text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15';
 
-// Mirrors IngredientRows.tsx's row-editing shape (flat list + an optional per-row
-// Section dropdown fed by the shared `sections` list, see SectionsManager.tsx) rather
-// than a nested drag-into-groups editor -- the recipe detail page still renders steps
-// grouped under headings (see RecipeDetailClient.tsx / lib/sections.ts), this is just
-// how a section gets assigned while editing. The numbering here is the row's position
-// in this flat list, as an ordering aid while editing; the detail page numbers each
-// section's steps starting from 1 instead.
 export function StepRows({ steps, sections, onChange }: StepRowsProps) {
     const handleInstructionChange = (key: string, value: string) => {
         onChange(steps.map((step) => (step.key === key ? { ...step, instruction: value } : step)));

@@ -19,8 +19,6 @@ const COLLECTIONS_LIMIT = 4;
 export default function HomePage() {
     const hasMounted = useHasMounted();
     const { data: profile, isPending: profilePending } = useCurrentProfile();
-    // hasMounted-gated so the client's first paint always matches the
-    // server (which never resolves this) -- see useHasMounted for why.
     const isGuest = hasMounted && !profilePending && !profile;
 
     const { data: recipes, isPending: recipesPending, isError: recipesError } = useRecipes();
@@ -43,9 +41,6 @@ export default function HomePage() {
         [recipes]
     );
 
-    // Guests have no "my recipes" dashboard to show -- the Recently Added
-    // section becomes a preview of what the community's cooking instead, so
-    // Home stays a genuine browsing page rather than an empty personal one.
     const recentCommunityRecipes = useMemo(
         () =>
             [...(communityRecipes ?? [])]

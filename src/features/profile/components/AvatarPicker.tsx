@@ -15,8 +15,6 @@ type AvatarPickerProps = {
     disabled?: boolean;
 };
 
-// Mirrors RecipeImagePicker's drag/drop + validation behavior, sized and
-// shaped for a circular avatar instead of a recipe's rectangular photo.
 export function AvatarPicker({
     existingAvatarUrl,
     file,

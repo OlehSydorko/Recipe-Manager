@@ -16,8 +16,8 @@ import { CollectionListRow } from './CollectionListRow';
 
 type CollectionsSectionProps = {
     variant?: 'page' | 'tab';
-    // Only relevant for the 'page' variant -- the /collections route's ?q=,
-    // set by the global nav search's fallback submit (see GlobalSearch).
+
+
     initialQuery?: string;
 };
 
@@ -32,9 +32,7 @@ export function CollectionsSection ({ variant = 'page', initialQuery = '' }: Col
     const [deletingCollection, setDeletingCollection] = useState<CollectionWithCount | null>(null)
     const [searchQuery, setSearchQuery] = useState(initialQuery);
 
-    // Resyncs when the URL's ?q= changes after the initial mount -- e.g. the
-    // global nav search deep-links here while the user is already on this
-    // page, which the useState initializer above alone wouldn't pick up.
+
     useEffect(() => {
         setSearchQuery(initialQuery);
     }, [initialQuery]);

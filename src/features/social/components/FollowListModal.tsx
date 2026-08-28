@@ -13,10 +13,6 @@ type FollowListModalProps = {
     onClose: () => void;
 };
 
-// Reuses FollowButton for every row in both modes — it reflects the real
-// relationship regardless of which list it's rendered in, so a follower who
-// isn't followed back shows "Follow", and someone already followed shows
-// "Following" either way.
 export function FollowListModal({ userId, mode, onClose }: FollowListModalProps) {
     const { data: followers, isPending: followersPending } = useFollowers(mode === 'followers' ? userId : null);
     const { data: following, isPending: followingPending } = useFollowing(mode === 'following' ? userId : null);

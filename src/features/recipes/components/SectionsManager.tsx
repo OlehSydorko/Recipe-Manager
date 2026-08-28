@@ -13,11 +13,6 @@ type SectionsManagerProps = {
 const FIELD_CLASSES =
     'h-11 flex-1 rounded-sm border border-border bg-bg-secondary px-3 text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15';
 
-// Sections are shared by both the Ingredients and Instructions panels below --
-// managed once here rather than separately in each, so a section reliably groups the
-// same set of ingredients and steps under one name. Removing a section here un-assigns
-// (never deletes) any ingredient/step rows that pointed at it -- deleting a row is a
-// separate, explicit action in its own panel.
 export function SectionsManager({ sections, onAdd, onRename, onRemove }: SectionsManagerProps) {
     return (
         <div>

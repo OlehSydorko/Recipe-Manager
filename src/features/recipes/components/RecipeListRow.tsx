@@ -10,8 +10,6 @@ type RecipeListRowProps = {
     categoryName: string;
 };
 
-// List-view counterpart to RecipeCard, used when the profile page's view
-// toggle is set to "list" instead of "grid".
 export function RecipeListRow({ recipe, categoryName }: RecipeListRowProps) {
     const { data: imageUrl } = useRecipeImageUrl(recipe.image_url);
 

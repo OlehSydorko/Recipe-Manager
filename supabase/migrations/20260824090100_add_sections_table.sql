@@ -1,10 +1,3 @@
--- Sections table: a small, ordered, renameable label a recipe's owner can
--- group ingredients and steps under (e.g. "Egg Wash", "Lemon Filling"). Its
--- own table rather than a free-text column repeated on each row so renaming
--- a section is one update, and so the same section reliably groups both its
--- ingredients and its steps under one name instead of two independently
--- typed strings that can drift out of sync. See docs/plans/recipe-sections-plan.md.
-
 create table if not exists public.sections (
     id uuid primary key default gen_random_uuid(),
     recipe_id uuid not null references public.recipes (id) on delete cascade,

@@ -1,15 +1,3 @@
--- One-time data migration: turns each recipe's existing free-text
--- `instructions` into `steps` rows (one per non-blank line, section_id
--- null) so the app can move Instructions from a single text blob to
--- structured, per-section steps without losing existing content.
--- `recipes.instructions` is intentionally left in place (not dropped) —
--- see docs/plans/recipe-sections-plan.md for why.
---
--- Spot-checked against the 8 live recipes before this was written: none of
--- them have embedded newlines in `instructions` (each is either empty or a
--- single paragraph), so this produces exactly one step per non-empty recipe
--- with no line-splitting ambiguity.
-
 do $$
 declare
     r record;

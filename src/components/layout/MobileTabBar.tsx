@@ -18,8 +18,6 @@ export function MobileTabBar() {
     const pathname = usePathname();
     const hasMounted = useHasMounted();
     const { data: profile, isPending: profilePending } = useCurrentProfile();
-    // hasMounted-gated so the client's first paint always matches the
-    // server (which never resolves this) -- see useHasMounted for why.
     const isGuest = hasMounted && !profilePending && !profile;
 
     const links = isGuest

@@ -10,9 +10,6 @@ export function SignOutButton() {
 
     const handleSignOut = async () => {
         await signOut();
-        // Land on the homepage in its logged-out state -- not /login. The
-        // AuthListener has already cleared the query cache by this point, so
-        // the guest UI is correct as soon as we get there.
         router.push('/');
         router.refresh();
     };

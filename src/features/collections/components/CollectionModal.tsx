@@ -16,10 +16,6 @@ type CollectionModalProps = {
     recipes: Recipe[];
 };
 
-// Handles both create and edit — `collection` is null for create. The recipe
-// checklist writes the collection's full membership on save (see
-// replaceCollectionRecipes in API/collections.ts), same as how a recipe's
-// ingredient list is saved as a whole rather than diffed.
 export function CollectionModal({ open, onClose, collection, recipes }: CollectionModalProps) {
     const { data: existingRecipeIds } = useCollectionRecipeIds(collection?.id ?? null);
     const createCollection = useCreateCollection();

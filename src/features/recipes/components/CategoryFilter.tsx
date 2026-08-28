@@ -17,10 +17,6 @@ const CHIP_ACTIVE_CLASSES = 'border-accent bg-accent-muted text-accent';
 const CHIP_INACTIVE_CLASSES =
     'border-border bg-surface text-text-secondary hover:border-border-strong hover:text-text-primary';
 
-// Category management (rename/delete) lives in CategorySelect (used from the recipe
-// form) — this filter is select-only chips, matching how filters read elsewhere in the app.
-// The Favorites chip lives here too (rather than a separate control) so category and
-// favorite filtering read as one combinable chip row.
 export function CategoryFilter({
     categories,
     value,

@@ -11,9 +11,6 @@ type ProfileListItemProps = {
     action?: ReactNode;
 };
 
-// Row used in the Followers/Following list modal — avatar, name, tagline,
-// linking through to that person's profile, with an optional action slot
-// (e.g. a FollowButton) on the right.
 export function ProfileListItem({ profile, action }: ProfileListItemProps) {
     const { data: avatarUrl } = useAvatarUrl(profile.avatar_url);
 

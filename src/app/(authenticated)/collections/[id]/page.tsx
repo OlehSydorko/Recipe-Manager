@@ -16,14 +16,6 @@ type CollectionDetailPageProps = {
     params: Promise<{ id: string }>;
 };
 
-// Detail view for a single collection, reached by clicking a card/row on the
-// Collections page, or directly via a shared link when the collection is
-// public. Visibility is enforced by RLS through useCollection (owner or
-// public), so this page works the same for the owner, a guest, or any other
-// user -- only the owner sees the "Add recipe" edit entry point.
-// Membership (adding/removing recipes) reuses CollectionModal as-is — it
-// already writes a collection's full recipe list on save, so "Add recipe"
-// here just opens the same edit form used from the collections grid.
 export default function CollectionDetailPage({ params }: CollectionDetailPageProps) {
     const { id } = use(params);
 

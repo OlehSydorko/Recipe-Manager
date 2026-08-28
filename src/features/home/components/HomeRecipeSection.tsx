@@ -18,12 +18,6 @@ type HomeRecipeSectionProps = {
     categoryNameById?: Map<string, string>;
 };
 
-// Shared shell for the Home page's recipe grids (Community Recipes, Recently
-// added) -- both sections need the same heading/skeleton/error/empty/grid
-// states, just with different data, copy, and (for Recently added only) an
-// empty-state CTA. categoryNameById is only needed for plain `Recipe` rows
-// (the signed-in user's own recipes, which don't carry a categoryName);
-// community rows are already `RecipeWithAuthor` and carry their own.
 export function HomeRecipeSection({
     title,
     viewAllHref,

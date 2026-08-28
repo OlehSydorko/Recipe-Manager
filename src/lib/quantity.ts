@@ -1,10 +1,51 @@
-import { QUANTITY_PATTERN } from '@/api/ingredients';
+// eslint-disable-next-line security/detect-unsafe-regex
+export const QUANTITY_PATTERN = /^\d*(?:\.\d*)?(?:\/\d*)?$/;
 
-// Parses the constrained quantity format the app allows ("1", "1.5", "1/2")
-// into a plain number. Returns null for empty or unparseable input so callers
-// can fall back to showing the raw string unchanged.
+const UNICODE_FRACTIONS: Record<string, [number, number]> = {
+    '¼': [1, 4],
+    '½': [1, 2],
+    '¾': [3, 4],
+    '⅐': [1, 7],
+    '⅑': [1, 9],
+    '⅒': [1, 10],
+    '⅓': [1, 3],
+    '⅔': [2, 3],
+    '⅕': [1, 5],
+    '⅖': [2, 5],
+    '⅗': [3, 5],
+    '⅘': [4, 5],
+    '⅙': [1, 6],
+    '⅚': [5, 6],
+    '⅛': [1, 8],
+    '⅜': [3, 8],
+    '⅝': [5, 8],
+    '⅞': [7, 8]
+};
+
+// eslint-disable-next-line security/detect-unsafe-regex
+const MIXED_NUMBER_PATTERN = /^(\d+)?\s*([¼½¾⅐⅑⅒⅓⅔⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞])$/;
+
+export function normalizeQuantity(raw: string): string {
+    const trimmed = raw.trim().replace(/⁄/g, '/');
+
+    const match = MIXED_NUMBER_PATTERN.exec(trimmed);
+
+    if (!match) {
+        return trimmed;
+    }
+
+    const [, wholePart, fractionChar] = match;
+    const [numerator, denominator] = UNICODE_FRACTIONS[fractionChar];
+
+    if (!wholePart) {
+        return `${numerator}/${denominator}`;
+    }
+
+    return formatQuantity(Number(wholePart) + numerator / denominator);
+}
+
 export function parseQuantity(raw: string | null): number | null {
-    const trimmed = raw?.trim() ?? '';
+    const trimmed = normalizeQuantity(raw?.trim() ?? '');
 
     if (!trimmed || !QUANTITY_PATTERN.test(trimmed)) {
         return null;
@@ -28,15 +69,10 @@ export function parseQuantity(raw: string | null): number | null {
     return numerator / denominator;
 }
 
-// Rounds to 2 decimal places and trims trailing zeros (2.0 -> "2", 33.333... -> "33.33").
 export function formatQuantity(value: number): string {
     return Number(value.toFixed(2)).toString();
 }
 
-// Scales a saved ingredient quantity for a different portion count than the
-// recipe's base. Returns the original string unchanged at 1x (so "1/2" stays
-// "1/2" instead of becoming "0.5") and whenever parsing fails, so unexpected
-// input degrades safely instead of throwing.
 export function scaleQuantity(raw: string | null, factor: number): string | null {
     if (!raw || factor === 1) {
         return raw;

@@ -18,9 +18,6 @@ function getTimeOfDayGreeting(hour: number): string {
     return 'Good evening';
 }
 
-// Greeting is computed client-side only (via useEffect, not on first render) so
-// server- and client-rendered markup match on hydration regardless of the
-// visitor's timezone.
 export function HomeGreeting({ displayName }: HomeGreetingProps) {
     const [greeting, setGreeting] = useState('Hello');
 

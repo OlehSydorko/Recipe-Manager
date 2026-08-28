@@ -1,12 +1,6 @@
 import { createClient } from '@/lib/supabaseClient';
+import { normalizeQuantity, QUANTITY_PATTERN } from '@/lib/quantity';
 import { DEFAULT_UNIT, type Ingredient, isAllowedUnit } from '@/types/ingredient';
-
-// Matches what the Qty input allows client-side: digits with at most one
-// decimal point and at most one fraction slash (e.g. "1", "1.5", "1/2").
-// Groups are sequential (not nested), so there's no catastrophic-backtracking risk here.
-// Exported so src/lib/quantity.ts can parse the same format when scaling for portions.
-// eslint-disable-next-line security/detect-unsafe-regex
-export const QUANTITY_PATTERN = /^\d*(?:\.\d*)?(?:\/\d*)?$/;
 
 export async function getIngredients(recipeId: string): Promise<Ingredient[]> {
     const supabase = createClient();
@@ -31,9 +25,6 @@ export type IngredientInput = {
     sectionId: string | null;
 };
 
-// Recipes are edited as a whole form (like title/description), so ingredients are
-// saved the same way: replace the full list for the recipe rather than diffing
-// individual rows against the database.
 export async function replaceIngredients(recipeId: string, ingredients: IngredientInput[]): Promise<Ingredient[]> {
     const supabase = createClient();
 
@@ -46,7 +37,7 @@ export async function replaceIngredients(recipeId: string, ingredients: Ingredie
     const rows = ingredients
         .filter((ingredient) => ingredient.name.trim())
         .map((ingredient, index) => {
-            const quantity = ingredient.quantity.trim();
+            const quantity = normalizeQuantity(ingredient.quantity.trim());
             const unit = ingredient.unit.trim();
 
             return {

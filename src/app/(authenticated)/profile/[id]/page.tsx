@@ -8,11 +8,6 @@ type UserProfilePageProps = {
 
 const SITE_NAME = 'Recipe Manager';
 
-// Public profiles are guest-viewable now (see GUEST_ACCESS_PLAN.md), so this
-// page gets a thin Server Component wrapper for metadata, same pattern as
-// the recipe detail page -- the profile body itself stays a client component
-// (follow state, tab-free recipe/collection lists) with no server-render
-// equivalent worth building out here.
 export async function generateMetadata({ params }: UserProfilePageProps): Promise<Metadata> {
     const { id } = await params;
     const supabase = await createClient();

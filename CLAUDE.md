@@ -24,9 +24,13 @@ Create a `.env.local` file in the root (values come from your Supabase project s
 ```
 NEXT_PUBLIC_SUPABASE_URL=<your Supabase project URL>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your Supabase anon/public key>
+GEMINI_API_KEY=<server-only secret from Google AI Studio, aistudio.google.com>
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
 The anon key is safe to expose client-side by design — real security comes from Postgres Row Level Security (RLS) policies, not from hiding this key. Never put the `service_role` key in this file or in any client code.
+
+`GEMINI_API_KEY` is the opposite: it is never prefixed with `NEXT_PUBLIC_` and is only ever read inside `src/app/api/recipes/import/route.ts` (server-side) — it powers the "Import from URL or photo" AI recipe-extraction feature (see `docs/plans/recipe-import-plan.md`) and must never reach the browser. The free tier from Google AI Studio does not require a billing account. `GEMINI_MODEL` defaults to `gemini-3.5-flash-lite` if unset; double-check that model name is still current before relying on it — Google revs its model lineup often.
 
 ## Tech Stack & Why
 
@@ -46,7 +50,7 @@ Uses `@supabase/ssr` (not plain `supabase-js`) because Next.js renders both serv
 Every table has Row Level Security (RLS) enabled, default-deny. This is enforced by Postgres itself, not by frontend checks, so it holds even against direct API calls. Two patterns:
 
 - **Public read, owner-scoped write** — `recipes`, `categories`, `ingredients`, `steps`, `profiles`, and the `recipe-images`/`avatars` storage buckets: SELECT is open to any authenticated user (`using (true)`), INSERT/UPDATE/DELETE require `user_id = auth.uid()` (or `owns_recipe(recipe_id)` for `ingredients`/`steps`, which derives ownership from the parent recipe).
-- **Fully owner-scoped** — `collections`, `recipe_favorites`, `follows`, `activity_log`: every operation requires `auth.uid()` to match the row's owner. `collection_recipes` is the one exception with a deliberately looser INSERT check — you can save *any* recipe (not just your own) into a collection you own.
+- **Fully owner-scoped** — `collections`, `recipe_favorites`, `follows`, `activity_log`: every operation requires `auth.uid()` to match the row's owner. `collection_recipes` is the one exception with a deliberately looser INSERT check — you can save _any_ recipe (not just your own) into a collection you own.
 
 Because `getRecipes()`/`getCategories()` mean "mine" throughout the app (My Recipes page, category dropdowns, home stats), those API functions filter by `user_id = auth.uid()` explicitly in the query rather than relying on RLS to do it — RLS alone would now return every user's rows. `getCommunityRecipes()` is the deliberately unfiltered counterpart, backing the Community tab on `/recipes`.
 
@@ -66,14 +70,14 @@ src/
 
 ### Data model
 
-| Table         | Key columns                                                                     | Notes                                                                  |
-| ------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `profiles`    | id (= auth.users.id), display_name, avatar_url                                  | One per user                                                           |
-| `categories`  | id, user_id, name                                                               | Seeded with 6 defaults on signup; user can add more                    |
-| `recipes`     | id, user_id, category_id, title, description, image_url, created_at, updated_at |                                                                        |
-| `ingredients` | id, recipe_id, name, quantity (text), sort_order                                | No `checked` column — checklist state is client-only, resets on reload |
-| `steps`       | id, recipe_id, instruction, sort_order                                          |                                                                        |
-| `recipe_favorites` | user_id, recipe_id                                                         | Per-user favorite, not a column on `recipes` — a recipe can be favorited by many different users now that recipes are public |
+| Table              | Key columns                                                                     | Notes                                                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `profiles`         | id (= auth.users.id), display_name, avatar_url                                  | One per user                                                                                                                 |
+| `categories`       | id, user_id, name                                                               | Seeded with 6 defaults on signup; user can add more                                                                          |
+| `recipes`          | id, user_id, category_id, title, description, image_url, created_at, updated_at |                                                                                                                              |
+| `ingredients`      | id, recipe_id, name, quantity (text), sort_order                                | No `checked` column — checklist state is client-only, resets on reload                                                       |
+| `steps`            | id, recipe_id, instruction, sort_order                                          |                                                                                                                              |
+| `recipe_favorites` | user_id, recipe_id                                                              | Per-user favorite, not a column on `recipes` — a recipe can be favorited by many different users now that recipes are public |
 
 This table is not exhaustive — `collections`, `collection_recipes`, `follows`, and `activity_log` also exist; verify against `supabase/migrations/` or the live schema rather than assuming this list is complete.
 

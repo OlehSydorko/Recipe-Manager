@@ -8,9 +8,6 @@ import { PasswordInput } from '@/components/ui/PasswordInput';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-// Copy for the `message` query param set by middleware.ts when it redirects
-// a guest away from a protected route, so the login form can explain why the
-// visitor landed here instead of just showing a bare form.
 const MESSAGE_COPY: Record<string, string> = {
     profile: 'Sign in to view your profile.',
     'recipe-new': 'Sign in to create a recipe.',
