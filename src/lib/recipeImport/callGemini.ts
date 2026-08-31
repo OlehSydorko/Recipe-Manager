@@ -3,7 +3,9 @@ import { type ExtractedRecipe, ExtractedRecipeSchema, GEMINI_RESPONSE_SCHEMA } f
 
 const DEFAULT_MODEL = 'gemini-3.5-flash-lite';
 const GEMINI_TIMEOUT_MS = 25000;
-const MAX_OUTPUT_TOKENS = 4096;
+const MAX_OUTPUT_TOKENS = 8192;
+const MAX_EXTRACTION_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 500;
 
 export class GeminiConfigError extends Error {
     constructor(message = 'Recipe import is not configured yet.') {
@@ -32,6 +34,13 @@ const SYSTEM_INSTRUCTION = `You are extracting a cooking recipe into a fixed JSO
 
 type GeminiPart = { text: string } | { inlineData: { mimeType: string; data: string } };
 
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Gemini's structured-extraction quality varies call to call -- the same photo can succeed on one
+// attempt and come back unparseable or schema-invalid on the next. Retrying a couple of times before
+// giving up smooths over that variance without the user having to notice and resubmit manually.
 async function runGeminiExtraction(parts: GeminiPart[]): Promise<ExtractedRecipe> {
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -39,6 +48,24 @@ async function runGeminiExtraction(parts: GeminiPart[]): Promise<ExtractedRecipe
         throw new GeminiConfigError();
     }
 
+    let lastError = new GeminiExtractionError();
+
+    for (let attempt = 1; attempt <= MAX_EXTRACTION_ATTEMPTS; attempt += 1) {
+        try {
+            return await runGeminiExtractionAttempt(parts, apiKey);
+        } catch (error) {
+            lastError = error instanceof GeminiExtractionError ? error : new GeminiExtractionError();
+
+            if (attempt < MAX_EXTRACTION_ATTEMPTS) {
+                await sleep(RETRY_DELAY_MS);
+            }
+        }
+    }
+
+    throw lastError;
+}
+
+async function runGeminiExtractionAttempt(parts: GeminiPart[], apiKey: string): Promise<ExtractedRecipe> {
     const model = process.env.GEMINI_MODEL || DEFAULT_MODEL;
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 

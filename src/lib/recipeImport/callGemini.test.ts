@@ -55,28 +55,42 @@ describe('callGeminiForImageImport', () => {
         expect(init.headers['x-goog-api-key']).toBe('test-key');
     });
 
-    it('throws GeminiExtractionError when the response is not ok', async () => {
-        mockFetch.mockResolvedValueOnce(geminiResponse('', false));
+    it('throws GeminiExtractionError when the response is not ok, after retrying', async () => {
+        mockFetch.mockResolvedValue(geminiResponse('', false));
 
         await expect(
             callGeminiForImageImport([{ base64: 'base64data', mimeType: 'image/png' }])
         ).rejects.toBeInstanceOf(GeminiExtractionError);
+        expect(mockFetch).toHaveBeenCalledTimes(3);
     });
 
-    it('throws GeminiExtractionError when the model response is not valid JSON', async () => {
-        mockFetch.mockResolvedValueOnce(geminiResponse('not json at all'));
+    it('throws GeminiExtractionError when the model response is not valid JSON, after retrying', async () => {
+        mockFetch.mockResolvedValue(geminiResponse('not json at all'));
 
         await expect(
             callGeminiForImageImport([{ base64: 'base64data', mimeType: 'image/png' }])
         ).rejects.toBeInstanceOf(GeminiExtractionError);
+        expect(mockFetch).toHaveBeenCalledTimes(3);
     });
 
-    it('throws GeminiExtractionError when the JSON does not match the schema', async () => {
-        mockFetch.mockResolvedValueOnce(geminiResponse(JSON.stringify({ title: '' })));
+    it('throws GeminiExtractionError when the JSON does not match the schema, after retrying', async () => {
+        mockFetch.mockResolvedValue(geminiResponse(JSON.stringify({ title: '' })));
 
         await expect(
             callGeminiForImageImport([{ base64: 'base64data', mimeType: 'image/png' }])
         ).rejects.toBeInstanceOf(GeminiExtractionError);
+        expect(mockFetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('succeeds on a later attempt after an earlier one fails', async () => {
+        mockFetch
+            .mockResolvedValueOnce(geminiResponse('', false))
+            .mockResolvedValueOnce(geminiResponse(JSON.stringify(VALID_EXTRACTED_RECIPE)));
+
+        const result = await callGeminiForImageImport([{ base64: 'base64data', mimeType: 'image/png' }]);
+
+        expect(result).toEqual(VALID_EXTRACTED_RECIPE);
+        expect(mockFetch).toHaveBeenCalledTimes(2);
     });
 
     it('sends one inlineData part per image plus a trailing text instruction', async () => {
