@@ -123,7 +123,7 @@ return b.created_at.localeCompare(a.created_at);
                     )}
 
                     {!collectionsPending && sortedCollections && sortedCollections.length > 0 && viewMode === 'grid' && (
-                        <div className='mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+                        <div className='mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3'>
                             {sortedCollections.map((collection) => (
                                 <CollectionCard
                                     key={collection.id}

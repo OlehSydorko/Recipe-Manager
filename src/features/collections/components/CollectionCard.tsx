@@ -36,7 +36,7 @@ export function CollectionCard({ collection, onEdit, onDelete, hideActions }: Co
                     </span>
                 </div>
 
-                <div className='p-4'>
+                <div className='p-3 sm:p-4'>
                     <div className='mt-3 flex items-center gap-2 pr-8'>
                         <h3 className='truncate text-h3 font-medium text-text-primary'>{collection.name}</h3>
                         {collection.is_public && (

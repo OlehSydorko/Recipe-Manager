@@ -2,7 +2,7 @@
 
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useCurrentProfile } from '@/hooks/useProfile';
-import { BookOpen, Home, LogIn, Scroll, Search, User } from 'lucide-react';
+import { BookOpen, Home, LogIn, Scroll, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -10,7 +10,6 @@ const LOGGED_IN_LINKS = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/recipes', label: 'Recipes', icon: BookOpen },
     { href: '/collections', label: 'Collections', icon: Scroll },
-    { href: '/people', label: 'Discover', icon: Search },
     { href: '/profile', label: 'Profile', icon: User }
 ];
 
@@ -25,7 +24,6 @@ export function MobileTabBar() {
               { href: '/', label: 'Home', icon: Home },
               { href: '/recipes', label: 'Recipes', icon: BookOpen },
               { href: '/collections', label: 'Collections', icon: Scroll },
-              { href: '/people', label: 'Discover', icon: Search },
               { href: `/login?redirect=${encodeURIComponent(pathname)}`, label: 'Sign In', icon: LogIn }
           ]
         : LOGGED_IN_LINKS;
@@ -41,11 +39,15 @@ export function MobileTabBar() {
                         key={link.href}
                         href={link.href}
                         aria-label={link.label}
-                        className={`flex flex-1 items-center justify-center rounded-md py-2.5 transition-colors duration-150 ${
-                            isActive ? 'text-accent' : 'text-text-secondary'
-                        }`}
+                        className='flex flex-1 items-center justify-center py-1'
                     >
-                        <Icon size={22} />
+                        <span
+                            className={`flex items-center justify-center rounded-full px-4 py-2 transition-colors duration-150 ${
+                                isActive ? 'bg-accent-muted text-accent' : 'text-text-secondary'
+                            }`}
+                        >
+                            <Icon size={22} />
+                        </span>
                     </Link>
                 );
             })}

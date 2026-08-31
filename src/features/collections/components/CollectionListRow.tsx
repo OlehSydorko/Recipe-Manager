@@ -29,13 +29,13 @@ export function CollectionListRow({ collection, onEdit, onDelete, hideActions }:
             />
 
             <div className='pointer-events-none relative z-10 flex min-w-0 flex-1 items-center gap-4'>
-                <div className='h-16 w-16 shrink-0 overflow-hidden rounded-md bg-bg-secondary'>
+                <div className='h-24 w-24 shrink-0 overflow-hidden rounded-md bg-bg-secondary'>
                     {thumbnailUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={thumbnailUrl} alt='' className='h-full w-full object-cover' />
                     ) : (
                         <div className='flex h-full w-full items-center justify-center text-text-disabled'>
-                            <Folder size={18} />
+                            <Folder size={22} />
                         </div>
                     )}
                 </div>

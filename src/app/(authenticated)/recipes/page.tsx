@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { CategoryFilter } from '@/features/recipes/components/CategoryFilter';
 import { RecipeCard } from '@/features/recipes/components/RecipeCard';
@@ -9,6 +9,7 @@ import { useHasMounted } from '@/hooks/useHasMounted';
 import { useCurrentProfile } from '@/hooks/useProfile';
 import { useCommunityRecipes, useRecipes } from '@/hooks/useRecipes';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { getDistinctCategoryNames } from '@/lib/communityCategoryNames';
 import { BookOpen, Plus, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -47,8 +48,14 @@ function RecipesPageContent() {
     const { data: communityRecipes, isPending: communityPending, isError: communityError } = useCommunityRecipes();
     const { data: categories } = useCategories();
     const [categoryFilter, setCategoryFilter] = useState('');
+    const [communityCategoryFilter, setCommunityCategoryFilter] = useState('');
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
     const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '');
+
+    const communityCategoryOptions = useMemo(
+        () => getDistinctCategoryNames(communityRecipes ?? []).map((name) => ({ id: name, name })),
+        [communityRecipes]
+    );
 
     useEffect(() => {
         setSearchQuery(searchParams.get('q') ?? '');
@@ -68,16 +75,19 @@ function RecipesPageContent() {
             (recipe) => !searchQuery.toLowerCase() || recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
-    const filteredCommunityRecipes = communityRecipes?.filter(
-        (recipe) => !searchQuery.toLowerCase() || recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredCommunityRecipes = communityRecipes
+        ?.filter((recipe) => !communityCategoryFilter || recipe.categoryName === communityCategoryFilter)
+        .filter((recipe) => !showFavoritesOnly || recipe.is_favorite)
+        .filter(
+            (recipe) => !searchQuery.toLowerCase() || recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
     const isPending = isMineTab ? myRecipesPending : communityPending;
     const isError = isMineTab ? myRecipesError : communityError;
     const filteredRecipes = isMineTab ? filteredMyRecipes : filteredCommunityRecipes;
     const isFiltered = isMineTab
         ? Boolean(categoryFilter) || showFavoritesOnly || Boolean(searchQuery.trim())
-        : Boolean(searchQuery.trim());
+        : Boolean(communityCategoryFilter) || showFavoritesOnly || Boolean(searchQuery.trim());
 
     return (
         <div>
@@ -118,17 +128,15 @@ function RecipesPageContent() {
                 </button>
             </div>
 
-            {isMineTab && (
-                <div className='mt-5'>
-                    <CategoryFilter
-                        categories={categories}
-                        value={categoryFilter}
-                        onChange={setCategoryFilter}
-                        showFavoritesOnly={showFavoritesOnly}
-                        onToggleFavoritesOnly={() => setShowFavoritesOnly((previous) => !previous)}
-                    />
-                </div>
-            )}
+            <div className='mt-5'>
+                <CategoryFilter
+                    categories={isMineTab ? categories : communityCategoryOptions}
+                    value={isMineTab ? categoryFilter : communityCategoryFilter}
+                    onChange={isMineTab ? setCategoryFilter : setCommunityCategoryFilter}
+                    showFavoritesOnly={showFavoritesOnly}
+                    onToggleFavoritesOnly={() => setShowFavoritesOnly((previous) => !previous)}
+                />
+            </div>
 
             {isError && <p className='mt-8 text-body text-error'>Could not load recipes.</p>}
 

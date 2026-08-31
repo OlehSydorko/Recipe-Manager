@@ -16,6 +16,7 @@ type HomeRecipeSectionProps = {
     emptyDescription: string;
     emptyAction?: ReactNode;
     categoryNameById?: Map<string, string>;
+    hideWhenEmpty?: boolean;
 };
 
 export function HomeRecipeSection({
@@ -28,8 +29,13 @@ export function HomeRecipeSection({
     emptyTitle,
     emptyDescription,
     emptyAction,
-    categoryNameById
+    categoryNameById,
+    hideWhenEmpty = false
 }: HomeRecipeSectionProps) {
+    if (hideWhenEmpty && !isPending && !isError && recipes.length === 0) {
+        return null;
+    }
+
     return (
         <section>
             <div className='flex items-center justify-between'>
@@ -42,7 +48,7 @@ export function HomeRecipeSection({
             {isError && <p className='mt-4 text-body text-error'>Could not load recipes.</p>}
 
             {isPending && (
-                <div className='mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4'>
+                <div className='mt-4 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4'>
                     {Array.from({ length: skeletonCount }).map((_, index) => (
                         // eslint-disable-next-line react/no-array-index-key
                         <RecipeCardSkeleton key={index} />
@@ -60,7 +66,7 @@ export function HomeRecipeSection({
             )}
 
             {!isPending && !isError && recipes.length > 0 && (
-                <div className='mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4'>
+                <div className='mt-4 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4'>
                     {recipes.map((recipe) => (
                         <RecipeCard
                             key={recipe.id}
@@ -71,6 +77,7 @@ export function HomeRecipeSection({
                                     : (categoryNameById?.get(recipe.category_id) ?? 'Uncategorized')
                             }
                             author={'author' in recipe ? recipe.author : undefined}
+                            hideMobileRow
                         />
                     ))}
                 </div>

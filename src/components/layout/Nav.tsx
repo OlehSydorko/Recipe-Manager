@@ -23,8 +23,8 @@ export function Nav() {
             <header className='sticky top-0 z-30 border-b border-border bg-bg-secondary'>
                 <div className='mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 sm:px-6'>
                     <ChefHat size={33} className='text-accent' />
-                    <Link href='/' className='shrink-0 text-h3 font-semibold text-text-primary'>
-                        Recipe Manager
+                    <Link href='/' aria-label='Recipe Manager home' className='shrink-0 text-h3 font-semibold text-text-primary'>
+                        <span className='hidden sm:inline'>Recipe Manager</span>
                     </Link>
 
                     <div className='ml-auto h-10 w-24 shrink-0 animate-pulse rounded-md bg-hover' />
@@ -38,8 +38,8 @@ export function Nav() {
             <header className='sticky top-0 z-30 border-b border-border bg-bg-secondary'>
                 <div className='mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 sm:px-6'>
                     <ChefHat size={33} className='text-accent' />
-                    <Link href='/' className='shrink-0 text-h3 font-semibold text-text-primary'>
-                        Recipe Manager
+                    <Link href='/' aria-label='Recipe Manager home' className='shrink-0 text-h3 font-semibold text-text-primary'>
+                        <span className='hidden sm:inline'>Recipe Manager</span>
                     </Link>
 
                     <GlobalSearch className='hidden flex-1 sm:block' />
@@ -77,8 +77,8 @@ export function Nav() {
         <header className='sticky top-0 z-30 border-b border-border bg-bg-secondary'>
             <div className='mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 sm:px-6'>
                 <ChefHat size={33} className='text-accent' />
-                <Link href='/' className='shrink-0 text-h3 font-semibold text-text-primary'>
-                    Recipe Manager
+                <Link href='/' aria-label='Recipe Manager home' className='shrink-0 text-h3 font-semibold text-text-primary'>
+                    <span className='hidden sm:inline'>Recipe Manager</span>
                 </Link>
 
                 <GlobalSearch className='hidden flex-1 sm:block' />
@@ -101,6 +101,7 @@ export function Nav() {
                             <Link
                                 key={link.href}
                                 href={link.href}
+                                aria-label={profile?.display_name || link.label}
                                 className={`relative flex items-center gap-3 rounded-md px-3 py-2.5 text-body font-medium transition-colors duration-150 ${
                                     isActive
                                         ? 'bg-accent-muted text-accent'
@@ -122,7 +123,7 @@ export function Nav() {
                                         <Icon size={16} />
                                     </span>
                                 )}
-                                {profile?.display_name || link.label}
+                                <span className='hidden sm:inline'>{profile?.display_name || link.label}</span>
                             </Link>
                         );
                     })}

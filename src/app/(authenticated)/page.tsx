@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { HomeCollectionCard } from '@/features/home/components/HomeCollectionCard';
 import { HomeGreeting } from '@/features/home/components/HomeGreeting';
 import { HomeRecipeSection } from '@/features/home/components/HomeRecipeSection';
@@ -11,15 +11,19 @@ import { useFollowCounts } from '@/hooks/useFollows';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useCurrentProfile } from '@/hooks/useProfile';
 import { useCommunityRecipes, useRecipes } from '@/hooks/useRecipes';
+import { Search } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const RECENT_RECIPES_LIMIT = 4;
 const COLLECTIONS_LIMIT = 4;
 
 export default function HomePage() {
+    const router = useRouter();
     const hasMounted = useHasMounted();
     const { data: profile, isPending: profilePending } = useCurrentProfile();
     const isGuest = hasMounted && !profilePending && !profile;
+    const [mobileSearchQuery, setMobileSearchQuery] = useState('');
 
     const { data: recipes, isPending: recipesPending, isError: recipesError } = useRecipes();
     const {
@@ -53,11 +57,35 @@ export default function HomePage() {
     const topCollections = collections?.slice(0, COLLECTIONS_LIMIT) ?? [];
     const hasCollections = !collectionsPending && topCollections.length > 0;
 
+    const handleMobileSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const trimmedQuery = mobileSearchQuery.trim();
+
+        router.push(trimmedQuery ? `/recipes?q=${encodeURIComponent(trimmedQuery)}` : '/recipes');
+    };
+
     return (
         <div className='space-y-10'>
             <HomeGreeting displayName={profile?.display_name ?? null} />
 
-            {isGuest ? (
+            <form onSubmit={handleMobileSearchSubmit} className='sm:hidden'>
+                <div className='relative'>
+                    <Search
+                        size={16}
+                        className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-disabled'
+                    />
+                    <input
+                        type='search'
+                        value={mobileSearchQuery}
+                        onChange={(event) => setMobileSearchQuery(event.target.value)}
+                        placeholder='Search recipes...'
+                        aria-label='Search recipes'
+                        className='h-10 w-full rounded-md border border-border bg-bg-secondary pl-9 pr-3 text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15'
+                    />
+                </div>
+            </form>
+
+            {isGuest && (
                 <div className='rounded-lg border border-border bg-surface p-5'>
                     <p className='text-body text-text-secondary'>
                         Browsing as a guest.{' '}
@@ -67,13 +95,6 @@ export default function HomePage() {
                         to save your own recipes, follow other cooks, and build collections.
                     </p>
                 </div>
-            ) : (
-                <HomeStats
-                    recipesCount={recipes?.length ?? 0}
-                    favoritesCount={favoritesCount}
-                    followersCount={followCounts?.followers ?? 0}
-                    followingCount={followCounts?.following ?? 0}
-                />
             )}
 
             {isGuest ? (
@@ -89,17 +110,6 @@ export default function HomePage() {
                 />
             ) : (
                 <>
-                    <HomeRecipeSection
-                        title='Community Recipes'
-                        viewAllHref='/recipes?tab=community'
-                        recipes={recentCommunityRecipes}
-                        isPending={communityPending}
-                        isError={communityError}
-                        skeletonCount={RECENT_RECIPES_LIMIT}
-                        emptyTitle='No community recipes yet'
-                        emptyDescription='Recipes from other users will show up here.'
-                    />
-
                     <HomeRecipeSection
                         title='Recently added'
                         viewAllHref='/recipes'
@@ -119,6 +129,18 @@ export default function HomePage() {
                             </Link>
                         }
                     />
+
+                    <HomeRecipeSection
+                        title='Community Recipes'
+                        viewAllHref='/recipes?tab=community'
+                        recipes={recentCommunityRecipes}
+                        isPending={communityPending}
+                        isError={communityError}
+                        skeletonCount={RECENT_RECIPES_LIMIT}
+                        emptyTitle='No community recipes yet'
+                        emptyDescription='Recipes from other users will show up here.'
+                        hideWhenEmpty
+                    />
                 </>
             )}
 
@@ -137,6 +159,15 @@ export default function HomePage() {
                         ))}
                     </div>
                 </section>
+            )}
+
+            {!isGuest && (
+                <HomeStats
+                    recipesCount={recipes?.length ?? 0}
+                    favoritesCount={favoritesCount}
+                    followersCount={followCounts?.followers ?? 0}
+                    followingCount={followCounts?.following ?? 0}
+                />
             )}
         </div>
     );
