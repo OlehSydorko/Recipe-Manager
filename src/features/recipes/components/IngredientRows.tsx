@@ -67,6 +67,13 @@ export function IngredientRows({ ingredients, sections, onChange }: IngredientRo
         onChange([...ingredients, createEmptyIngredientDraft()]);
     };
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleAddRow();
+        }
+    };
+
     const handleRemoveRow = (key: string) => {
         onChange(ingredients.filter((ingredient) => ingredient.key !== key));
     };
@@ -82,6 +89,7 @@ export function IngredientRows({ ingredients, sections, onChange }: IngredientRo
                             type='text'
                             value={ingredient.name}
                             onChange={(event) => handleNameChange(ingredient.key, event.target.value)}
+                            onKeyDown={handleKeyDown}
                             placeholder='Ingredient'
                             className={`min-w-[8rem] flex-1 px-3 ${FIELD_CLASSES}`}
                         />
@@ -90,6 +98,7 @@ export function IngredientRows({ ingredients, sections, onChange }: IngredientRo
                             inputMode='decimal'
                             value={ingredient.quantity}
                             onChange={(event) => handleQuantityChange(ingredient.key, event.target.value)}
+                            onKeyDown={handleKeyDown}
                             placeholder='Qty'
                             className={`w-16 px-2.5 text-center ${FIELD_CLASSES}`}
                         />

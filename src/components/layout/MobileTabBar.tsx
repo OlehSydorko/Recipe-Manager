@@ -2,7 +2,7 @@
 
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useCurrentProfile } from '@/hooks/useProfile';
-import { BookOpen, Home, LogIn, Scroll, User } from 'lucide-react';
+import { BookOpen, Home, LogIn, Scroll, ShoppingCart, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -10,6 +10,7 @@ const LOGGED_IN_LINKS = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/recipes', label: 'Recipes', icon: BookOpen },
     { href: '/collections', label: 'Collections', icon: Scroll },
+    { href: '/shopping-list', label: 'Shopping List', icon: ShoppingCart },
     { href: '/profile', label: 'Profile', icon: User }
 ];
 

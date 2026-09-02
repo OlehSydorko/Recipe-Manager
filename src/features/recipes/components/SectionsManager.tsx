@@ -31,6 +31,12 @@ export function SectionsManager({ sections, onAdd, onRename, onRemove }: Section
                                 type='text'
                                 value={section.name}
                                 onChange={(event) => onRename(section.key, event.target.value)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter') {
+                                        event.preventDefault();
+                                        onAdd();
+                                    }
+                                }}
                                 placeholder='Section name'
                                 className={FIELD_CLASSES}
                             />

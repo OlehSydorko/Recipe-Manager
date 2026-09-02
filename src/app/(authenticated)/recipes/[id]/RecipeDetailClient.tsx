@@ -5,6 +5,7 @@ import { ActionMenu } from '@/components/ui/ActionMenu';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { TextLineSkeleton } from '@/components/ui/Skeleton';
+import { AddToShoppingListButton } from '@/features/recipes/components/AddToShoppingListButton';
 import { FavoriteStar } from '@/features/recipes/components/FavoriteStar';
 import { PortionsChanger } from '@/features/recipes/components/PortionsChanger';
 import { SaveToCollectionButton } from '@/features/recipes/components/SaveToCollectionButton';
@@ -108,6 +109,7 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
                 <div className='flex items-center gap-1'>
                     <FavoriteStar recipeId={recipe.id} isFavorite={recipe.is_favorite} />
                     <SaveToCollectionButton recipeId={recipe.id} />
+                    <AddToShoppingListButton recipeId={recipe.id} scaleFactor={scaleFactor} />
 
                     {isOwner && (
                         <ActionMenu

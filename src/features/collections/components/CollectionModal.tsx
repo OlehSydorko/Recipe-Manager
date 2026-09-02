@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Textarea';
+import { RecipeThumbnail } from '@/features/recipes/components/RecipeThumbnail';
 import { useCollectionRecipeIds, useCreateCollection, useUpdateCollection } from '@/hooks/useCollections';
 import type { CollectionWithCount } from '@/types/collection';
 import type { Recipe } from '@/types/recipe';
@@ -122,7 +123,7 @@ export function CollectionModal({ open, onClose, collection, recipes }: Collecti
 
                 <div>
                     <span className='mb-1.5 block text-label font-medium text-text-secondary'>Recipes</span>
-                    <div className='max-h-48 space-y-1 overflow-y-auto rounded-md border border-border p-2'>
+                    <div className='max-h-64 space-y-1 overflow-y-auto rounded-md border border-border p-2'>
                         {recipes.length === 0 && (
                             <p className='px-1 py-1 text-caption text-text-disabled'>No recipes yet.</p>
                         )}
@@ -136,9 +137,15 @@ export function CollectionModal({ open, onClose, collection, recipes }: Collecti
                                     checked={selectedRecipeIds.includes(recipe.id)}
                                     onChange={() => toggleRecipe(recipe.id)}
                                     disabled={isSubmitting}
-                                    className='h-4 w-4 rounded-sm border-border-strong accent-accent'
+                                    className='h-4 w-4 shrink-0 rounded-sm border-border-strong accent-accent'
                                 />
-                                {recipe.title}
+                                <RecipeThumbnail
+                                    imagePath={recipe.image_url}
+                                    alt={recipe.title}
+                                    className='h-9 w-9'
+                                    iconSize={16}
+                                />
+                                <span className='truncate'>{recipe.title}</span>
                             </label>
                         ))}
                     </div>

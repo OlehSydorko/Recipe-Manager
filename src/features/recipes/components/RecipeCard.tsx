@@ -1,6 +1,7 @@
 'use client';
 
 import { FavoriteStar } from '@/features/recipes/components/FavoriteStar';
+import { RecipeThumbnail } from '@/features/recipes/components/RecipeThumbnail';
 import { useRecipeImageUrl } from '@/hooks/useRecipes';
 import type { Recipe, RecipeAuthor } from '@/types/recipe';
 import { Image as ImageIcon } from 'lucide-react';
@@ -27,16 +28,12 @@ export function RecipeCard({ recipe, categoryName, hideFavorite, author, hideMob
                 <div className='group relative flex items-center gap-3 overflow-hidden rounded-lg border border-border bg-surface p-3 shadow-sm transition-colors duration-150 hover:border-border-strong sm:hidden'>
                     <Link href={`/recipes/${recipe.id}`} aria-label={recipe.title} className='absolute inset-0 z-0' />
 
-                    <div className='pointer-events-none relative z-10 h-24 w-24 shrink-0 overflow-hidden rounded-md bg-bg-secondary'>
-                        {imageUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={imageUrl} alt={recipe.title} className='h-full w-full object-cover' />
-                        ) : (
-                            <div className='flex h-full w-full items-center justify-center text-text-disabled'>
-                                <ImageIcon size={24} />
-                            </div>
-                        )}
-                    </div>
+                    <RecipeThumbnail
+                        imagePath={recipe.image_url}
+                        alt={recipe.title}
+                        className='pointer-events-none relative z-10 h-24 w-24'
+                        iconSize={24}
+                    />
 
                     <div className='pointer-events-none relative z-10 min-w-0 flex-1 space-y-1'>
                         <h3 className='truncate text-h3 font-medium text-text-primary'>{recipe.title}</h3>
