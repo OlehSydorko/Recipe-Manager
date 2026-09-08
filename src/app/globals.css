@@ -1,26 +1,17 @@
 @import 'tailwindcss';
 
-/*
- * Recipe Manager — soft dark theme design tokens (Phase 1 of the UI redesign).
- * See UI_REDESIGN_PLAN.md for the full rationale behind each value.
- * This app is dark-only by design — no light theme / prefers-color-scheme toggle.
- */
 :root {
-    /* Surfaces — step up in lightness with elevation, never pure black */
     --color-bg: #12141a;
     --color-bg-secondary: #181b22;
     --color-surface: #1e222b;
     --color-surface-elevated: #262b36;
 
-    /* Borders */
     --color-border: #2c313d;
     --color-border-strong: #3a4152;
 
-    /* Interaction overlays */
     --color-hover: rgba(255, 255, 255, 0.045);
     --color-active: rgba(255, 255, 255, 0.075);
 
-    /* Accent — teal / mint */
     --color-accent: #2fd3c2;
     --color-accent-hover: #26b8a9;
     --color-accent-active: #1fa294;
@@ -28,7 +19,6 @@
     --color-accent-secondary: #5eead4;
     --color-accent-foreground: #0a1f1c;
 
-    /* Semantic */
     --color-success: #4ade80;
     --color-success-muted: #1c3327;
     --color-warning: #fbbf24;
@@ -36,7 +26,6 @@
     --color-error: #f87171;
     --color-error-muted: #3a1d1d;
 
-    /* Text */
     --color-text-primary: #f1f5f4;
     --color-text-secondary: #9ba5ae;
     --color-text-disabled: #5b6472;
@@ -46,7 +35,7 @@
     --font-sans: var(--font-geist-sans);
     --font-mono: var(--font-geist-mono);
 
-    /* Colors — namespaced under --color- so Tailwind generates matching bg, text, and border utilities */
+    
     --color-bg: var(--color-bg);
     --color-bg-secondary: var(--color-bg-secondary);
     --color-surface: var(--color-surface);
@@ -71,19 +60,15 @@
     --color-text-secondary: var(--color-text-secondary);
     --color-text-disabled: var(--color-text-disabled);
 
-    /* Radius scale */
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
     --radius-xl: 20px;
 
-    /* Shadow scale — subtle, since dark surfaces need less contrast than light ones */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.32);
     --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45);
 
-    /* Typography scale — semantic sizes on top of Tailwind's default scale */
-    --text-display: 1.75rem;
     --text-display--line-height: 1.25;
     --text-h2: 1.25rem;
     --text-h2--line-height: 1.25;
@@ -111,7 +96,7 @@ textarea {
     color-scheme: dark;
 }
 
-/* Animations — short, minimal, professional (see UI_REDESIGN_PLAN.md section 4) */
+
 @keyframes fade-in {
     from {
         opacity: 0;

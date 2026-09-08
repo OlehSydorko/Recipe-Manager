@@ -22,7 +22,7 @@ export function CollectionCard({ collection, onEdit, onDelete, hideActions }: Co
             {/* Link overlay covers the whole card so it stays clickable everywhere except
                 the action menu below, which sits above it (z-20) in its own stacking layer. */}
             <Link
-                href={`/collections/${collection.id}`}
+                    href={`/collections/${collection.id}`}
                 aria-label={collection.name}
                 className='absolute inset-0 z-0'
             />

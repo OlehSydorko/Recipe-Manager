@@ -10,7 +10,7 @@ import { useCollections } from '@/hooks/useCollections';
 import { useFollowCounts } from '@/hooks/useFollows';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useCurrentProfile } from '@/hooks/useProfile';
-import { useCommunityRecipes, useRecipes } from '@/hooks/useRecipes';
+import { useCommunityRecipes, useFavoriteRecipes, useRecipes } from '@/hooks/useRecipes';
 import { Search } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -34,6 +34,7 @@ export default function HomePage() {
     const { data: categories } = useCategories();
     const { data: collections, isPending: collectionsPending } = useCollections();
     const { data: followCounts } = useFollowCounts(profile?.id ?? null);
+    const { data: favoriteRecipes } = useFavoriteRecipes();
 
     const categoryNameById = new Map(categories?.map((category) => [category.id, category.name]));
 
@@ -53,7 +54,7 @@ export default function HomePage() {
         [communityRecipes]
     );
 
-    const favoritesCount = recipes?.filter((recipe) => recipe.is_favorite).length ?? 0;
+    const favoritesCount = favoriteRecipes?.length ?? 0;
     const topCollections = collections?.slice(0, COLLECTIONS_LIMIT) ?? [];
     const hasCollections = !collectionsPending && topCollections.length > 0;
 

@@ -6,9 +6,7 @@ import { Image as ImageIcon } from 'lucide-react';
 type RecipeThumbnailProps = {
     imagePath: string | null;
     alt: string;
-    // Sizing + positioning classes for the thumbnail box, e.g. 'h-9 w-9'.
     className?: string;
-    // Fallback icon size, in px — should roughly match the box size above.
     iconSize?: number;
 };
 

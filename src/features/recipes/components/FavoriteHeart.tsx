@@ -4,7 +4,7 @@ import type { MouseEvent } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useSetRecipeFavorite } from '@/hooks/useRecipes';
-import { Star } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 type FavoriteStarProps = {
     recipeId: string;
@@ -28,7 +28,7 @@ export function FavoriteStar({ recipeId, isFavorite }: FavoriteStarProps) {
                 aria-pressed={isFavorite}
                 onClick={handleClick}
             >
-                <Star size={18} className={isFavorite ? 'fill-warning text-warning' : 'text-text-secondary'} />
+                <Heart size={18} className={isFavorite ? 'fill-accent text-accent' : ''} />
             </IconButton>
             {authGate}
         </>

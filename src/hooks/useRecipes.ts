@@ -3,6 +3,7 @@ import {
     createRecipe,
     deleteRecipe,
     getCommunityRecipes,
+    getFavoriteRecipes,
     getRecipe,
     getRecipeImageSignedUrl,
     getRecipes,
@@ -29,6 +30,15 @@ export function useCommunityRecipes() {
     return useQuery({
         queryKey: COMMUNITY_RECIPES_QUERY_KEY,
         queryFn: getCommunityRecipes
+    });
+}
+
+// Recipes the user has favorited, regardless of owner. Query key is prefixed with
+// RECIPES_QUERY_KEY so useSetRecipeFavorite's existing broad invalidation keeps it in sync.
+export function useFavoriteRecipes() {
+    return useQuery({
+        queryKey: [...RECIPES_QUERY_KEY, 'favorites'],
+        queryFn: getFavoriteRecipes
     });
 }
 

@@ -1,11 +1,15 @@
 'use client';
 
-import { FavoriteStar } from '@/features/recipes/components/FavoriteStar';
+import { FavoriteStar } from '@/features/recipes/components/FavoriteHeart';
+import { RatingStars } from '@/features/recipes/components/RatingStars';
 import { RecipeThumbnail } from '@/features/recipes/components/RecipeThumbnail';
+import { useRecipeRatingSummary } from '@/hooks/useComments';
 import { useRecipeImageUrl } from '@/hooks/useRecipes';
 import type { Recipe, RecipeAuthor } from '@/types/recipe';
 import { Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+
+const CARD_RATING_STAR_SIZE = 12;
 
 type RecipeCardProps = {
     recipe: Recipe;
@@ -19,6 +23,8 @@ type RecipeCardProps = {
 
 export function RecipeCard({ recipe, categoryName, hideFavorite, author, hideMobileRow = false }: RecipeCardProps) {
     const { data: imageUrl } = useRecipeImageUrl(recipe.image_url);
+    const { data: ratingSummary } = useRecipeRatingSummary(recipe.id);
+    const hasRating = Boolean(ratingSummary && ratingSummary.averageRating !== null && ratingSummary.ratingCount > 0);
 
     return (
         <>
@@ -91,8 +97,13 @@ export function RecipeCard({ recipe, categoryName, hideFavorite, author, hideMob
                             {categoryName}
                         </span>
 
-                        {recipe.description && (
-                            <p className='line-clamp-2 text-caption text-text-secondary'>{recipe.description}</p>
+                        {hasRating && ratingSummary && (
+                            <div className='flex items-center gap-1.5 text-caption text-text-secondary'>
+                                <RatingStars value={Math.round(ratingSummary.averageRating ?? 0)} size={CARD_RATING_STAR_SIZE} />
+                                <span>
+                                    {ratingSummary.averageRating?.toFixed(1)} ({ratingSummary.ratingCount})
+                                </span>
+                            </div>
                         )}
 
                         {author && (

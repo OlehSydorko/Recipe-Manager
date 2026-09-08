@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { TextLineSkeleton } from '@/components/ui/Skeleton';
 import { AddToShoppingListButton } from '@/features/recipes/components/AddToShoppingListButton';
-import { FavoriteStar } from '@/features/recipes/components/FavoriteStar';
+import { CommentsSection } from '@/features/recipes/components/CommentsSection';
+import { FavoriteStar } from '@/features/recipes/components/FavoriteHeart';
 import { PortionsChanger } from '@/features/recipes/components/PortionsChanger';
+import { RecipeRatingSummary } from '@/features/recipes/components/RecipeRatingSummary';
 import { SaveToCollectionButton } from '@/features/recipes/components/SaveToCollectionButton';
 import { LeaveButton } from '@/features/social/components/LeaveButton';
 import { useIngredients } from '@/hooks/useIngredients';
@@ -122,6 +124,8 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
                     )}
                 </div>
             </div>
+
+            <RecipeRatingSummary recipeId={recipe.id} />
 
             {!isOwner && author && (
                 <Link
@@ -248,6 +252,8 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
                     </div>
                 </div>
             )}
+
+            <CommentsSection recipeId={recipe.id} isOwner={isOwner} />
 
             <LeaveButton />
 

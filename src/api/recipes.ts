@@ -133,6 +133,15 @@ export async function getRecipesByIds(ids: string[]): Promise<RecipeWithCategory
     }));
 }
 
+// Recipes the current user has favorited, regardless of who owns them - unlike
+// getRecipes(), which only ever returns the user's own recipes. Powers the
+// "Favorites" tab/count so favoriting someone else's recipe actually shows up there.
+export async function getFavoriteRecipes(): Promise<RecipeWithCategory[]> {
+    const favoriteIds = await getFavoriteRecipeIds();
+
+    return getRecipesByIds(favoriteIds);
+}
+
 export async function getRecipe(id: string): Promise<Recipe> {
     const supabase = createClient();
 

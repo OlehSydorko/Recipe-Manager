@@ -17,7 +17,7 @@ import { FollowListModal } from '@/features/social/components/FollowListModal';
 import { useCategories } from '@/hooks/useCategories';
 import { useFollowCounts } from '@/hooks/useFollows';
 import { useCurrentProfile } from '@/hooks/useProfile';
-import { useRecipes } from '@/hooks/useRecipes';
+import { useFavoriteRecipes, useRecipes } from '@/hooks/useRecipes';
 import { BookOpen } from 'lucide-react';
 import { CollectionsSection } from '@/features/collections/components/CollectionsSection';
 
@@ -28,6 +28,7 @@ const FAVORITES_TAB: ProfileTabId = 'favorites';
 export default function ProfilePage() {
     const { data: profile, isPending: profilePending, isError: profileError } = useCurrentProfile();
     const { data: recipes, isPending: recipesPending } = useRecipes();
+    const { data: favoriteRecipes, isPending: favoritesPending } = useFavoriteRecipes();
     const { data: categories } = useCategories();
     const { data: followCounts } = useFollowCounts(profile?.id ?? null);
 
@@ -39,11 +40,21 @@ export default function ProfilePage() {
 
     const categoryNameById = new Map(categories?.map((category) => [category.id, category.name]));
 
+    // Favorites can include recipes owned by other users, so their category names come
+    // straight from useFavoriteRecipes() (a join) rather than this user's own categories map.
     const tabRecipes = useMemo(() => {
-        const source = recipes ?? [];
-        const filtered = activeTab === FAVORITES_TAB ? source.filter((recipe) => recipe.is_favorite) : source;
+        const source =
+            activeTab === FAVORITES_TAB
+                ? (favoriteRecipes ?? []).map((recipe) => ({
+                      ...recipe,
+                      categoryName: recipe.categoryName ?? 'Uncategorized'
+                  }))
+                : (recipes ?? []).map((recipe) => ({
+                      ...recipe,
+                      categoryName: categoryNameById.get(recipe.category_id) ?? 'Uncategorized'
+                  }));
 
-        return [...filtered].sort((a, b) => {
+        return [...source].sort((a, b) => {
             if (sortBy === 'oldest') {
                 return a.created_at.localeCompare(b.created_at);
             }
@@ -54,7 +65,8 @@ export default function ProfilePage() {
 
             return b.created_at.localeCompare(a.created_at);
         });
-    }, [recipes, activeTab, sortBy]);
+    }, [recipes, favoriteRecipes, activeTab, sortBy, categoryNameById]);
+    const tabRecipesPending = activeTab === FAVORITES_TAB ? favoritesPending : recipesPending;
 
     if (profilePending) {
         return <p className='text-body text-text-secondary'>Loading…</p>;
@@ -64,7 +76,7 @@ export default function ProfilePage() {
         return <p className='text-body text-error'>Could not load profile.</p>;
     }
 
-    const favoritesCount = recipes?.filter((recipe) => recipe.is_favorite).length ?? 0;
+    const favoritesCount = favoriteRecipes?.length ?? 0;
     const showRecipeGrid = activeTab === MY_RECIPES_TAB || activeTab === FAVORITES_TAB;
 
     return (
@@ -97,7 +109,7 @@ export default function ProfilePage() {
                         />
                     </div>
 
-                    {recipesPending && (
+                    {tabRecipesPending && (
                         <div className='mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
                             {Array.from({ length: 6 }).map((_, index) => (
                                 // eslint-disable-next-line react/no-array-index-key
@@ -106,7 +118,7 @@ export default function ProfilePage() {
                         </div>
                     )}
 
-                    {!recipesPending && tabRecipes.length === 0 && (
+                    {!tabRecipesPending && tabRecipes.length === 0 && (
                         <div className='mt-16 flex flex-col items-center gap-3 text-center'>
                             <BookOpen size={32} className='text-text-disabled' />
                             <p className='text-h3 font-medium text-text-primary'>
@@ -115,27 +127,18 @@ export default function ProfilePage() {
                         </div>
                     )}
 
-                    {!recipesPending && tabRecipes.length > 0 && viewMode === 'grid' && (
+                    {!tabRecipesPending && tabRecipes.length > 0 && viewMode === 'grid' && (
                         <div className='mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
                             {tabRecipes.map((recipe) => (
-                                <RecipeCard
-                                    key={recipe.id}
-                                    recipe={recipe}
-                                    categoryName={categoryNameById.get(recipe.category_id) ?? 'Uncategorized'}
-                                    hideFavorite
-                                />
+                                <RecipeCard key={recipe.id} recipe={recipe} categoryName={recipe.categoryName} hideFavorite />
                             ))}
                         </div>
                     )}
 
-                    {!recipesPending && tabRecipes.length > 0 && viewMode === 'list' && (
+                    {!tabRecipesPending && tabRecipes.length > 0 && viewMode === 'list' && (
                         <div className='mt-6 space-y-3'>
                             {tabRecipes.map((recipe) => (
-                                <RecipeListRow
-                                    key={recipe.id}
-                                    recipe={recipe}
-                                    categoryName={categoryNameById.get(recipe.category_id) ?? 'Uncategorized'}
-                                />
+                                <RecipeListRow key={recipe.id} recipe={recipe} categoryName={recipe.categoryName} />
                             ))}
                         </div>
                     )}
