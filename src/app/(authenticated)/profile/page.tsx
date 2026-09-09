@@ -6,7 +6,7 @@ import { EditProfileModal } from '@/features/profile/components/EditProfileModal
 import { ProfileHeader } from '@/features/profile/components/ProfileHeader';
 import { ProfileStats } from '@/features/profile/components/ProfileStats';
 import { type ProfileTabId, ProfileTabs } from '@/features/profile/components/ProfileTabs';
-import { RecipeCard } from '@/features/recipes/components/RecipeCard';
+import { RecipeCard } from '@/features/recipes/components/RecipeCard/RecipeCard';
 import {
     RecipeGridControls,
     type RecipeSortOption,

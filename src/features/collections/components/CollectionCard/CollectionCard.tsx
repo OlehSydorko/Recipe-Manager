@@ -1,10 +1,11 @@
 'use client';
 
-import { ActionMenu } from '@/components/ui/ActionMenu';
+import { ActionMenu } from '@/components/ui/ActionMenu/ActionMenu';
 import { useCollectionCoverUrls } from '@/hooks/useCollections';
 import type { CollectionWithCount } from '@/types/collection';
 import Link from 'next/link';
-import { CollectionCoverMosaic } from './CollectionCoverMosaic';
+import { CollectionCoverMosaic } from '../CollectionCoverMosaic';
+import styles from './CollectionCard.module.scss';
 
 type CollectionCardProps = {
     collection: CollectionWithCount;
@@ -18,41 +19,31 @@ export function CollectionCard({ collection, onEdit, onDelete, hideActions }: Co
     const cellUrls = collection.coverImagePaths.map((path) => coverUrls?.[path]);
 
     return (
-        <div className='group relative overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md'>
+        <div className={`group ${styles.card}`}>
             {/* Link overlay covers the whole card so it stays clickable everywhere except
                 the action menu below, which sits above it (z-20) in its own stacking layer. */}
-            <Link
-                    href={`/collections/${collection.id}`}
-                aria-label={collection.name}
-                className='absolute inset-0 z-0'
-            />
+            <Link href={`/collections/${collection.id}`} aria-label={collection.name} className='absolute inset-0 z-0' />
 
             <div className='pointer-events-none relative z-10'>
-                <div className='relative aspect-[4/3] w-full bg-bg-secondary'>
+                <div className={styles.coverWrapper}>
                     <CollectionCoverMosaic imageUrls={cellUrls} />
 
-                    <span className='absolute bottom-2 left-2 rounded-full bg-bg/70 px-2.5 py-0.5 text-caption font-medium text-text-primary backdrop-blur-sm'>
+                    <span className={styles.recipeCountBadge}>
                         {collection.recipeCount} {collection.recipeCount === 1 ? 'recipe' : 'recipes'}
                     </span>
                 </div>
 
                 <div className='p-3 sm:p-4'>
                     <div className='mt-3 flex items-center gap-2 pr-8'>
-                        <h3 className='truncate text-h3 font-medium text-text-primary'>{collection.name}</h3>
-                        {collection.is_public && (
-                            <span className='shrink-0 rounded-full bg-accent-muted px-2 py-0.5 text-caption font-medium text-accent'>
-                                Public
-                            </span>
-                        )}
+                        <h3 className={styles.title}>{collection.name}</h3>
+                        {collection.is_public && <span className={styles.publicBadge}>Public</span>}
                     </div>
-                    {collection.description && (
-                        <p className='mt-1 line-clamp-2 text-caption text-text-secondary'>{collection.description}</p>
-                    )}
+                    {collection.description && <p className={styles.description}>{collection.description}</p>}
                 </div>
             </div>
 
             {!hideActions && (
-                <div className='absolute right-2 top-2 z-20 rounded-full bg-bg/70 backdrop-blur-sm'>
+                <div className={styles.actions}>
                     <ActionMenu
                         ariaLabel={`Actions for ${collection.name}`}
                         items={[

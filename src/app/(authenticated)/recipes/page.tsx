@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
 import { CategoryFilter } from '@/features/recipes/components/CategoryFilter';
-import { RecipeCard } from '@/features/recipes/components/RecipeCard';
+import { RecipeCard } from '@/features/recipes/components/RecipeCard/RecipeCard';
 import { useCategories } from '@/hooks/useCategories';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useCurrentProfile } from '@/hooks/useProfile';

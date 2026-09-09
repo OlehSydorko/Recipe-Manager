@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
-import { AddFromRecipeModal } from '@/features/shopping-list/components/AddFromRecipeModal';
+import { AddFromRecipeModal } from '@/features/shopping-list/components/AddFromRecipeModal/AddFromRecipeModal';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { ShoppingCart } from 'lucide-react';
 

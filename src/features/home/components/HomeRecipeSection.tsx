@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
-import { RecipeCard } from '@/features/recipes/components/RecipeCard';
+import { RecipeCard } from '@/features/recipes/components/RecipeCard/RecipeCard';
 import type { Recipe, RecipeWithAuthor } from '@/types/recipe';
 import { BookOpen } from 'lucide-react';
 import Link from 'next/link';

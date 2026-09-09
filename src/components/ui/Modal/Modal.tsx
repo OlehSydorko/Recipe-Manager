@@ -2,6 +2,7 @@
 
 import { type ReactNode, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import styles from './Modal.module.scss';
 
 type ModalProps = {
     open: boolean;
@@ -33,19 +34,15 @@ export function Modal({ open, onClose, title, children, footer }: ModalProps) {
     }
 
     return createPortal(
-        <div
-            role='presentation'
-            onClick={onClose}
-            className='animate-fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm'
-        >
+        <div role='presentation' onClick={onClose} className={`animate-fade-in ${styles.backdrop}`}>
             <div
                 role='dialog'
                 aria-modal='true'
                 aria-labelledby='modal-title'
                 onClick={(event) => event.stopPropagation()}
-                className='animate-scale-in w-full max-w-sm rounded-xl border border-border bg-surface-elevated p-6 shadow-lg'
+                className={`animate-scale-in ${styles.dialog}`}
             >
-                <h2 id='modal-title' className='text-h3 font-semibold text-text-primary'>
+                <h2 id='modal-title' className={styles.title}>
                     {title}
                 </h2>
 

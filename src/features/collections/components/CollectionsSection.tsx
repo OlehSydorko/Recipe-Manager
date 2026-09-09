@@ -1,5 +1,5 @@
 'use client'
-import { Modal } from '@/components/ui/Modal';
+import { Modal } from '@/components/ui/Modal/Modal';
 import { useCollections, useDeleteCollection } from '@/hooks/useCollections';
 import { useRecipes } from '@/hooks/useRecipes'
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -7,8 +7,8 @@ import { Folder, Plus } from 'lucide-react';
 import { CollectionWithCount } from '@/types/collection';
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { CollectionCard } from './CollectionCard';
-import { CollectionModal } from './CollectionModal';
+import { CollectionCard } from './CollectionCard/CollectionCard';
+import { CollectionModal } from './CollectionModal/CollectionModal';
 
 import { CollectionGridControls, type CollectionSortOption, type CollectionViewMode } from './CollectionGridControls';
 import { CollectionListRow } from './CollectionListRow';

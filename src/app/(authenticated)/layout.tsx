@@ -1,5 +1,5 @@
-import { MobileTabBar } from '@/components/layout/MobileTabBar';
-import { Nav } from '@/components/layout/Nav';
+import { MobileTabBar } from '@/components/layout/MobileTabBar/MobileTabBar';
+import { Nav } from '@/components/layout/Nav/Nav';
 import { Sidebar } from '@/components/layout/Sidebar';
 
 export default function AppLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -1,0 +1,51 @@
+.ingredientRow {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: var(--radius-md);
+    padding: 0.625rem 0.75rem;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover,
+    &.checked {
+        background: var(--color-hover);
+    }
+}
+
+.checkbox {
+    height: 1.25rem;
+    width: 1.25rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-strong);
+    transition:
+        background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.checked {
+        border-color: var(--color-accent);
+        background: var(--color-accent);
+    }
+}
+
+.quantity {
+    font-family: var(--font-mono);
+    font-size: var(--text-button);
+    line-height: var(--text-button--line-height);
+    color: var(--color-text-secondary);
+
+    &.checked {
+        color: var(--color-text-disabled);
+    }
+}
+
+.ingredientName {
+    color: var(--color-text-primary);
+
+    &.checked {
+        color: var(--color-text-disabled);
+        text-decoration: line-through;
+    }
+}

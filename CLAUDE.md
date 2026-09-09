@@ -36,7 +36,7 @@ The anon key is safe to expose client-side by design — real security comes fro
 
 - **Next.js (App Router, TypeScript, Turbopack)** — chosen for framework/learning value. Note: every page is behind auth, so this project gets no real benefit from SSR/SEO — Next.js's App Router/Client Component split is the main added complexity vs. a plain SPA, worth remembering when something feels unnecessarily fiddly.
 - **Supabase** — Postgres database, Auth, and Storage, no custom backend server. Chosen over Firebase because the data is relational (recipe → ingredients → steps → category), and over a hand-rolled Express backend because there's no logic here that Supabase's auto-generated API + RLS can't handle.
-- **Tailwind CSS**
+- **Tailwind CSS** — utility classes for layout/simple styling; complex or component-specific styling is gradually migrating to co-located SCSS Modules (`Component.module.scss`) where Tailwind strings get long/stateful — see `docs/plans/scss-modules-migration-plan.md`. Design tokens (colors, radii, shadows, type scale) live as CSS custom properties in `src/app/globals.css` and are shared by both — reference `var(--color-*)` etc. directly in SCSS rather than hardcoding values.
 - **TanStack Query** — all Supabase data fetching goes through this for caching/loading/error state, not raw `useState`/`useEffect`.
 
 ## Architecture
@@ -99,7 +99,7 @@ Enforced by the project's ESLint/Prettier config (ported from the team's work se
 - External imports first, then local imports (auto-sorted by `@trivago/prettier-plugin-sort-imports`)
 - Constants in SCREAMING_SNAKE_CASE, components in PascalCase, everything else camelCase
 - Event handlers named `handle*`, props named `on*`
-- No inline styles — use Tailwind classes
+- No inline styles — use Tailwind classes, or a co-located `Component.module.scss` for styling that's long, stateful, or complex (see `docs/plans/scss-modules-migration-plan.md`)
 - No unused imports, props, or type keys
 
 Run `npm run lint` before considering any change done.

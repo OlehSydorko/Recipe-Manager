@@ -2,7 +2,7 @@
 
 import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
+import { Modal } from '@/components/ui/Modal/Modal';
 import { useToast } from '@/components/ui/Toast';
 import { useImportRecipeFromImage } from '@/hooks/useImportRecipe';
 import { usePasteImageFile } from '@/hooks/usePasteImageFile';

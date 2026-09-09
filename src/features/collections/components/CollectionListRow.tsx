@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionMenu } from '@/components/ui/ActionMenu';
+import { ActionMenu } from '@/components/ui/ActionMenu/ActionMenu';
 import { useCollectionCoverUrls } from '@/hooks/useCollections';
 import type { CollectionWithCount } from '@/types/collection';
 import { Folder } from 'lucide-react';

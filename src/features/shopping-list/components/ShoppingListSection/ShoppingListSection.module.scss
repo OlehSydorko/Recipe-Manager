@@ -1,0 +1,68 @@
+.actionCard {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 1rem;
+    text-align: left;
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        background: var(--color-hover);
+    }
+}
+
+.actionIcon {
+    display: flex;
+    height: 2.5rem;
+    width: 2.5rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--color-accent-muted);
+    color: var(--color-accent);
+}
+
+.actionTitle {
+    display: block;
+    font-size: var(--text-button);
+    line-height: var(--text-button--line-height);
+    font-weight: 500;
+    color: var(--color-text-primary);
+}
+
+.actionSubtitle {
+    display: block;
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    color: var(--color-text-secondary);
+}
+
+.filterToggle {
+    display: inline-flex;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    padding: 0.125rem;
+}
+
+.filterButton {
+    border-radius: var(--radius-sm);
+    padding: 0.375rem 0.75rem;
+    font-size: var(--text-button);
+    line-height: var(--text-button--line-height);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:not(.active):hover {
+        color: var(--color-text-primary);
+    }
+
+    &.active {
+        background: var(--color-accent-muted);
+        color: var(--color-accent);
+    }
+}

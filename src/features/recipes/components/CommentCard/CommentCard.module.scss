@@ -1,0 +1,36 @@
+.authorName {
+    font-size: var(--text-button);
+    line-height: var(--text-button--line-height);
+    font-weight: 500;
+    color: var(--color-text-primary);
+    transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        color: var(--color-accent);
+    }
+}
+
+.likeButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    color: var(--color-text-secondary);
+    transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        color: var(--color-accent);
+    }
+}
+
+.replyButton {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    color: var(--color-text-secondary);
+    transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        color: var(--color-accent);
+    }
+}

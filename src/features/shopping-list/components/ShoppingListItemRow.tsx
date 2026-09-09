@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionMenu } from '@/components/ui/ActionMenu';
+import { ActionMenu } from '@/components/ui/ActionMenu/ActionMenu';
 import { useDeleteShoppingListItem, useSetShoppingListItemChecked } from '@/hooks/useShoppingList';
 import type { ShoppingListItem } from '@/types/shoppingListItem';
 import { Check } from 'lucide-react';

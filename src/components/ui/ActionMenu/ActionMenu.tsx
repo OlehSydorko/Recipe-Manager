@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
 import { Pencil } from 'lucide-react';
+import styles from './ActionMenu.module.scss';
 
 export type ActionMenuItem = {
     label: string;
@@ -82,11 +83,7 @@ export function ActionMenu({ ariaLabel, items }: ActionMenuProps) {
             </IconButton>
 
             {isOpen && (
-                <ul
-                    role='menu'
-                    aria-label={ariaLabel}
-                    className='animate-dropdown-in absolute right-0 z-20 mt-2 w-40 origin-top-right rounded-md border border-border bg-surface-elevated py-1.5 shadow-md'
-                >
+                <ul role='menu' aria-label={ariaLabel} className={`animate-dropdown-in ${styles.menu}`}>
                     {items.map((item, index) => (
                         <li key={item.label} role='none'>
                             <button
@@ -96,9 +93,7 @@ export function ActionMenu({ ariaLabel, items }: ActionMenuProps) {
                                 type='button'
                                 role='menuitem'
                                 onClick={() => handleSelect(item)}
-                                className={`block w-full px-3 py-2 text-left text-body transition-colors duration-150 hover:bg-hover ${
-                                    item.variant === 'danger' ? 'text-error' : 'text-text-primary'
-                                }`}
+                                className={`${styles.menuItem} ${item.variant === 'danger' ? styles.danger : ''}`}
                             >
                                 {item.label}
                             </button>

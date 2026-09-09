@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
-import { CollectionCard } from '@/features/collections/components/CollectionCard';
-import { RecipeCard } from '@/features/recipes/components/RecipeCard';
+import { CollectionCard } from '@/features/collections/components/CollectionCard/CollectionCard';
+import { RecipeCard } from '@/features/recipes/components/RecipeCard/RecipeCard';
 import { FollowButton } from '@/features/social/components/FollowButton';
 import { usePublicCollectionsByUser } from '@/hooks/useCollections';
 import { useFollowCounts } from '@/hooks/useFollows';

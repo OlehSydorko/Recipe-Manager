@@ -1,6 +1,6 @@
 'use client';
 
-import { ShoppingListSection } from '@/features/shopping-list/components/ShoppingListSection';
+import { ShoppingListSection } from '@/features/shopping-list/components/ShoppingListSection/ShoppingListSection';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useCurrentProfile } from '@/hooks/useProfile';
 import { ShoppingCart } from 'lucide-react';

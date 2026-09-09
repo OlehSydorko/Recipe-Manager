@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
-import { CategoryDropdown } from '@/features/recipes/components/CategoryDropdown';
+import { CategoryDropdown } from '@/features/recipes/components/CategoryDropdown/CategoryDropdown';
 import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks/useCategories';
 import type { Category } from '@/types/category';
 

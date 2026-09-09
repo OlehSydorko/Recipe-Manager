@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ActionMenu } from '@/components/ui/ActionMenu';
+import { ActionMenu } from '@/components/ui/ActionMenu/ActionMenu';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
+import { Modal } from '@/components/ui/Modal/Modal';
 import { TextLineSkeleton } from '@/components/ui/Skeleton';
 import { AddToShoppingListButton } from '@/features/recipes/components/AddToShoppingListButton';
 import { CommentsSection } from '@/features/recipes/components/CommentsSection';
@@ -22,6 +22,7 @@ import { groupBySection } from '@/lib/sections';
 import { Check, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import styles from './RecipeDetailClient.module.scss';
 
 type RecipeDetailClientProps = {
     id: string;
@@ -174,9 +175,7 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
                                         return (
                                             <li key={ingredient.id}>
                                                 <label
-                                                    className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-body transition-colors duration-150 hover:bg-hover ${
-                                                        isChecked ? 'bg-hover' : ''
-                                                    }`}
+                                                    className={`${styles.ingredientRow} ${isChecked ? styles.checked : ''}`}
                                                 >
                                                     <span className='relative flex h-5 w-5 shrink-0 items-center justify-center'>
                                                         <input
@@ -186,11 +185,7 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
                                                             className='sr-only'
                                                         />
                                                         <span
-                                                            className={`h-5 w-5 rounded-sm border transition-colors duration-150 ${
-                                                                isChecked
-                                                                    ? 'border-accent bg-accent'
-                                                                    : 'border-border-strong'
-                                                            }`}
+                                                            className={`${styles.checkbox} ${isChecked ? styles.checked : ''}`}
                                                         />
                                                         {isChecked && (
                                                             <Check
@@ -201,18 +196,14 @@ export function RecipeDetailClient({ id }: RecipeDetailClientProps) {
                                                     </span>
 
                                                     <span
-                                                        className={`text-button font-mono ${isChecked ? 'text-text-disabled' : 'text-text-secondary'}`}
+                                                        className={`${styles.quantity} ${isChecked ? styles.checked : ''}`}
                                                     >
                                                         {scaledQuantity ? `${scaledQuantity} ` : ''}
                                                         {ingredient.unit ?? ''}
                                                     </span>
 
                                                     <span
-                                                        className={
-                                                            isChecked
-                                                                ? 'text-text-disabled line-through'
-                                                                : 'text-text-primary'
-                                                        }
+                                                        className={`${styles.ingredientName} ${isChecked ? styles.checked : ''}`}
                                                     >
                                                         {ingredient.name}
                                                     </span>

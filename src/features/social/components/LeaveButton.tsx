@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
+import { Modal } from '@/components/ui/Modal/Modal';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 

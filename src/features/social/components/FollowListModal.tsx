@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal } from '@/components/ui/Modal';
+import { Modal } from '@/components/ui/Modal/Modal';
 import { ProfileListItem } from '@/features/profile/components/ProfileListItem';
 import { FollowButton } from '@/features/social/components/FollowButton';
 import { useFollowers, useFollowing } from '@/hooks/useFollows';

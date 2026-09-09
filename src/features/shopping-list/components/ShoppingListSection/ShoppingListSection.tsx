@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { TextLineSkeleton } from '@/components/ui/Skeleton';
-import { AddFromRecipeModal } from '@/features/shopping-list/components/AddFromRecipeModal';
-import { AddShoppingItemModal } from '@/features/shopping-list/components/AddShoppingItemModal';
+import { AddFromRecipeModal } from '@/features/shopping-list/components/AddFromRecipeModal/AddFromRecipeModal';
+import { AddShoppingItemModal } from '@/features/shopping-list/components/AddShoppingItemModal/AddShoppingItemModal';
 import { ShoppingListItemRow } from '@/features/shopping-list/components/ShoppingListItemRow';
 import { useClearCheckedShoppingListItems, useShoppingListItems } from '@/hooks/useShoppingList';
 import { groupByShoppingSection } from '@/lib/shoppingListGrouping';
 import type { ShoppingListItem } from '@/types/shoppingListItem';
 import { Check, Plus, ShoppingCart } from 'lucide-react';
+import styles from './ShoppingListSection.module.scss';
 
 type ShoppingListFilter = 'all' | 'remaining';
 
@@ -51,56 +52,44 @@ export function ShoppingListSection() {
             </div>
 
             <div className='mt-4 grid grid-cols-2 gap-3 sm:max-w-md'>
-                <button
-                    type='button'
-                    onClick={() => setIsAddItemModalOpen(true)}
-                    className='flex items-center gap-3 rounded-lg border border-border bg-surface p-4 text-left transition-colors duration-150 hover:bg-hover'
-                >
-                    <span className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-muted text-accent'>
+                <button type='button' onClick={() => setIsAddItemModalOpen(true)} className={styles.actionCard}>
+                    <span className={styles.actionIcon}>
                         <Plus size={18} />
                     </span>
                     <span>
-                        <span className='block text-button font-medium text-text-primary'>Add Item</span>
-                        <span className='block text-caption text-text-secondary'>Add ingredient manually</span>
+                        <span className={styles.actionTitle}>Add Item</span>
+                        <span className={styles.actionSubtitle}>Add ingredient manually</span>
                     </span>
                 </button>
 
                 <button
                     type='button'
                     onClick={() => setIsAddFromRecipeModalOpen(true)}
-                    className='flex items-center gap-3 rounded-lg border border-border bg-surface p-4 text-left transition-colors duration-150 hover:bg-hover'
+                    className={styles.actionCard}
                 >
-                    <span className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-muted text-accent'>
+                    <span className={styles.actionIcon}>
                         <ShoppingCart size={18} />
                     </span>
                     <span>
-                        <span className='block text-button font-medium text-text-primary'>Add from Recipe</span>
-                        <span className='block text-caption text-text-secondary'>Choose a recipe</span>
+                        <span className={styles.actionTitle}>Add from Recipe</span>
+                        <span className={styles.actionSubtitle}>Choose a recipe</span>
                     </span>
                 </button>
             </div>
 
             <div className='mt-5 flex items-center justify-end'>
-                <div className='inline-flex rounded-md border border-border p-0.5'>
+                <div className={styles.filterToggle}>
                     <button
                         type='button'
                         onClick={() => setFilter('all')}
-                        className={`rounded-sm px-3 py-1.5 text-button font-medium transition-colors duration-150 ${
-                            filter === 'all'
-                                ? 'bg-accent-muted text-accent'
-                                : 'text-text-secondary hover:text-text-primary'
-                        }`}
+                        className={`${styles.filterButton} ${filter === 'all' ? styles.active : ''}`}
                     >
                         All
                     </button>
                     <button
                         type='button'
                         onClick={() => setFilter('remaining')}
-                        className={`rounded-sm px-3 py-1.5 text-button font-medium transition-colors duration-150 ${
-                            filter === 'remaining'
-                                ? 'bg-accent-muted text-accent'
-                                : 'text-text-secondary hover:text-text-primary'
-                        }`}
+                        className={`${styles.filterButton} ${filter === 'remaining' ? styles.active : ''}`}
                     >
                         Remaining
                     </button>

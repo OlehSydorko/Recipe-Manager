@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { GlobalSearch } from '@/features/search/components/GlobalSearch';
+import { GlobalSearch } from '@/features/search/components/GlobalSearch/GlobalSearch';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useAvatarUrl, useCurrentProfile } from '@/hooks/useProfile';
 import { ChefHat, LogIn, Search, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import styles from './Nav.module.scss';
 
 const links = [{ href: '/profile', label: 'Profile', icon: User }];
 
@@ -20,14 +21,14 @@ export function Nav() {
 
     if (!hasMounted || profilePending) {
         return (
-            <header className='sticky top-0 z-30 border-b border-border bg-bg-secondary'>
-                <div className='mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 sm:px-6'>
+            <header className={styles.header}>
+                <div className={styles.container}>
                     <ChefHat size={33} className='text-accent' />
-                    <Link href='/' aria-label='Recipe Manager home' className='shrink-0 text-h3 font-semibold text-text-primary'>
+                    <Link href='/' aria-label='Recipe Manager home' className={styles.logo}>
                         <span className='hidden sm:inline'>Recipe Manager</span>
                     </Link>
 
-                    <div className='ml-auto h-10 w-24 shrink-0 animate-pulse rounded-md bg-hover' />
+                    <div className={`${styles.skeletonPill} animate-pulse`} />
                 </div>
             </header>
         );
@@ -35,10 +36,10 @@ export function Nav() {
 
     if (isGuest) {
         return (
-            <header className='sticky top-0 z-30 border-b border-border bg-bg-secondary'>
-                <div className='mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 sm:px-6'>
+            <header className={styles.header}>
+                <div className={styles.container}>
                     <ChefHat size={33} className='text-accent' />
-                    <Link href='/' aria-label='Recipe Manager home' className='shrink-0 text-h3 font-semibold text-text-primary'>
+                    <Link href='/' aria-label='Recipe Manager home' className={styles.logo}>
                         <span className='hidden sm:inline'>Recipe Manager</span>
                     </Link>
 
@@ -49,15 +50,12 @@ export function Nav() {
                             type='button'
                             onClick={() => setIsMobileSearchOpen((open) => !open)}
                             aria-label={isMobileSearchOpen ? 'Close search' : 'Open search'}
-                            className='flex h-10 w-10 items-center justify-center rounded-md text-text-secondary transition-colors duration-150 hover:bg-hover hover:text-text-primary sm:hidden'
+                            className={styles.searchToggle}
                         >
                             {isMobileSearchOpen ? <X size={20} /> : <Search size={20} />}
                         </button>
 
-                        <Link
-                            href={`/login?redirect=${encodeURIComponent(pathname)}`}
-                            className='flex items-center gap-2 rounded-md bg-accent px-4 py-2.5 text-button font-medium text-accent-foreground shadow-sm transition-colors duration-150 hover:bg-accent-hover'
-                        >
+                        <Link href={`/login?redirect=${encodeURIComponent(pathname)}`} className={styles.signInLink}>
                             <LogIn size={16} />
                             Sign In
                         </Link>
@@ -65,7 +63,7 @@ export function Nav() {
                 </div>
 
                 {isMobileSearchOpen && (
-                    <div className='border-t border-border bg-bg-secondary px-4 py-3 sm:hidden'>
+                    <div className={styles.mobileSearchPanel}>
                         <GlobalSearch autoFocus onNavigate={() => setIsMobileSearchOpen(false)} />
                     </div>
                 )}
@@ -74,10 +72,10 @@ export function Nav() {
     }
 
     return (
-        <header className='sticky top-0 z-30 border-b border-border bg-bg-secondary'>
-            <div className='mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 sm:px-6'>
+        <header className={styles.header}>
+            <div className={styles.container}>
                 <ChefHat size={33} className='text-accent' />
-                <Link href='/' aria-label='Recipe Manager home' className='shrink-0 text-h3 font-semibold text-text-primary'>
+                <Link href='/' aria-label='Recipe Manager home' className={styles.logo}>
                     <span className='hidden sm:inline'>Recipe Manager</span>
                 </Link>
 
@@ -88,7 +86,7 @@ export function Nav() {
                         type='button'
                         onClick={() => setIsMobileSearchOpen((open) => !open)}
                         aria-label={isMobileSearchOpen ? 'Close search' : 'Open search'}
-                        className='flex h-10 w-10 items-center justify-center rounded-md text-text-secondary transition-colors duration-150 hover:bg-hover hover:text-text-primary sm:hidden'
+                        className={styles.searchToggle}
                     >
                         {isMobileSearchOpen ? <X size={20} /> : <Search size={20} />}
                     </button>
@@ -102,15 +100,9 @@ export function Nav() {
                                 key={link.href}
                                 href={link.href}
                                 aria-label={profile?.display_name || link.label}
-                                className={`relative flex items-center gap-3 rounded-md px-3 py-2.5 text-body font-medium transition-colors duration-150 ${
-                                    isActive
-                                        ? 'bg-accent-muted text-accent'
-                                        : 'text-text-secondary hover:bg-hover hover:text-text-primary'
-                                }`}
+                                className={`${styles.navLink} ${isActive ? styles.active : ''}`}
                             >
-                                {isActive && (
-                                    <span className='absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-accent' />
-                                )}
+                                {isActive && <span className={styles.activeIndicator} />}
                                 {avatarUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
@@ -119,7 +111,7 @@ export function Nav() {
                                         className='h-7 w-7 shrink-0 rounded-full object-cover'
                                     />
                                 ) : (
-                                    <span className='flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-bg-secondary'>
+                                    <span className={styles.avatarFallback}>
                                         <Icon size={16} />
                                     </span>
                                 )}
@@ -131,7 +123,7 @@ export function Nav() {
             </div>
 
             {isMobileSearchOpen && (
-                <div className='border-t border-border bg-bg-secondary px-4 py-3 sm:hidden'>
+                <div className={styles.mobileSearchPanel}>
                     <GlobalSearch autoFocus onNavigate={() => setIsMobileSearchOpen(false)} />
                 </div>
             )}

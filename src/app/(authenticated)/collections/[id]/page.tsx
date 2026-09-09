@@ -3,8 +3,8 @@
 import { use, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { RecipeCardSkeleton } from '@/components/ui/Skeleton';
-import { CollectionModal } from '@/features/collections/components/CollectionModal';
-import { RecipeCard } from '@/features/recipes/components/RecipeCard';
+import { CollectionModal } from '@/features/collections/components/CollectionModal/CollectionModal';
+import { RecipeCard } from '@/features/recipes/components/RecipeCard/RecipeCard';
 import { useCategories } from '@/hooks/useCategories';
 import { useCollection, useCollectionRecipeIds } from '@/hooks/useCollections';
 import { useCurrentProfile } from '@/hooks/useProfile';

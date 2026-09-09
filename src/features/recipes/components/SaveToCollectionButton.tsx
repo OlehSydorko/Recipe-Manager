@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { IconButton } from '@/components/ui/IconButton';
-import { Modal } from '@/components/ui/Modal';
+import { Modal } from '@/components/ui/Modal/Modal';
 import {
     useAddRecipeToCollection,
     useCollectionIdsForRecipe,

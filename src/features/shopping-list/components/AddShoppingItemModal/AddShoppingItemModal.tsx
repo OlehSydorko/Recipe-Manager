@@ -3,7 +3,7 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Modal } from '@/components/ui/Modal';
+import { Modal } from '@/components/ui/Modal/Modal';
 import { useAddShoppingListItems, useUpdateShoppingListItem } from '@/hooks/useShoppingList';
 import {
     DEFAULT_SHOPPING_SECTION,
@@ -13,6 +13,7 @@ import {
     type ShoppingSection
 } from '@/types/shoppingListItem';
 import { ChevronDown } from 'lucide-react';
+import styles from './AddShoppingItemModal.module.scss';
 
 type AddShoppingItemModalProps = {
     open: boolean;
@@ -60,10 +61,7 @@ export function AddShoppingItemModal({ open, onClose, item }: AddShoppingItemMod
         <Modal open={open} onClose={onClose} title={item ? 'Edit item' : 'Add item'}>
             <form onSubmit={handleSubmit} className='space-y-4'>
                 <div>
-                    <label
-                        htmlFor='shopping-item-name'
-                        className='mb-1.5 block text-label font-medium text-text-secondary'
-                    >
+                    <label htmlFor='shopping-item-name' className={styles.fieldLabel}>
                         Ingredient
                     </label>
                     <Input
@@ -78,10 +76,7 @@ export function AddShoppingItemModal({ open, onClose, item }: AddShoppingItemMod
 
                 <div className='flex gap-3'>
                     <div className='flex-1'>
-                        <label
-                            htmlFor='shopping-item-quantity'
-                            className='mb-1.5 block text-label font-medium text-text-secondary'
-                        >
+                        <label htmlFor='shopping-item-quantity' className={styles.fieldLabel}>
                             Amount <span className='font-normal text-text-disabled'>(optional)</span>
                         </label>
                         <Input
@@ -96,10 +91,7 @@ export function AddShoppingItemModal({ open, onClose, item }: AddShoppingItemMod
                     </div>
 
                     <div className='flex-1'>
-                        <label
-                            htmlFor='shopping-item-unit'
-                            className='mb-1.5 block text-label font-medium text-text-secondary'
-                        >
+                        <label htmlFor='shopping-item-unit' className={styles.fieldLabel}>
                             Unit <span className='font-normal text-text-disabled'>(optional)</span>
                         </label>
                         <Input
@@ -114,10 +106,7 @@ export function AddShoppingItemModal({ open, onClose, item }: AddShoppingItemMod
                 </div>
 
                 <div>
-                    <label
-                        htmlFor='shopping-item-section'
-                        className='mb-1.5 block text-label font-medium text-text-secondary'
-                    >
+                    <label htmlFor='shopping-item-section' className={styles.fieldLabel}>
                         Section
                     </label>
                     <div className='relative'>
@@ -126,7 +115,7 @@ export function AddShoppingItemModal({ open, onClose, item }: AddShoppingItemMod
                             value={section}
                             onChange={(event) => setSection(event.target.value as ShoppingSection)}
                             disabled={isSubmitting}
-                            className='h-11 w-full appearance-none rounded-sm border border-border bg-bg-secondary px-3 pr-8 text-body text-text-primary transition-colors duration-150 focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-50'
+                            className={styles.select}
                         >
                             {SHOPPING_SECTIONS.map((sectionOption) => (
                                 <option key={sectionOption} value={sectionOption}>
@@ -134,10 +123,7 @@ export function AddShoppingItemModal({ open, onClose, item }: AddShoppingItemMod
                                 </option>
                             ))}
                         </select>
-                        <ChevronDown
-                            size={16}
-                            className='pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary'
-                        />
+                        <ChevronDown size={16} className={styles.selectChevron} />
                     </div>
                 </div>
 

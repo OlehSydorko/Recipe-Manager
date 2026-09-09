@@ -3,12 +3,13 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Modal } from '@/components/ui/Modal';
+import { Modal } from '@/components/ui/Modal/Modal';
 import { Textarea } from '@/components/ui/Textarea';
 import { RecipeThumbnail } from '@/features/recipes/components/RecipeThumbnail';
 import { useCollectionRecipeIds, useCreateCollection, useUpdateCollection } from '@/hooks/useCollections';
 import type { CollectionWithCount } from '@/types/collection';
 import type { Recipe } from '@/types/recipe';
+import styles from './CollectionModal.module.scss';
 
 type CollectionModalProps = {
     open: boolean;
@@ -75,10 +76,7 @@ export function CollectionModal({ open, onClose, collection, recipes }: Collecti
         <Modal open={open} onClose={onClose} title={collection ? 'Edit collection' : 'New collection'}>
             <form onSubmit={handleSubmit} className='space-y-4'>
                 <div>
-                    <label
-                        htmlFor='collection-name'
-                        className='mb-1.5 block text-label font-medium text-text-secondary'
-                    >
+                    <label htmlFor='collection-name' className={styles.fieldLabel}>
                         Name
                     </label>
                     <Input
@@ -92,10 +90,7 @@ export function CollectionModal({ open, onClose, collection, recipes }: Collecti
                 </div>
 
                 <div>
-                    <label
-                        htmlFor='collection-description'
-                        className='mb-1.5 block text-label font-medium text-text-secondary'
-                    >
+                    <label htmlFor='collection-description' className={styles.fieldLabel}>
                         Description <span className='font-normal text-text-disabled'>(optional)</span>
                     </label>
                     <Textarea
@@ -113,7 +108,7 @@ export function CollectionModal({ open, onClose, collection, recipes }: Collecti
                         checked={isPublic}
                         onChange={(event) => setIsPublic(event.target.checked)}
                         disabled={isSubmitting}
-                        className='h-4 w-4 rounded-sm border-border-strong accent-accent'
+                        className={styles.checkbox}
                     />
                     Make this collection public
                 </label>
@@ -122,22 +117,19 @@ export function CollectionModal({ open, onClose, collection, recipes }: Collecti
                 </p>
 
                 <div>
-                    <span className='mb-1.5 block text-label font-medium text-text-secondary'>Recipes</span>
-                    <div className='max-h-64 space-y-1 overflow-y-auto rounded-md border border-border p-2'>
+                    <span className={styles.fieldLabel}>Recipes</span>
+                    <div className={styles.recipeList}>
                         {recipes.length === 0 && (
                             <p className='px-1 py-1 text-caption text-text-disabled'>No recipes yet.</p>
                         )}
                         {recipes.map((recipe) => (
-                            <label
-                                key={recipe.id}
-                                className='flex items-center gap-2 rounded-sm px-1 py-1.5 text-body text-text-primary hover:bg-hover'
-                            >
+                            <label key={recipe.id} className={styles.recipeRow}>
                                 <input
                                     type='checkbox'
                                     checked={selectedRecipeIds.includes(recipe.id)}
                                     onChange={() => toggleRecipe(recipe.id)}
                                     disabled={isSubmitting}
-                                    className='h-4 w-4 shrink-0 rounded-sm border-border-strong accent-accent'
+                                    className={`shrink-0 ${styles.checkbox}`}
                                 />
                                 <RecipeThumbnail
                                     imagePath={recipe.image_url}

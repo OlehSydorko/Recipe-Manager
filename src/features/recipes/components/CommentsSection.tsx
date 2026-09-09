@@ -1,7 +1,7 @@
 'use client';
 
 import { TextLineSkeleton } from '@/components/ui/Skeleton';
-import { CommentCard } from '@/features/recipes/components/CommentCard';
+import { CommentCard } from '@/features/recipes/components/CommentCard/CommentCard';
 import { CommentComposer } from '@/features/recipes/components/CommentComposer';
 import { useRecipeComments } from '@/hooks/useComments';
 import { buildCommentTree } from '@/lib/commentTree';

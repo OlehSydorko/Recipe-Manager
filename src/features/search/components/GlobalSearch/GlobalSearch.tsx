@@ -6,6 +6,7 @@ import { useGlobalSearch } from '@/hooks/useSearch';
 import type { Profile } from '@/types/profile';
 import { BookOpen, Folder, Search, User, type LucideIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import styles from './GlobalSearch.module.scss';
 
 const DEBOUNCE_MS = 300;
 const MIN_QUERY_LENGTH = 2;
@@ -63,9 +64,7 @@ function SuggestionRow({ icon: Icon, label, isHighlighted, onClick }: Suggestion
         <button
             type='button'
             onClick={onClick}
-            className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-body transition-colors duration-150 ${
-                isHighlighted ? 'bg-hover text-text-primary' : 'text-text-secondary hover:bg-hover hover:text-text-primary'
-            }`}
+            className={`${styles.suggestionRow} ${isHighlighted ? styles.highlighted : ''}`}
         >
             <Icon size={16} className='shrink-0 text-text-disabled' />
             <span className='truncate'>{label}</span>
@@ -86,11 +85,9 @@ function PersonSuggestionRow({ profile, isHighlighted, onClick }: PersonSuggesti
         <button
             type='button'
             onClick={onClick}
-            className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-body transition-colors duration-150 ${
-                isHighlighted ? 'bg-hover text-text-primary' : 'text-text-secondary hover:bg-hover hover:text-text-primary'
-            }`}
+            className={`${styles.suggestionRow} ${isHighlighted ? styles.highlighted : ''}`}
         >
-            <span className='flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-bg-secondary'>
+            <span className={styles.avatarFallback}>
                 {avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -114,8 +111,8 @@ type SuggestionGroupProps = {
 
 function SuggestionGroup({ label, children }: SuggestionGroupProps) {
     return (
-        <div className='border-b border-border py-1.5 last:border-b-0'>
-            <p className='px-4 py-1 text-caption font-medium uppercase tracking-wide text-text-disabled'>{label}</p>
+        <div className={styles.suggestionGroup}>
+            <p className={styles.groupLabel}>{label}</p>
             {children}
         </div>
     );
@@ -271,10 +268,7 @@ export function GlobalSearch({ className, autoFocus = false, onNavigate }: Globa
     return (
         <div ref={containerRef} className={`relative ${className ?? ''}`}>
             <form onSubmit={handleSubmit}>
-                <Search
-                    size={17}
-                    className='pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-text-disabled'
-                />
+                <Search size={17} className={styles.searchIcon} />
                 <input
                     type='search'
                     value={query}
@@ -287,12 +281,12 @@ export function GlobalSearch({ className, autoFocus = false, onNavigate }: Globa
                     onKeyDown={handleKeyDown}
                     placeholder='Search recipes, collections, people…'
                     aria-label='Search recipes, collections, and people'
-                    className='h-10 w-full rounded-full border border-border bg-bg-secondary pl-10 pr-4 text-body text-text-primary transition-colors duration-150 placeholder:text-text-disabled focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-60'
+                    className={styles.searchInput}
                 />
             </form>
 
             {isOpen && isSearching && (
-                <div className='absolute left-0 right-0 top-full z-40 mt-2 max-h-96 overflow-y-auto rounded-md border border-border bg-surface shadow-lg'>
+                <div className={styles.resultsPanel}>
                     {isBelowMinLength && (
                         <p className='px-4 py-3 text-caption text-text-disabled'>Keep typing — at least 2 characters.</p>
                     )}

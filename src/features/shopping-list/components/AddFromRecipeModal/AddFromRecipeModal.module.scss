@@ -1,0 +1,74 @@
+.scrollList {
+    max-height: 18rem;
+    overflow-y: auto;
+
+    > :not([hidden]) ~ :not([hidden]) {
+        margin-top: 0.25rem;
+    }
+}
+
+.pickerRow {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    text-align: left;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    color: var(--color-text-primary);
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        background: var(--color-hover);
+    }
+}
+
+.ingredientRow {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        background: var(--color-hover);
+    }
+}
+
+.checkboxWrapper {
+    position: relative;
+    display: flex;
+    height: 1.25rem;
+    width: 1.25rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkboxBox {
+    height: 1.25rem;
+    width: 1.25rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-strong);
+    transition:
+        background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.checked {
+        border-color: var(--color-accent);
+        background: var(--color-accent);
+    }
+}
+
+.checkIcon {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    color: var(--color-accent-foreground);
+}

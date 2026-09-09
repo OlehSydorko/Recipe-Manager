@@ -5,6 +5,7 @@ import { useCurrentProfile } from '@/hooks/useProfile';
 import { BookOpen, Home, LogIn, Scroll, ShoppingCart, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import styles from './MobileTabBar.module.scss';
 
 const LOGGED_IN_LINKS = [
     { href: '/', label: 'Home', icon: Home },
@@ -42,11 +43,7 @@ export function MobileTabBar() {
                         aria-label={link.label}
                         className='flex flex-1 items-center justify-center py-1'
                     >
-                        <span
-                            className={`flex items-center justify-center rounded-full px-4 py-2 transition-colors duration-150 ${
-                                isActive ? 'bg-accent-muted text-accent' : 'text-text-secondary'
-                            }`}
-                        >
+                        <span className={`${styles.indicator} ${isActive ? styles.active : ''}`}>
                             <Icon size={22} />
                         </span>
                     </Link>

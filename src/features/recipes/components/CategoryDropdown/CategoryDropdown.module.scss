@@ -1,0 +1,98 @@
+@use '../../../../styles/mixins';
+
+.trigger {
+    display: flex;
+    height: 2.75rem;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
+    padding: 0 0.75rem;
+    text-align: left;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    transition: border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        border-color: var(--color-border-strong);
+    }
+
+    &:focus {
+        border-color: var(--color-accent);
+        outline: none;
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 15%, transparent);
+    }
+
+    &[aria-invalid='true'] {
+        border-color: var(--color-error);
+
+        &:focus {
+            border-color: var(--color-error);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-error) 15%, transparent);
+        }
+    }
+}
+
+.listbox {
+    @include mixins.dropdown-surface;
+
+    position: absolute;
+    z-index: 20;
+    margin-top: 0.375rem;
+    max-height: 16rem;
+    width: 100%;
+    overflow: auto;
+    padding: 0.375rem 0;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+}
+
+.placeholderButton {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    color: var(--color-text-secondary);
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        background: var(--color-hover);
+    }
+}
+
+.optionButton {
+    display: flex;
+    flex: 1 1 0%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    color: var(--color-text-primary);
+    transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        background: var(--color-hover);
+    }
+
+    &.selected {
+        color: var(--color-accent);
+    }
+}
+
+.deleteButton {
+    flex-shrink: 0;
+    margin-right: 0.375rem;
+    border-radius: var(--radius-sm);
+    padding: 0.375rem;
+    color: var(--color-text-disabled);
+    transition:
+        color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+        background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        background: var(--color-error-muted);
+        color: var(--color-error);
+    }
+}

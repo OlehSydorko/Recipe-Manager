@@ -2,9 +2,10 @@
 
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
+import { Modal } from '@/components/ui/Modal/Modal';
 import { type Category, DEFAULT_CATEGORY_COUNT } from '@/types/category';
 import { Check, ChevronDown, X } from 'lucide-react';
+import styles from './CategoryDropdown.module.scss';
 
 type CategoryDropdownProps = {
     id?: string;
@@ -82,23 +83,16 @@ export function CategoryDropdown({
                 aria-expanded={isOpen}
                 aria-invalid={ariaInvalid}
                 onClick={() => setIsOpen((previous) => !previous)}
-                className='flex h-11 w-full items-center justify-between rounded-sm border border-border bg-bg-secondary px-3 text-left text-body transition-colors duration-150 hover:border-border-strong focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15 aria-invalid:border-error aria-invalid:focus:border-error aria-invalid:focus:ring-error/15'
+                className={styles.trigger}
             >
                 <span className={value ? 'text-text-primary' : 'text-text-disabled'}>{selectedLabel}</span>
                 <ChevronDown size={16} className='shrink-0 text-text-secondary' />
             </button>
 
             {isOpen && (
-                <ul
-                    role='listbox'
-                    className='animate-dropdown-in absolute z-20 mt-1.5 max-h-64 w-full overflow-auto rounded-md border border-border bg-surface-elevated py-1.5 text-body shadow-md'
-                >
+                <ul role='listbox' className={`animate-dropdown-in ${styles.listbox}`}>
                     <li role='option' aria-selected={value === ''}>
-                        <button
-                            type='button'
-                            onClick={() => handleSelect('')}
-                            className='w-full px-3 py-2 text-left text-text-secondary transition-colors duration-150 hover:bg-hover'
-                        >
+                        <button type='button' onClick={() => handleSelect('')} className={styles.placeholderButton}>
                             {placeholderLabel}
                         </button>
                     </li>
@@ -107,18 +101,11 @@ export function CategoryDropdown({
                         const isSelected = value === category.id;
 
                         return (
-                            <li
-                                key={category.id}
-                                role='option'
-                                aria-selected={isSelected}
-                                className='flex items-center'
-                            >
+                            <li key={category.id} role='option' aria-selected={isSelected} className='flex items-center'>
                                 <button
                                     type='button'
                                     onClick={() => handleSelect(category.id)}
-                                    className={`flex flex-1 items-center justify-between gap-2 px-3 py-2 text-left transition-colors duration-150 hover:bg-hover ${
-                                        isSelected ? 'text-accent' : 'text-text-primary'
-                                    }`}
+                                    className={`${styles.optionButton} ${isSelected ? styles.selected : ''}`}
                                 >
                                     {category.name}
                                     {isSelected && <Check size={15} />}
@@ -129,7 +116,7 @@ export function CategoryDropdown({
                                         type='button'
                                         aria-label={`Delete ${category.name}`}
                                         onClick={(event) => handleDeleteClick(event, category)}
-                                        className='mr-1.5 shrink-0 rounded-sm p-1.5 text-text-disabled transition-colors duration-150 hover:bg-error-muted hover:text-error'
+                                        className={styles.deleteButton}
                                     >
                                         <X size={14} />
                                     </button>

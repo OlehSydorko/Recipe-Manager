@@ -4,7 +4,7 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { HomeCollectionCard } from '@/features/home/components/HomeCollectionCard';
 import { HomeGreeting } from '@/features/home/components/HomeGreeting';
 import { HomeRecipeSection } from '@/features/home/components/HomeRecipeSection';
-import { HomeStats } from '@/features/home/components/HomeStats';
+import { HomeStats } from '@/features/home/components/HomeStats/HomeStats';
 import { useCategories } from '@/hooks/useCategories';
 import { useCollections } from '@/hooks/useCollections';
 import { useFollowCounts } from '@/hooks/useFollows';
