@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react';
 import { signIn } from '@/api/auth';
 import { Button } from '@/components/ui/Button';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import Link from 'next/link';
@@ -13,6 +14,7 @@ const MESSAGE_COPY: Record<string, string> = {
     'recipe-new': 'Sign in to create a recipe.',
     'recipe-edit': 'Sign in to edit this recipe.',
     'password-reset': 'Your password has been updated. Log in with your new password.',
+    'oauth-error': 'Google sign-in was not completed. Please try again.',
     default: 'Sign in to continue.'
 };
 
@@ -110,6 +112,14 @@ function LoginPageContent() {
                 <Button type='submit' variant='primary' disabled={loading} fullWidth>
                     {loading ? 'Logging in…' : 'Log in'}
                 </Button>
+
+                <div className='flex items-center gap-3'>
+                    <div className='h-px flex-1 bg-border' />
+                    <span className='text-label text-text-secondary'>or</span>
+                    <div className='h-px flex-1 bg-border' />
+                </div>
+
+                <GoogleSignInButton redirectTo={redirectTo} />
 
                 <p className='text-body text-text-secondary'>
                     Don&apos;t have an account?{' '}

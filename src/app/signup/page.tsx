@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react';
 import { signUp } from '@/api/auth';
 import { Button } from '@/components/ui/Button';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import Link from 'next/link';
@@ -12,6 +13,7 @@ const MESSAGE_COPY: Record<string, string> = {
     profile: 'Sign in to view your profile.',
     'recipe-new': 'Sign in to create a recipe.',
     'recipe-edit': 'Sign in to edit this recipe.',
+    'oauth-error': 'Google sign-in was not completed. Please try again.',
     default: 'Sign in to continue.'
 };
 
@@ -119,6 +121,14 @@ function SignupPageContent() {
                 <Button type='submit' variant='primary' disabled={loading} fullWidth>
                     {loading ? 'Creating account…' : 'Sign up'}
                 </Button>
+
+                <div className='flex items-center gap-3'>
+                    <div className='h-px flex-1 bg-border' />
+                    <span className='text-label text-text-secondary'>or</span>
+                    <div className='h-px flex-1 bg-border' />
+                </div>
+
+                <GoogleSignInButton redirectTo={redirectTo} label='Continue with Google' />
 
                 <p className='text-body text-text-secondary'>
                     Already have an account?{' '}

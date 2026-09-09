@@ -1,12 +1,4 @@
-// Shared SCSS mixins for component `.module.scss` files.
-//
-// Per docs/plans/scss-modules-migration-plan.md: only add a mixin here once a
-// pattern has shown up verbatim in 2+ already-migrated components — never
-// speculatively. Each mixin below should say which components it was pulled
-// out of, so it's obvious when a future edit needs to touch every consumer.
 
-// The small-caps label above a form field (name/description/etc.).
-// Pulled out of: CollectionModal, AddShoppingItemModal (2026-09-08).
 @mixin field-label {
     margin-bottom: 0.375rem;
     display: block;
@@ -16,10 +8,7 @@
     color: var(--color-text-secondary);
 }
 
-// The elevated surface a dropdown/menu panel sits on (ActionMenu's menu,
-// CategoryDropdown's listbox). Callers still set their own position/size/padding —
-// this only covers the look of the surface itself.
-// Pulled out of: ActionMenu, CategoryDropdown (2026-09-08).
+
 @mixin dropdown-surface {
     border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
